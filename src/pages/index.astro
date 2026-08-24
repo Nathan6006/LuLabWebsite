@@ -2,7 +2,8 @@
 import { getCollection } from 'astro:content';
 import { ArrowRight, ArrowDown } from 'lucide-react';
 import Base from '../layouts/Base.astro';
-import HeroStage from '../components/HeroStage.astro';
+import HeroScene from '../components/HeroScene.astro';
+import NanoparticleScroll from '../components/NanoparticleScroll.astro';
 import LabSequence from '../components/LabSequence.astro';
 import RevealImage from '../components/RevealImage.astro';
 import NewsItem from '../components/NewsItem.astro';
@@ -41,51 +42,7 @@ const CARD_IMAGE: Record<string, string> = {
 ---
 
 <Base description={SITE.mission}>
-  <!-- Hero. Full-bleed lab plate under a deep blue grade; the masthead
-       assembles line by line out of its own mask. -->
-  <section class="relative isolate flex min-h-[92svh] items-end overflow-hidden bg-cwru-dark">
-    <HeroStage id="tube-rack" />
-
-    <div class="relative mx-auto w-full max-w-[78rem] px-5 pb-16 pt-32 sm:px-8 sm:pb-20 sm:pt-40">
-      <div class="flex items-center gap-3" data-hero-follow>
-        <span class="h-px w-8 bg-copper"></span>
-        <p class="label text-cwru-light">Case Western Reserve University</p>
-      </div>
-
-      <h1
-        data-hero-title
-        class="mt-7 max-w-[13ch] text-display font-[440] leading-[1.02] tracking-[-0.03em] text-white"
-      >Center for Biomolecular Engineering</h1>
-
-      <div class="mt-9 grid gap-x-14 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <p class="max-w-[34ch] text-lede text-white/85" data-hero-follow>
-          Welcome to Dr. Zheng-Rong Lu's Group in the Department of Biomedical
-          Engineering.
-        </p>
-        <div data-hero-follow>
-          <p class="max-w-[52ch] text-[0.98rem] leading-relaxed text-white/70">{SITE.mission}</p>
-          <div class="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
-            <a
-              href="/research"
-              class="group inline-flex items-center gap-2 bg-white px-6 py-3.5 text-[0.92rem] font-medium text-cwru-dark transition-colors duration-200 hover:bg-cwru-light"
-            >
-              Explore our research
-              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
-            </a>
-            <a href="/join" class="group inline-flex items-center gap-2 py-3.5 text-[0.92rem] font-medium text-white">
-              <span class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-left-bottom bg-no-repeat pb-[3px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:0%_1px]">Open positions</span>
-              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <p class="label mt-14 flex items-center gap-2 text-white/45" data-hero-follow>
-        <ArrowDown className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-        Scroll
-      </p>
-    </div>
-  </section>
+  <HeroScene />
 
   <!-- Figures rail. Counted from the content, run up on arrival. -->
   <section class="border-b border-rule bg-cwru-blue text-white">
@@ -102,7 +59,7 @@ const CARD_IMAGE: Record<string, string> = {
   </section>
 
   <!-- Approach -->
-  <section class="mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">
+  <section id="approach" class="scroll-mt-24 mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">
     <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
       <SectionHead label="Approach" index="01" />
       <div class="prose-lab">
@@ -112,6 +69,9 @@ const CARD_IMAGE: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <!-- The delivery mechanism, turned in 3D as you scroll. -->
+  <NanoparticleScroll />
 
   <!-- The lab's own photographs, pinned and scrubbed. -->
   <LabSequence />
@@ -130,10 +90,14 @@ const CARD_IMAGE: Record<string, string> = {
             </a>
           </div>
 
-          <ul class="mt-10 grid gap-px bg-rule sm:grid-cols-2">
+          <ul class="mt-10 grid gap-px bg-rule sm:grid-cols-2" style="perspective: 1200px;">
             {thrusts.map((t, i) => (
               <li data-reveal-item>
-                <a href={`/research#${t.id}`} class="group relative flex h-full flex-col bg-paper transition-colors duration-200 hover:bg-warm">
+                <a
+                  href={`/research#${t.id}`}
+                  data-tilt
+                  class="tilt-card group relative flex h-full flex-col bg-paper transition-colors duration-200 hover:bg-warm"
+                >
                   <span class="absolute inset-x-0 top-0 z-10 h-[2px] origin-left scale-x-0 bg-copper transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-x-100"></span>
                   <RevealImage
                     id={CARD_IMAGE[t.id] ?? ''}

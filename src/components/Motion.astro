@@ -100,10 +100,68 @@
     window.addEventListener('resize', setSolid);
   }
 
+  /* ---- 4b. Hero depth planes ---------------------------------------------
+     Planes track the cursor at their own rates so the hero sits in space.
+     Transform only, rAF-throttled, and off entirely for reduced motion or a
+     coarse pointer — a phone has no cursor to follow. */
+  const scene = document.querySelector<HTMLElement>('[data-hero-scene]');
+  if (scene && !reduced && window.matchMedia('(pointer: fine)').matches) {
+    const planes = gsap.utils.toArray<HTMLElement>('[data-depth]', scene);
+    const setters = planes.map((el) => ({
+      x: gsap.quickTo(el, 'x', { duration: 0.9, ease: 'power3.out' }),
+      y: gsap.quickTo(el, 'y', { duration: 0.9, ease: 'power3.out' }),
+      d: Number(el.dataset.depth) || 0,
+    }));
+    scene.addEventListener('pointermove', (e) => {
+      const r = scene.getBoundingClientRect();
+      const dx = e.clientX - r.left - r.width / 2;
+      const dy = e.clientY - r.top - r.height / 2;
+      for (const s of setters) { s.x(-dx * s.d); s.y(-dy * s.d); }
+    }, { passive: true });
+    scene.addEventListener('pointerleave', () => {
+      for (const s of setters) { s.x(0); s.y(0); }
+    }, { passive: true });
+  }
+
+  /* ---- 4c. Magnetic buttons ----------------------------------------------- */
+  if (!reduced && window.matchMedia('(pointer: fine)').matches) {
+    for (const btn of gsap.utils.toArray<HTMLElement>('[data-magnet]')) {
+      const toX = gsap.quickTo(btn, 'x', { duration: 0.5, ease: 'power3.out' });
+      const toY = gsap.quickTo(btn, 'y', { duration: 0.5, ease: 'power3.out' });
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        toX((e.clientX - r.left - r.width / 2) * 0.32);
+        toY((e.clientY - r.top - r.height / 2) * 0.42);
+      }, { passive: true });
+      btn.addEventListener('pointerleave', () => { toX(0); toY(0); }, { passive: true });
+    }
+  }
+
+  /* ---- 4d. Card tilt + spotlight ------------------------------------------
+     Cards lean toward the cursor and carry a soft highlight under it. Vanilla
+     rather than a React island: it is two transforms and a custom property, and
+     the whole point of this file is that nothing here needs a framework. */
+  if (!reduced && window.matchMedia('(pointer: fine)').matches) {
+    for (const card of gsap.utils.toArray<HTMLElement>('[data-tilt]')) {
+      const rx = gsap.quickTo(card, 'rotateX', { duration: 0.5, ease: 'power3.out' });
+      const ry = gsap.quickTo(card, 'rotateY', { duration: 0.5, ease: 'power3.out' });
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        ry((px - 0.5) * 7);
+        rx((0.5 - py) * 5);
+        card.style.setProperty('--mx', `${px * 100}%`);
+        card.style.setProperty('--my', `${py * 100}%`);
+      }, { passive: true });
+      card.addEventListener('pointerleave', () => { rx(0); ry(0); }, { passive: true });
+    }
+  }
+
   /* ---- 5. Hero plate drift ----------------------------------------------- */
   const plate = document.querySelector<HTMLElement>('.hero-plate');
   if (plate && !reduced) {
-    gsap.fromTo(plate, { scale: 1 }, { scale: 1.08, duration: 24, ease: 'none' });
+    gsap.fromTo(plate, { scale: 1.06 }, { scale: 1.14, duration: 26, ease: 'none' });
   }
 
   /* ---- 6. Home-only: masthead + pinned sequence -------------------------
@@ -132,6 +190,54 @@
         };
         if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(runHero);
         else runHero();
+      }
+
+      /* Nanoparticle scrollytelling: the render turns in 3D while the three
+         stages take turns beside it. Rotation is scrubbed CSS 3D, not WebGL —
+         one image and a perspective is all it needs, and it stays sharp. */
+      const nano = document.querySelector<HTMLElement>('[data-nano]');
+      if (nano && desktop) {
+        const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+        gsap.registerPlugin(ScrollTrigger);
+
+        const orbit = nano.querySelector<HTMLElement>('[data-nano-orbit]');
+        const copies = gsap.utils.toArray<HTMLElement>('[data-nano-copy]', nano);
+        const nticks = gsap.utils.toArray<HTMLElement>('[data-nano-tick]', nano);
+        const glow = nano.querySelector<HTMLElement>('[data-nano-glow]');
+        const m = copies.length;
+
+        if (m > 0 && orbit) {
+          nano.classList.add('is-pinned');
+
+          let nActive = -1;
+          const setNano = (i: number) => {
+            if (i === nActive) return;
+            nActive = i;
+            copies.forEach((c, k) => c.classList.toggle('is-active', k === i));
+            nticks.forEach((t, k) => gsap.to(t, { scaleX: k <= i ? 1 : 0, duration: 0.4, ease: 'power2.out' }));
+          };
+          setNano(0);
+
+          const nanoTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: nano,
+              start: 'top top',
+              end: () => '+=' + window.innerHeight * m,
+              pin: '.nano-stage',
+              scrub: 0.7,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+              onUpdate(self) { setNano(Math.min(m - 1, Math.floor(self.progress * m))); },
+            },
+          });
+
+          // A single continuous turn across the whole pin, so the particle is
+          // always moving rather than snapping between stages.
+          nanoTl.fromTo(orbit,
+            { rotateY: -26, rotateX: 9, scale: 0.9 },
+            { rotateY: 26, rotateX: -6, scale: 1.04, ease: 'none' }, 0);
+          if (glow) nanoTl.fromTo(glow, { opacity: 0.5 }, { opacity: 1, ease: 'none' }, 0);
+        }
       }
 
       if (seq && desktop) {

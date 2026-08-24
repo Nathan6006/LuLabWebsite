@@ -1,0 +1,63 @@
+---
+import { Image } from 'astro:assets';
+import lnp from '../assets/science/lipid-nanoparticle.webp';
+
+/**
+ * The lipid nanoparticle render, tinted into the site's palette.
+ *
+ * The source is a violet/red illustration on a pale shell, which sits badly on
+ * a deep blue ground. A hue rotation alone cannot fix it, because the pale far
+ * side of the shell is near-white and white has no hue to rotate. So the tint
+ * is a blend instead: a CWRU-blue plate multiplied over the image and masked to
+ * its own alpha, which drives the whites down into blue while leaving the
+ * violet micelles and red headgroups readable as distinct structures.
+ *
+ * `duotone={false}` gives the untinted render, for light grounds.
+ */
+interface Props {
+  class?: string;
+  imgClass?: string;
+  duotone?: boolean;
+  strength?: number;
+  loading?: 'lazy' | 'eager';
+  widths?: number[];
+  sizes?: string;
+  alt?: string;
+}
+const {
+  class: klass = '',
+  imgClass = '',
+  duotone = true,
+  strength = 62,
+  loading = 'lazy',
+  widths = [420, 700],
+  sizes = '28rem',
+  alt = '',
+} = Astro.props;
+---
+
+<div class:list={['relative isolate', klass]}>
+  <Image
+    src={lnp}
+    alt={alt}
+    widths={widths}
+    sizes={sizes}
+    loading={loading}
+    decoding="async"
+    class:list={['lnp-render relative block h-full w-full object-contain', imgClass]}
+  />
+  {duotone && (
+    <>
+      <span
+        class="pointer-events-none absolute inset-0 bg-cwru-blue mix-blend-multiply"
+        style={`opacity:${strength / 100};-webkit-mask-image:url(${lnp.src});mask-image:url(${lnp.src});-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;`}
+        aria-hidden="true"
+      ></span>
+      <span
+        class="pointer-events-none absolute inset-0 bg-cwru-light mix-blend-overlay"
+        style={`opacity:0.3;-webkit-mask-image:url(${lnp.src});mask-image:url(${lnp.src});-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;`}
+        aria-hidden="true"
+      ></span>
+    </>
+  )}
+</div>

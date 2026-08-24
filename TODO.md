@@ -87,6 +87,16 @@ page, and the page banners on research, instruments and join. They live in
 `src/assets/lab/` with their alt text and captions in
 `src/data/lab-photos.json`.
 
+A lipid nanoparticle render was also supplied and now carries the home page
+masthead and the delivery-mechanism section. It is labelled "illustrative
+render" wherever it appears, because it is an illustration of the ECO platform
+rather than a micrograph of a particle the lab made. **Confirm that framing.**
+
+The render is tinted into the site's blue by a masked blend in
+`Nanoparticle.astro` — the source is violet on a pale shell, which read badly on
+a dark ground. The underlying image is unmodified except for a radial trim that
+removed backdrop glow spilling past the particle.
+
 Still placeholders, because they stand for specific things no photograph
 supplied so far shows: the 11 member portraits, the group photograph, the four
 instruments, the campus map, and the two research diagrams.
@@ -128,6 +138,13 @@ photographs, the Unsplash banners should be replaced with them and the
 ---
 
 ## 4. Pages with missing or incomplete content
+
+### 4.0 Home page mechanism copy needs a read
+The three stages in the "How ECO carries its cargo" section were written from
+the Gene Therapy text on the Center's own research page, but they are
+paraphrased into stage form rather than quoted. **Dr. Lu should check the
+wording is accurate**, particularly the framing of endosomal escape and the
+PERC step.
 
 ### 4.1 `/join` — nothing for prospective students
 The old site's positions page advertised **only** a postdoctoral position. There

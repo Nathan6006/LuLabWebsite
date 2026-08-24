@@ -47,10 +47,10 @@ const photos = allLabPhotos();
       <div class="pointer-events-none absolute inset-x-0 bottom-0">
         <div class="mx-auto max-w-[78rem] px-5 pb-14 sm:px-8 sm:pb-20">
           <p class="label text-cwru-light">In the lab</p>
-          <div class="relative mt-3 h-[4.5rem] sm:h-[5rem]">
+          <div class="relative mt-3 h-[7rem] sm:h-[8.2rem]">
             {photos.map((p, i) => (
               <p
-                class="lab-seq-caption absolute inset-x-0 top-0 max-w-[20ch] font-serif text-[1.6rem] leading-tight sm:text-[2.1rem]"
+                class="lab-seq-caption absolute inset-x-0 top-0 max-w-[24ch] font-serif text-[1.55rem] leading-[1.15] sm:text-[2rem]"
                 data-seq-caption
                 data-seq-index={i}
               >{p.meta.caption}</p>

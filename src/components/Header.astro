@@ -14,7 +14,10 @@ const overHero = path === '/';
   data-header
   data-over-hero={overHero ? '' : undefined}
   class:list={[
-    'sticky top-0 z-40 transition-colors duration-300',
+    // Over the hero the header must not reserve layout space, or the page
+    // background shows as a band above the full-bleed plate. Fixed there,
+    // sticky everywhere else.
+    overHero ? 'fixed inset-x-0 top-0 z-40 transition-colors duration-300' : 'sticky top-0 z-40 transition-colors duration-300',
     overHero
       ? 'border-b border-transparent bg-transparent [&.is-solid]:border-rule [&.is-solid]:bg-paper/92 [&.is-solid]:backdrop-blur-[6px]'
       : 'border-b border-rule bg-paper/92 backdrop-blur-[6px]',

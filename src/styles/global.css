@@ -217,6 +217,65 @@
   .hero-plate { transform: none !important; }
 }
 
+/* ---- Hero depth planes ---------------------------------------------------
+   Each plane is offset by the cursor at its own rate. Transform only, so it
+   composites on the GPU and never triggers layout. */
+[data-depth] { will-change: transform; }
+
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
+
+/* Colour correction for the render happens in Nanoparticle.astro as a masked
+   blend, because the pale far side of the shell is near-white and a hue
+   rotation has no hue there to turn. All that is left here is the cast shadow. */
+.lnp-render {
+  filter: drop-shadow(0 26px 64px rgba(0, 20, 60, 0.6));
+}
+
+/* ---- Nanoparticle scrollytelling ----------------------------------------
+   Stage copy is index-driven, exactly one visible at a time. */
+.nano .nano-stage { display: none; }
+.nano.is-pinned .nano-stage { display: flex; }
+.nano.is-pinned .nano-fallback { display: none; }
+
+.nano-stage-copy {
+  opacity: 0;
+  transform: translateY(1.6rem);
+  transition: opacity 460ms var(--ease-out-quart), transform 560ms var(--ease-out-quart);
+  pointer-events: none;
+}
+.nano-stage-copy.is-active {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+[data-nano-orbit] { will-change: transform; transform-style: preserve-3d; }
+
+/* ---- Card tilt + spotlight ----------------------------------------------
+   The card leans toward the cursor; a soft highlight tracks under it. Both are
+   compositor-only, and both simply do not appear on a touch device. */
+.tilt-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.tilt-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-smooth);
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--color-cwru-true) 13%, transparent),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+.tilt-card:hover::after { opacity: 1; }
+
 /* ---- Pinned lab sequence -------------------------------------------------
    The stacked fallback is what mobile and no-JS get; the pinned stage only
    exists once the script confirms it can drive it. */
