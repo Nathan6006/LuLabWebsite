@@ -1,0 +1,40 @@
+---
+import { SITE, CONTACT } from '../lib/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-rule bg-warm">
+  <div class="mx-auto grid max-w-[76rem] gap-10 px-5 py-14 sm:px-8 md:grid-cols-3">
+    <div>
+      <h2 class="font-serif text-[1.15rem] text-cwru-blue">Center for Biomolecular Engineering</h2>
+      <p class="mt-2 max-w-[34ch] text-[0.92rem] text-ink-mute">
+        {SITE.department}<br />{SITE.university}
+      </p>
+    </div>
+
+    <div>
+      <h2 class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Contact</h2>
+      <address class="mt-3 space-y-1 text-[0.92rem] not-italic text-ink-soft">
+        <div>{CONTACT.office} &middot; Lab {CONTACT.lab}</div>
+        <div><a class="underline underline-offset-2 hover:text-cwru-blue" href={`tel:${CONTACT.phoneHref}`}>{CONTACT.phone}</a></div>
+        <div><a class="underline underline-offset-2 hover:text-cwru-blue" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></div>
+      </address>
+    </div>
+
+    <div>
+      <h2 class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Elsewhere</h2>
+      <ul class="mt-3 space-y-1 text-[0.92rem]">
+        <li><a class="underline underline-offset-2 hover:text-cwru-blue" href={SITE.scholar} rel="noopener">Google Scholar</a></li>
+        <li><a class="underline underline-offset-2 hover:text-cwru-blue" href="https://case.edu/medicine/ccir/faculty/zheng-rong-lu" rel="noopener">CWRU Center for Imaging Research</a></li>
+        <li><a class="underline underline-offset-2 hover:text-cwru-blue" href="https://engineering.case.edu/research/centers/center-biomolecular-engineering" rel="noopener">Former center page</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-rule">
+    <p class="mx-auto max-w-[76rem] px-5 py-5 text-[0.82rem] text-ink-mute sm:px-8">
+      &copy; {year} Case Western Reserve University &middot; Center for Biomolecular Engineering.
+      A laboratory of the Department of Biomedical Engineering, Case School of Engineering.
+    </p>
+  </div>
+</footer>

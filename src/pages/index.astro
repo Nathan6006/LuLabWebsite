@@ -1,0 +1,134 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import NewsItem from '../components/NewsItem.astro';
+import PublicationItem from '../components/PublicationItem.astro';
+import { SITE } from '../lib/site';
+
+const thrusts = (await getCollection('research'))
+  .filter((r) => !r.data.parent)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const news = (await getCollection('news'))
+  .sort(
+    (a, b) =>
+      (b.data.date?.getTime() ?? b.data.year * 1e10) - (a.data.date?.getTime() ?? a.data.year * 1e10),
+  )
+  .filter((n) => n.data.featured)
+  .slice(0, 3);
+
+const pubs = (await getCollection('publications'))
+  .sort((a, b) => b.data.year - a.data.year || a.data.order - b.data.order)
+  .slice(0, 3);
+---
+
+<Base description={SITE.mission}>
+  <!-- Hero: asymmetric two-column, statement left, video right. -->
+  <section class="border-b border-rule bg-warm">
+    <div class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-24">
+      <div class="grid items-start gap-x-14 gap-y-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div>
+          <p class="rise rise-1 text-[0.74rem] font-bold uppercase tracking-[0.14em] text-copper">
+            Case Western Reserve University
+          </p>
+          <h1 class="rise rise-2 mt-4 text-display text-cwru-dark">
+            Center for<br />Biomolecular<br />Engineering
+          </h1>
+          <p class="rise rise-3 mt-6 max-w-[46ch] text-lede text-ink-soft">
+            Welcome to Dr. Zheng-Rong Lu's Group in the Department of Biomedical
+            Engineering.
+          </p>
+          <div class="rise rise-4 mt-8 flex flex-wrap gap-3">
+            <a
+              href="/research"
+              class="rounded-sm bg-cwru-blue px-5 py-3 text-[0.92rem] font-medium text-white transition-colors hover:bg-cwru-dark"
+              >Explore our research</a
+            >
+            <a
+              href="/join"
+              class="rounded-sm border border-cwru-blue/35 px-5 py-3 text-[0.92rem] font-medium text-cwru-blue transition-colors hover:border-cwru-blue hover:bg-white"
+              >Open positions</a
+            >
+          </div>
+        </div>
+
+        <div class="rise rise-4">
+          <div class="overflow-hidden rounded-sm border border-rule bg-black shadow-sm">
+            <iframe
+              class="block aspect-video w-full"
+              src={`https://www.youtube-nocookie.com/embed/${SITE.videoId}`}
+              title="Center for Biomolecular Engineering — lab overview"
+              loading="lazy"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+          </div>
+          <p class="mt-2 text-[0.78rem] text-ink-mute">
+            Lab overview video carried over from the Center's previous site.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-20">
+    <div class="grid gap-x-10 gap-y-4 lg:grid-cols-[10rem_minmax(0,1fr)]">
+      <h2 class="pt-2 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
+        Mission
+      </h2>
+      <div class="prose-lab">
+        <p class="font-serif text-[1.32rem] leading-[1.45] text-cwru-dark sm:text-[1.5rem]">
+          {SITE.mission}
+        </p>
+        <p class="mt-5">{SITE.missionExtended}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Research areas -->
+  <section class="border-y border-rule bg-warm">
+    <div class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-20">
+      <div class="flex flex-wrap items-baseline justify-between gap-4">
+        <h2 class="text-h2 text-cwru-dark">Research areas</h2>
+        <a class="text-[0.9rem] font-medium text-cwru-blue underline underline-offset-4 decoration-cwru-blue/35 hover:decoration-current" href="/research">All research &rarr;</a>
+      </div>
+      <ul class="mt-10 grid gap-6 sm:grid-cols-2">
+        {thrusts.map((t) => (
+          <li>
+            <a
+              href={`/research#${t.id}`}
+              class="group flex h-full flex-col rounded-sm border border-rule bg-paper p-7 transition-colors hover:border-cwru-blue/45"
+            >
+              <h3 class="text-h3 text-cwru-dark transition-colors group-hover:text-cwru-blue">
+                {t.data.title}
+              </h3>
+              <p class="mt-3 text-[0.95rem] leading-relaxed text-ink-soft">{t.data.summary}</p>
+              <span class="mt-5 text-[0.85rem] font-medium text-cwru-blue">Read more &rarr;</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- News + publications -->
+  <section class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-20">
+    <div class="grid gap-x-14 gap-y-14 lg:grid-cols-2">
+      <div>
+        <div class="flex flex-wrap items-baseline justify-between gap-4">
+          <h2 class="text-h2 text-cwru-dark">In the news</h2>
+          <a class="text-[0.9rem] font-medium text-cwru-blue underline underline-offset-4 decoration-cwru-blue/35 hover:decoration-current" href="/news">All news &rarr;</a>
+        </div>
+        <ul class="mt-8">{news.map((item) => <NewsItem item={item} />)}</ul>
+      </div>
+
+      <div>
+        <div class="flex flex-wrap items-baseline justify-between gap-4">
+          <h2 class="text-h2 text-cwru-dark">Recent publications</h2>
+          <a class="text-[0.9rem] font-medium text-cwru-blue underline underline-offset-4 decoration-cwru-blue/35 hover:decoration-current" href="/publications">All publications &rarr;</a>
+        </div>
+        <ul class="mt-8">{pubs.map((pub) => <PublicationItem pub={pub} />)}</ul>
+      </div>
+    </div>
+  </section>
+</Base>

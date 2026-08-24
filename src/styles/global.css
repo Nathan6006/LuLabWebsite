@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+
+/* Font faces are emitted by Astro's font pipeline (see astro.config.mjs and the
+   <Font> tags in Base.astro). They are self-hosted and metric-matched to their
+   fallbacks, so no text reflows when the real faces load. */
+
+@theme {
+  /* ---- Color -------------------------------------------------------------
+     CWRU palette, taken from https://case.edu/brand/visual-identity/color
+     (fetched 2026-08-24). CWRU Blue #003071 is the current primary; the older
+     published #0a304e is out of date. */
+  --color-cwru-blue: #003071;
+  --color-cwru-dark: #09143a;
+  --color-cwru-true: #007ab8;
+  --color-cwru-light: #a6d2e6;
+  /* CWRU Copper Red is #d63d1f. At the small sizes this accent is used for
+     (uppercase eyebrow labels) that measures 4.32:1 on the warm ground, just
+     under WCAG AA. This is the same hue and saturation darkened to clear 4.5:1
+     on every ground in the palette. */
+  --color-copper: #c4381c;
+  --color-copper-brand: #d63d1f;
+
+  /* Grounds */
+  --color-paper: #ffffff;
+  --color-warm: #faf7f2;
+  --color-warm-deep: #f2ece2;
+
+  /* Ink — all pass WCAG AA on paper and warm grounds. */
+  --color-ink: #17191d;
+  --color-ink-soft: #43474e;
+  --color-ink-mute: #5c6169;
+  --color-rule: #ddd7cc;
+
+  --font-serif: var(--font-source-serif);
+  --font-sans: var(--font-public-sans);
+
+  /* Type scale — 1.25 major third, clamped for 360px → 1440px. */
+  --text-display: clamp(2.4rem, 1.4rem + 4.4vw, 4.5rem);
+  --text-h1: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+  --text-h2: clamp(1.5rem, 1.2rem + 1.3vw, 2.125rem);
+  --text-h3: clamp(1.2rem, 1.08rem + 0.5vw, 1.4rem);
+  --text-lede: clamp(1.1rem, 1.02rem + 0.4vw, 1.3rem);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  /* Visible focus everywhere, never removed. */
+  :focus-visible {
+    outline: 3px solid var(--color-copper);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-cwru-light);
+    color: var(--color-cwru-dark);
+  }
+
+  /* Reserve the scrollbar gutter so short and tall pages align identically. */
+  html { scrollbar-gutter: stable; }
+}
+
+@utility measure {
+  /* ~70 characters at the body size. */
+  max-width: 68ch;
+}
+
+@utility rule-top {
+  border-top: 1px solid var(--color-rule);
+}
+
+/* ---- Motion -------------------------------------------------------------
+   Exactly one entrance moment: a short staggered rise on first paint.
+   Nothing animates on scroll. */
+@layer utilities {
+  .rise {
+    animation: rise 0.62s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+  .rise-1 { animation-delay: 0.04s; }
+  .rise-2 { animation-delay: 0.12s; }
+  .rise-3 { animation-delay: 0.2s; }
+  .rise-4 { animation-delay: 0.28s; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translate3d(0, 14px, 0); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise { animation: none; }
+  }
+}
+
+/* ---- Prose -------------------------------------------------------------- */
+.prose-lab {
+  max-width: 68ch;
+}
+.prose-lab p {
+  margin-block: 0 1.1em;
+  color: var(--color-ink-soft);
+}
+.prose-lab p:last-child { margin-bottom: 0; }
+.prose-lab strong { color: var(--color-ink); font-weight: 600; }
+.prose-lab em { font-style: italic; }
+.prose-lab a {
+  color: var(--color-cwru-blue);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--color-cwru-blue) 40%, transparent);
+}
+.prose-lab a:hover { text-decoration-color: currentColor; }
+.prose-lab ul { margin-block: 0 1.1em; padding-left: 1.15rem; list-style: disc; }
+.prose-lab ol { margin-block: 0 1.1em; padding-left: 1.35rem; list-style: decimal; }
+.prose-lab li { margin-block: 0.3em; color: var(--color-ink-soft); }
+.prose-lab li::marker { color: var(--color-ink-mute); }
+.prose-lab h3 {
+  font-size: var(--text-h3);
+  margin-block: 1.8em 0.5em;
+  color: var(--color-ink);
+}
+.prose-lab h4 {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+  margin-block: 1.8em 0.5em;
+}

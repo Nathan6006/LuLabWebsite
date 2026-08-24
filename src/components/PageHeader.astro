@@ -1,0 +1,27 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+}
+const { eyebrow, title, lede } = Astro.props;
+---
+
+<!-- Asymmetric section header: the label sits in a narrow left rail on wide
+     screens, the title runs long. Content columns below stay calm. -->
+<div class="border-b border-rule bg-warm">
+  <div class="mx-auto max-w-[76rem] px-5 py-14 sm:px-8 sm:py-20">
+    <div class="grid gap-x-10 gap-y-3 lg:grid-cols-[10rem_minmax(0,1fr)]">
+      {eyebrow && (
+        <p class="rise rise-1 pt-1 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-copper lg:text-right">
+          {eyebrow}
+        </p>
+      )}
+      <div class={eyebrow ? '' : 'lg:col-start-2'}>
+        <h1 class="rise rise-2 max-w-[19ch] text-h1 text-cwru-dark">{title}</h1>
+        {lede && <p class="rise rise-3 mt-5 max-w-[62ch] text-lede text-ink-soft">{lede}</p>}
+        <slot />
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+---
+/**
+ * A correctly-proportioned block standing in for a photograph that has not been
+ * supplied yet. The caption names what belongs there. No stock photography and
+ * nothing scraped — see TODO.md.
+ */
+interface Props {
+  ratio?: string;
+  caption: string;
+  class?: string;
+  compact?: boolean;
+}
+const { ratio = '4 / 5', caption, class: klass = '', compact = false } = Astro.props;
+---
+
+<figure class={klass}>
+  <div
+    class="flex items-center justify-center overflow-hidden rounded-sm border border-dashed border-rule bg-warm-deep"
+    style={`aspect-ratio: ${ratio};`}
+    role="img"
+    aria-label={`Placeholder: ${caption}`}
+  >
+    <svg
+      class="h-8 w-8 text-ink-mute/45"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.25"
+      aria-hidden="true"
+    >
+      <rect x="3" y="4" width="18" height="16" rx="1.5" />
+      <circle cx="8.5" cy="9.5" r="1.6" />
+      <path d="M3 16.5 8.6 11l4.2 4.1 3-2.6L21 17" />
+    </svg>
+  </div>
+  {!compact && (
+    <figcaption class="mt-2 text-[0.76rem] leading-snug text-ink-mute">
+      {caption}
+    </figcaption>
+  )}
+</figure>

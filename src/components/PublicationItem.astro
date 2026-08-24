@@ -1,0 +1,45 @@
+---
+import type { CollectionEntry } from 'astro:content';
+interface Props { pub: CollectionEntry<'publications'> }
+const { pub } = Astro.props;
+const d = pub.data;
+
+// Bold the lab's own name wherever it appears.
+const AUTHOR_RE = /(Zheng-Rong Lu|Lu,? ?Z-?R\.?|Lu ZR)/g;
+const mark = (s: string) => s.replace(AUTHOR_RE, '<b class="font-semibold text-ink">$1</b>');
+
+// A handful of source citations never marked the journal separately. For those
+// the authors and journal survive together inside `citation`, so it carries the
+// same emphasis as a normal author line instead of the muted metadata style.
+const hasAuthors = Boolean(d.authors);
+---
+
+<li class="rule-top py-5 first:border-t-0 first:pt-0">
+  <h3 class="font-serif text-[1.06rem] leading-snug text-cwru-dark">
+    {d.url ? (
+      <a
+        href={d.url}
+        rel="noopener"
+        class="underline decoration-cwru-blue/25 underline-offset-[3px] transition-colors hover:text-cwru-blue hover:decoration-current"
+        >{d.title}</a>
+    ) : (
+      d.title
+    )}
+  </h3>
+
+  {hasAuthors && (
+    <p class="mt-1.5 text-[0.9rem] leading-relaxed text-ink-soft" set:html={mark(d.authors!)} />
+  )}
+
+  {hasAuthors
+    ? (d.journal || d.citation) && (
+        <p class="mt-1 text-[0.88rem] text-ink-mute">
+          {d.journal && <cite class="italic">{d.journal}</cite>}
+          {d.journal && d.citation ? ', ' : ''}
+          {d.citation}
+        </p>
+      )
+    : d.citation && (
+        <p class="mt-1.5 text-[0.9rem] leading-relaxed text-ink-soft" set:html={mark(d.citation)} />
+      )}
+</li>

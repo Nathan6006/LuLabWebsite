@@ -1,0 +1,76 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Placeholder from '../components/Placeholder.astro';
+import { SITE } from '../lib/site';
+
+const all = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
+const thrusts = all.filter((r) => !r.data.parent);
+
+const sections = await Promise.all(
+  thrusts.map(async (thrust) => ({
+    entry: thrust,
+    Content: (await render(thrust)).Content,
+    children: await Promise.all(
+      all
+        .filter((r) => r.data.parent === thrust.id)
+        .map(async (child) => ({ entry: child, Content: (await render(child)).Content })),
+    ),
+  })),
+);
+---
+
+<Base title="Research" description={SITE.mission}>
+  <PageHeader eyebrow="Research" title="Targeting biology, precisely." lede={SITE.mission} />
+
+  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+    <section class="border-b border-rule py-14">
+      <div class="grid gap-x-10 gap-y-4 lg:grid-cols-[10rem_minmax(0,1fr)]">
+        <h2 class="pt-1 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
+          Overview
+        </h2>
+        <div class="prose-lab"><p>{SITE.missionExtended}</p></div>
+      </div>
+    </section>
+
+    {sections.map(({ entry, Content, children }) => (
+      <section id={entry.id} class="scroll-mt-8 border-b border-rule py-14 last:border-b-0">
+        <div class="grid gap-x-10 gap-y-6 lg:grid-cols-[10rem_minmax(0,1fr)]">
+          <p class="pt-2 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-copper lg:text-right">
+            Thrust {String(entry.data.order).padStart(2, '0')}
+          </p>
+          <div>
+            <h2 class="max-w-[22ch] text-h2 text-cwru-dark">{entry.data.title}</h2>
+
+            {entry.data.figureNote && (
+              <Placeholder
+                ratio={entry.data.figureRatio}
+                caption={entry.data.figureNote}
+                class="my-8 max-w-[46rem]"
+              />
+            )}
+
+            <div class="prose-lab mt-6"><Content /></div>
+
+            {children.length > 0 && (
+              <ol class="mt-12 space-y-11">
+                {children.map((child, i) => (
+                  <li id={child.entry.id} class="scroll-mt-8 border-l-2 border-cwru-light pl-6">
+                    <p class="text-[0.72rem] font-bold uppercase tracking-[0.12em] text-ink-mute">
+                      Project {i + 1}
+                    </p>
+                    <h3 class="mt-1.5 max-w-[36ch] font-serif text-[1.24rem] leading-snug text-cwru-dark">
+                      {child.entry.data.title}
+                    </h3>
+                    <div class="prose-lab mt-3"><child.Content /></div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      </section>
+    ))}
+  </div>
+</Base>

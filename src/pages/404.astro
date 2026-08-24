@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import { NAV } from '../lib/site';
+---
+
+<Base title="Page not found">
+  <div class="mx-auto max-w-[76rem] px-5 py-24 sm:px-8 sm:py-32">
+    <p class="text-[0.74rem] font-bold uppercase tracking-[0.14em] text-copper">Error 404</p>
+    <h1 class="mt-4 max-w-[18ch] text-h1 text-cwru-dark">That page isn't here.</h1>
+    <p class="mt-5 max-w-[54ch] text-lede text-ink-soft">
+      The page you asked for doesn't exist on this site. Try one of these instead.
+    </p>
+    <ul class="mt-8 flex flex-wrap gap-3">
+      {[{ href: '/', label: 'Home' }, ...NAV].map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class="inline-block rounded-sm border border-rule px-4 py-2.5 text-[0.9rem] font-medium text-cwru-blue transition-colors hover:border-cwru-blue hover:bg-warm"
+            >{item.label}</a
+          >
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>

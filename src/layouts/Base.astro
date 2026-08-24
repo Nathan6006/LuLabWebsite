@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import { Font } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title, description = SITE.tagline } = Astro.props;
+const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.university}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lu-lab.pages.dev');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    {/* Preload only the latin upright faces — the greek and italic subsets are
+        rare on any given page and load on demand. Fallbacks are metric-matched,
+        so a late-arriving face swaps in without reflowing anything. */}
+    <Font cssVariable="--font-source-serif" preload={[{ subset: 'latin', style: 'normal' }]} />
+    <Font cssVariable="--font-public-sans" preload={[{ subset: 'latin', style: 'normal' }]} />
+  </head>
+
+  <body class="min-h-screen bg-paper">
+    <a
+      href="#main"
+      class="sr-only rounded-sm bg-cwru-blue px-4 py-3 font-medium text-white focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+      >Skip to main content</a
+    >
+
+    <Header />
+    <main id="main" tabindex="-1" class="focus:outline-none">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

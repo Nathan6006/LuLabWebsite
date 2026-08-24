@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Placeholder from '../components/Placeholder.astro';
+import { CONTACT } from '../lib/site';
+
+// Transcribed verbatim from the Center's previous instruments page.
+const instruments = [
+  {
+    name: 'Olympus FV1000 Confocal Microscope',
+    lede: 'The Olympus FV1000 confocal microscope delivers high resolution images necessary for the multi-dimensional observation of cell and tissue morphology.',
+    specs: [
+      {
+        head: 'Precision, sensitivity, and stability',
+        body: 'Enables precise bright imaging with minimum photoxicity. Diode laser: 405 nm, 440 nm, 473 nm, 559 nm, 635 nm. Gas laser: 458 nm, 488 nm, 515 nm. Can be used with tissue culture dishes, slide chambers, microplates and glass slides for live cells and fixed specimen.',
+      },
+      { head: 'Two light detection systems', body: 'Spectral based detection and filter based detection.' },
+      { head: 'Simultaneous laser light stimulation', body: 'FRAP / FLIP / photoactivation / photoconversion / uncaging.' },
+      {
+        head: 'Applications',
+        body: 'Diffusion measurement and molecular interaction analysis · multi-dimensional time-lapse · 3D mosaic imaging · multi-color imaging · 3D/4D volume rendering · colocalization · FRET.',
+      },
+    ],
+  },
+  {
+    name: 'Agilent 5800 ICP-OES',
+    lede: 'Elemental analysis in various conditions.',
+    specs: [
+      { head: 'Applications', body: 'Gd, Mn, Fe in nanoparticles or in animal organs (for biodistribution) · Pb and Cd in consumer goods (toys, jewelry and clothing) · N/P/K, S/Ca/Mg in fertilizers · S, P, Ca, Mg, Na, and K in biodiesel · major, minor and toxic elements in foods, beverages and agricultural samples · elements in pharmaceuticals · trace impurities in high purity Cu.' },
+    ],
+  },
+  {
+    name: 'ChemiDoc XRS+ System',
+    lede: 'The ChemiDoc XRS+ System uses CCD high resolution, high sensitivity technology to support multiple detection methods.',
+    specs: [
+      { head: 'Detection methods', body: 'Fluorescence · colorimetry · densitometry · chemiluminescence · chemifluorescence.' },
+      { head: 'Samples', body: 'Accommodates a wide array of samples (polyacrylamide gels to small agarose gels, and various blots). Ideal for PCR, purification, and electrophoresis systems, allowing for documentation of restriction digests, amplified nucleic acids, genetic fingerprinting, RFLPs, and protein purification and characterization.' },
+    ],
+  },
+  {
+    name: 'Anton Paar Litesizer 500',
+    lede: 'Measures particle size, zeta potential, molecular mass and transmittance by light scattering technology.',
+    specs: [],
+  },
+];
+---
+
+<Base title="Instruments" description="Shared instrumentation available through the Center for Biomolecular Engineering.">
+  <PageHeader
+    eyebrow="Instruments"
+    title="Shared instrumentation"
+    lede="We currently have the following instruments available through the Center for Biomolecular Engineering. We are located on the 4th floor of the Wickenden building."
+  >
+    <p class="mt-4 text-[0.95rem] text-ink-soft">
+      Inquiries regarding training and use should be directed to {CONTACT.instrumentsContact}
+      (<a class="text-cwru-blue underline underline-offset-2 decoration-cwru-blue/40 hover:decoration-current" href={`mailto:${CONTACT.instrumentsEmail}`}>{CONTACT.instrumentsEmail}</a>).
+    </p>
+  </PageHeader>
+
+  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+    {instruments.map((inst, i) => (
+      <section class="border-b border-rule py-14 last:border-b-0">
+        <div class="grid gap-x-10 gap-y-6 lg:grid-cols-[10rem_minmax(0,1fr)]">
+          <p class="pt-2 font-serif text-[1.5rem] leading-none text-copper tabular-nums lg:text-right">
+            {String(i + 1).padStart(2, '0')}
+          </p>
+          <div>
+            <h2 class="max-w-[24ch] text-h2 text-cwru-dark">{inst.name}</h2>
+            <p class="mt-4 max-w-[64ch] text-lede text-ink-soft">{inst.lede}</p>
+
+            <Placeholder
+              ratio="3 / 2"
+              caption={`Photograph of the ${inst.name}`}
+              class="my-8 max-w-[26rem]"
+            />
+
+            {inst.specs.length > 0 && (
+              <dl class="mt-6 max-w-[68ch] space-y-5">
+                {inst.specs.map((s) => (
+                  <div>
+                    <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">{s.head}</dt>
+                    <dd class="mt-1.5 text-[0.95rem] leading-relaxed text-ink-soft">{s.body}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
+        </div>
+      </section>
+    ))}
+  </div>
+</Base>

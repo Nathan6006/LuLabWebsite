@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+
+const alumni = await getCollection('alumni');
+const by = (c: string) =>
+  alumni.filter((a) => a.data.category === c).sort((a, b) => a.data.order - b.data.order);
+
+const grads = by('graduate');
+const postdocs = by('postdoc');
+const undergrads = by('undergraduate');
+---
+
+<Base title="Alumni" description="Past members and visiting scholars of the Center for Biomolecular Engineering.">
+  <PageHeader
+    eyebrow="Alumni"
+    title="Past members and visiting scholars"
+    lede="Graduate students, postdoctoral fellows, research assistants, visiting scientists, and undergraduates who have worked in the group."
+  />
+
+  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+    <section class="border-b border-rule py-14">
+      <div class="grid gap-x-10 gap-y-8 lg:grid-cols-[10rem_minmax(0,1fr)]">
+        <h2 class="pt-1 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
+          Graduate students
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[34rem] border-collapse text-left text-[0.93rem]">
+            <caption class="sr-only">Graduate students, with institution, field, degree, and year</caption>
+            <thead>
+              <tr class="border-b border-rule text-[0.72rem] font-bold uppercase tracking-[0.1em] text-ink-mute">
+                <th scope="col" class="py-2.5 pr-4 font-bold">Name</th>
+                <th scope="col" class="py-2.5 pr-4 font-bold">Institution</th>
+                <th scope="col" class="py-2.5 pr-4 font-bold">Field</th>
+                <th scope="col" class="py-2.5 pr-4 font-bold">Degree</th>
+                <th scope="col" class="py-2.5 font-bold">Year</th>
+              </tr>
+            </thead>
+            <tbody>
+              {grads.map((g) => (
+                <tr class="border-b border-rule/70 last:border-b-0">
+                  <th scope="row" class="py-3 pr-4 text-left font-serif text-[1rem] font-semibold text-cwru-dark">{g.data.name}</th>
+                  <td class="py-3 pr-4 text-ink-soft">{g.data.institution}</td>
+                  <td class="py-3 pr-4 text-ink-soft">{g.data.field}</td>
+                  <td class="py-3 pr-4 text-ink-soft">{g.data.degree}</td>
+                  <td class="py-3 tabular-nums text-ink-soft">{g.data.year}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-b border-rule py-14">
+      <div class="grid gap-x-10 gap-y-8 lg:grid-cols-[10rem_minmax(0,1fr)]">
+        <h2 class="pt-1 max-w-[13ch] text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
+          Postdoctoral fellows, research assistants, and visiting scientists
+        </h2>
+        <ul class="grid gap-x-8 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-3">
+          {postdocs.map((p) => (
+            <li class="text-[0.95rem] text-ink-soft">
+              {p.data.name}{p.data.degree && <span class="text-ink-mute">, {p.data.degree}</span>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="py-14">
+      <div class="grid gap-x-10 gap-y-8 lg:grid-cols-[10rem_minmax(0,1fr)]">
+        <h2 class="pt-1 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
+          Undergraduate students
+        </h2>
+        <ul class="grid gap-x-8 gap-y-2.5 sm:grid-cols-2 lg:grid-cols-3">
+          {undergrads.map((p) => <li class="text-[0.95rem] text-ink-soft">{p.data.name}</li>)}
+        </ul>
+      </div>
+    </section>
+  </div>
+</Base>

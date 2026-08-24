@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import NewsItem from '../components/NewsItem.astro';
+
+const news = await getCollection('news');
+const sortWithin = (a: any, b: any) =>
+  (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0) || a.data.order - b.data.order;
+
+const press = news.filter((n) => n.data.kind === 'press');
+const notes = news.filter((n) => n.data.kind === 'announcement');
+
+const group = (items: typeof news) => {
+  const years = [...new Set(items.map((i) => i.data.year))].sort((a, b) => b - a);
+  return years.map((y) => ({ year: y, items: items.filter((i) => i.data.year === y).sort(sortWithin) }));
+};
+
+const pressByYear = group(press);
+const notesByYear = group(notes);
+---
+
+<Base title="News" description="Press coverage and announcements from the Center for Biomolecular Engineering.">
+  <PageHeader
+    eyebrow="News"
+    title="Coverage and announcements"
+    lede="Press about the lab's work, and news from inside the group."
+  />
+
+  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+    <section class="border-b border-rule py-14">
+      <h2 class="text-h2 text-cwru-dark">In the news</h2>
+      <div class="mt-10 space-y-12">
+        {pressByYear.map(({ year, items }) => (
+          <div class="grid gap-x-10 gap-y-5 lg:grid-cols-[10rem_minmax(0,1fr)]">
+            <h3 class="pt-1 font-serif text-[1.5rem] leading-none text-copper tabular-nums lg:text-right">{year}</h3>
+            <ul class="max-w-[70ch]">{items.map((item) => <NewsItem item={item} />)}</ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="py-14">
+      <h2 class="text-h2 text-cwru-dark">Lab announcements</h2>
+      <p class="mt-3 max-w-[62ch] text-[0.95rem] text-ink-mute">
+        Carried over from the Center's previous announcements page. The most recent entry is from 2023.
+      </p>
+      <div class="mt-10 space-y-12">
+        {notesByYear.map(({ year, items }) => (
+          <div class="grid gap-x-10 gap-y-5 lg:grid-cols-[10rem_minmax(0,1fr)]">
+            <h3 class="pt-1 font-serif text-[1.5rem] leading-none text-copper tabular-nums lg:text-right">{year}</h3>
+            <ul class="max-w-[70ch]">{items.map((item) => <NewsItem item={item} />)}</ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</Base>

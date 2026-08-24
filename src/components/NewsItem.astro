@@ -1,0 +1,28 @@
+---
+import type { CollectionEntry } from 'astro:content';
+interface Props { item: CollectionEntry<'news'>; showKind?: boolean }
+const { item, showKind = false } = Astro.props;
+const d = item.data;
+
+const dateLabel = d.date
+  ? d.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
+  : String(d.year);
+const meta = [d.outlet, dateLabel].filter(Boolean).join(' · ');
+const Tag = d.url ? 'a' : 'div';
+---
+
+<li class="rule-top py-5 first:border-t-0 first:pt-0">
+  <p class="text-[0.76rem] font-medium uppercase tracking-[0.09em] text-ink-mute">
+    {meta}
+    {showKind && d.kind === 'announcement' && <span class="text-copper"> · Lab news</span>}
+  </p>
+  <Tag
+    href={d.url}
+    rel={d.url ? 'noopener' : undefined}
+    class:list={[
+      'mt-1.5 block font-serif text-[1.06rem] leading-snug text-cwru-dark',
+      d.url &&
+        'underline decoration-cwru-blue/25 underline-offset-[3px] transition-colors hover:text-cwru-blue hover:decoration-current',
+    ]}
+  >{d.title}</Tag>
+</li>
