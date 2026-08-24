@@ -1,5 +1,6 @@
 ---
 import Atmosphere from './Atmosphere.astro';
+import LabBanner from './LabBanner.astro';
 
 interface Props {
   eyebrow?: string;
@@ -8,15 +9,17 @@ interface Props {
   index?: string;
   /** Optional Unsplash slot id for a treated background. */
   atmosphere?: string;
+  /** Optional id from the lab's own photographs — preferred over `atmosphere`. */
+  labPhoto?: string;
 }
-const { eyebrow, title, lede, index, atmosphere } = Astro.props;
+const { eyebrow, title, lede, index, atmosphere, labPhoto } = Astro.props;
 ---
 
 <!-- Asymmetric section header. The mono label hangs in a narrow left rail on
      wide screens with a hairline running under the whole block; the title runs
      long and breaks out of the text column. -->
 <div class="relative border-b border-rule bg-warm">
-  {atmosphere && <Atmosphere id={atmosphere} strength={40} loading="eager" />}
+  {labPhoto ? <LabBanner id={labPhoto} /> : atmosphere && <Atmosphere id={atmosphere} strength={40} loading="eager" />}
   <div class="relative mx-auto max-w-[78rem] px-5 py-16 sm:px-8 sm:py-24">
     <div class="grid gap-x-12 gap-y-4 lg:grid-cols-[11rem_minmax(0,1fr)]">
       {eyebrow && (

@@ -82,15 +82,21 @@ const SLOTS = [
     role: 'atmosphere',
     // Chosen by eye from a survey: an abstract blue ink cloud. Deliberately not
     // anything that could be mistaken for a micrograph or a scan of theirs.
-    exact: 'YWIOwHvRBvU',
-    query: 'abstract light refraction glass blue macro',
+    // An actual grid of MRI slices, from the National Cancer Institute. The
+    // lab's imaging work is MRI contrast agents, so this is on-subject rather
+    // than decorative — and it is credited, because it is not their scan.
+    exact: 'BDKid0yJcAk',
+    query: 'mri scan brain medical imaging',
     orientation: 'landscape',
     note: 'Molecular Imaging card',
   },
   {
     id: 'card-gene',
     role: 'atmosphere',
-    query: 'macro liquid droplet science abstract',
+    // A dark sphere in a wire lattice — reads as a nanoparticle without
+    // pretending to be a micrograph of one of theirs.
+    exact: 'MrWOCGKFVDg',
+    query: 'nanoparticle sphere abstract render',
     orientation: 'landscape',
     note: 'Gene Therapy card',
   },

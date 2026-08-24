@@ -1,96 +1,196 @@
 ---
 /**
- * Site-wide motion layer. Two moments only:
- *   1. the hero headline reveal (the SplitText island on the home page)
- *   2. one short rise as each [data-reveal] block arrives
+ * Site-wide motion layer, all GSAP, no framework.
  *
- * Two things this deliberately does NOT do:
+ * The home page is the flashy one — a masthead that assembles, a pinned photo
+ * sequence you scrub through, counters that run up. Every other page keeps the
+ * quiet pair: a short rise per block, one mask wipe per image.
  *
- * - It never hides anything from CSS. Pre-hiding blocks in the stylesheet keeps
- *   the largest text block off screen until this script runs, which pushed LCP
- *   from 1.7s to 3.5s. Only blocks below the fold are hidden, here, in JS.
- * - It never hands an already-visible block to ScrollTrigger. A trigger whose
- *   start line is already behind the scroll position never fires, which left
- *   the first block on the page stuck at its "from" state.
+ * Bundle shape matters here. The simple reveals only ever needed "is this on
+ * screen yet", which IntersectionObserver answers natively, so they no longer
+ * pull ScrollTrigger in. ScrollTrigger and SplitText are dynamically imported
+ * and only ever fetched by the home page, which is the only page that pins or
+ * splits anything. That keeps ~85KB off every other route.
+ *
+ * Two rules enforced everywhere:
+ *  - Nothing above the fold is hidden by CSS. Pre-hiding the largest text block
+ *    until this script runs pushed LCP from 1.7s to 3.5s.
+ *  - Anything already on screen animates immediately rather than waiting for a
+ *    scroll event that may never come.
  */
 ---
 
 <script>
   import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const blocks = gsap.utils.toArray<HTMLElement>('[data-reveal]');
-
-  gsap.registerPlugin(ScrollTrigger);
   const fold = window.innerHeight * 0.9;
+  const desktop = window.matchMedia('(min-width: 768px)').matches;
 
-  if (!reduced && blocks.length) {
-    for (const block of blocks) {
-      // Above the fold: already painted, leave it alone. Animating it would
-      // only cost paint time on the content the visitor came for.
+  /** Run `fn` once, now if the element is already on screen, else on approach. */
+  function whenSeen(el: Element, fn: () => void, margin = '0px 0px -10% 0px') {
+    if (el.getBoundingClientRect().top < fold) { fn(); return; }
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        io.disconnect();
+        fn();
+      }
+    }, { rootMargin: margin });
+    io.observe(el);
+  }
+
+  /* ---- 1. Block reveals -------------------------------------------------- */
+  if (!reduced) {
+    for (const block of gsap.utils.toArray<HTMLElement>('[data-reveal]')) {
       if (block.getBoundingClientRect().top < fold) continue;
-
-      // Children marked data-reveal-item arrive in sequence; otherwise the
-      // block moves as one piece.
       const items = block.querySelectorAll<HTMLElement>('[data-reveal-item]');
       const subjects = items.length ? Array.from(items) : [block];
-
-      gsap.from(subjects, {
-        y: 22,
-        opacity: 0,
-        duration: 0.62,
-        ease: 'power3.out',
-        stagger: items.length ? 0.055 : 0,
-        force3D: true,
-        scrollTrigger: { trigger: block, start: 'top 88%', once: true },
-        onComplete() {
-          for (const s of subjects) s.style.willChange = 'auto';
-        },
+      whenSeen(block, () => {
+        gsap.from(subjects, {
+          y: 22, opacity: 0, duration: 0.62, ease: 'power3.out',
+          stagger: items.length ? 0.055 : 0, force3D: true,
+          onComplete() { for (const s of subjects) s.style.willChange = 'auto'; },
+        });
       });
     }
   }
 
-  // ---- Image reveals -----------------------------------------------------
-  // One gesture, used for every image on the site: a mask wipes open from the
-  // bottom while the picture settles out of a slight overscale.
-  const frames = gsap.utils.toArray<HTMLElement>('[data-reveal-img]');
-
-  for (const frame of frames) {
+  /* ---- 2. Image reveals -------------------------------------------------- */
+  for (const frame of gsap.utils.toArray<HTMLElement>('[data-reveal-img]')) {
     const img = frame.querySelector('img');
     if (!img) continue;
-
-    if (reduced) {
-      frame.classList.add('is-revealed');
-      continue;
-    }
-
+    if (reduced) { frame.classList.add('is-revealed'); continue; }
     const play = () => {
-      // Hand control to GSAP before clearing the CSS pre-state, so the frame
-      // never flashes open between the two.
       const tl = gsap.timeline({ onComplete: () => { img.style.willChange = 'auto'; } });
-      tl.fromTo(frame, { clipPath: 'inset(0 0 100% 0)' }, {
-        clipPath: 'inset(0 0 0% 0)', duration: 0.92, ease: 'power3.inOut',
-      }, 0);
-      tl.fromTo(img, { scale: 1.08 }, {
-        scale: 1, duration: 1.15, ease: 'power3.out', force3D: true,
-      }, 0);
+      tl.fromTo(frame, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.92, ease: 'power3.inOut' }, 0);
+      tl.fromTo(img, { scale: 1.08 }, { scale: 1, duration: 1.15, ease: 'power3.out', force3D: true }, 0);
       frame.classList.add('is-revealed');
     };
-
-    const immediate = frame.hasAttribute('data-reveal-img-immediate');
-    if (immediate || frame.getBoundingClientRect().top < fold) {
-      play();
-    } else {
-      ScrollTrigger.create({ trigger: frame, start: 'top 90%', once: true, onEnter: play });
-    }
+    if (frame.hasAttribute('data-reveal-img-immediate')) play();
+    else whenSeen(frame, play);
   }
 
-  // Failsafe: nothing may be lost to a decorative animation. If a target is
-  // still transparent well after load, force it back.
+  /* ---- 3. Counters ------------------------------------------------------- */
+  for (const el of gsap.utils.toArray<HTMLElement>('[data-count]')) {
+    const target = Number(el.dataset.count);
+    if (!Number.isFinite(target)) continue;
+    if (reduced) { el.textContent = String(target); continue; }
+    whenSeen(el, () => {
+      const obj = { v: 0 };
+      gsap.to(obj, {
+        v: target, duration: 1.5, ease: 'power2.out',
+        onUpdate() { el.textContent = String(Math.round(obj.v)); },
+      });
+    });
+  }
+
+  /* ---- 4. Header over the hero ------------------------------------------ */
+  const header = document.querySelector<HTMLElement>('[data-header][data-over-hero]');
+  if (header) {
+    const first = document.querySelector<HTMLElement>('main > section');
+    const setSolid = () => {
+      const past = first
+        ? first.getBoundingClientRect().bottom <= header.offsetHeight + 8
+        : window.scrollY > 40;
+      header.classList.toggle('is-solid', past);
+    };
+    setSolid();
+    window.addEventListener('scroll', setSolid, { passive: true });
+    window.addEventListener('resize', setSolid);
+  }
+
+  /* ---- 5. Hero plate drift ----------------------------------------------- */
+  const plate = document.querySelector<HTMLElement>('.hero-plate');
+  if (plate && !reduced) {
+    gsap.fromTo(plate, { scale: 1 }, { scale: 1.08, duration: 24, ease: 'none' });
+  }
+
+  /* ---- 6. Home-only: masthead + pinned sequence -------------------------
+     Both plugins are fetched here and nowhere else. */
+  const hero = document.querySelector<HTMLElement>('[data-hero-title]');
+  const seq = document.querySelector<HTMLElement>('[data-lab-seq]');
+
+  if (!reduced && (hero || (seq && desktop))) {
+    (async () => {
+      if (hero) {
+        const { SplitText } = await import('gsap/SplitText');
+        gsap.registerPlugin(SplitText);
+        const runHero = () => {
+          const split = new SplitText(hero, { type: 'lines', linesClass: 'hero-line' });
+          for (const line of split.lines) {
+            const mask = document.createElement('span');
+            mask.className = 'hero-line-mask';
+            line.parentNode?.insertBefore(mask, line);
+            mask.appendChild(line);
+          }
+          gsap.set(hero, { opacity: 1 });
+          gsap.from(split.lines, { yPercent: 118, duration: 1.05, ease: 'expo.out', stagger: 0.085 });
+          gsap.from('[data-hero-follow]', {
+            y: 18, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09, delay: 0.42,
+          });
+        };
+        if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(runHero);
+        else runHero();
+      }
+
+      if (seq && desktop) {
+        const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+        gsap.registerPlugin(ScrollTrigger);
+
+        const frames = gsap.utils.toArray<HTMLElement>('[data-seq-frame]', seq);
+        const captions = gsap.utils.toArray<HTMLElement>('[data-seq-caption]', seq);
+        const ticks = gsap.utils.toArray<HTMLElement>('[data-seq-tick]', seq);
+        const counter = seq.querySelector<HTMLElement>('[data-seq-counter]');
+        const n = frames.length;
+        if (n < 2) return;
+
+        seq.classList.add('is-pinned');
+        gsap.set(frames, { autoAlpha: 0, scale: 1.12 });
+        gsap.set(frames[0], { autoAlpha: 1, scale: 1 });
+        gsap.set(ticks, { scaleX: 0 });
+
+        // Captions, ticks and the counter run off one active index rather than
+        // overlapping tweens. Under a scrub two crossfading tweens can both be
+        // partly visible at the same scroll position, which put two captions on
+        // screen at once; an index cannot do that.
+        let active = -1;
+        const setActive = (i: number) => {
+          if (i === active) return;
+          active = i;
+          captions.forEach((c, k) => c.classList.toggle('is-active', k === i));
+          ticks.forEach((t, k) => gsap.to(t, { scaleX: k <= i ? 1 : 0, duration: 0.35, ease: 'power2.out' }));
+          if (counter) counter.textContent = `${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`;
+        };
+        setActive(0);
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: seq,
+            start: 'top top',
+            end: () => '+=' + window.innerHeight * (n - 0.35),
+            pin: '.lab-seq-stage',
+            scrub: 0.6,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate(self) { setActive(Math.min(n - 1, Math.floor(self.progress * n))); },
+          },
+        });
+
+        for (let i = 1; i < n; i++) {
+          const at = i - 1;
+          tl.to(frames[i - 1], { autoAlpha: 0, scale: 1.06, ease: 'power1.inOut' }, at + 0.55)
+            .to(frames[i], { autoAlpha: 1, scale: 1, ease: 'power1.inOut' }, at + 0.55);
+        }
+        tl.to({}, { duration: 0.35 });
+      }
+    })();
+  }
+
+  /* ---- Failsafe ---------------------------------------------------------
+     Nothing may be lost to a decorative animation. */
   window.setTimeout(() => {
-    const all = document.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-item]');
-    for (const el of all) {
+    for (const el of document.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-item]')) {
       if (getComputedStyle(el).opacity === '0' && el.getBoundingClientRect().top < window.innerHeight) {
         el.style.opacity = '1';
         el.style.transform = 'none';
@@ -99,5 +199,7 @@
     for (const frame of document.querySelectorAll<HTMLElement>('[data-reveal-img]')) {
       if (frame.getBoundingClientRect().top < window.innerHeight) frame.classList.add('is-revealed');
     }
+    const h = document.querySelector<HTMLElement>('[data-hero-title]');
+    if (h && getComputedStyle(h).opacity === '0') h.style.opacity = '1';
   }, 2500);
 </script>

@@ -2,15 +2,31 @@
 import { NAV } from '../lib/site';
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
+
+// The home page opens on a full-bleed dark plate, so the header rides over it
+// transparently and only takes its ground once the hero has scrolled past.
+const overHero = path === '/';
 ---
 
 <!-- Nav breaks the logo-left / links-right default: the wordmark sits above a
      hairline, and the links hang off the same baseline grid as the page body. -->
-<header class="sticky top-0 z-40 border-b border-rule bg-paper/92 backdrop-blur-[6px]">
+<header
+  data-header
+  data-over-hero={overHero ? '' : undefined}
+  class:list={[
+    'sticky top-0 z-40 transition-colors duration-300',
+    overHero
+      ? 'border-b border-transparent bg-transparent [&.is-solid]:border-rule [&.is-solid]:bg-paper/92 [&.is-solid]:backdrop-blur-[6px]'
+      : 'border-b border-rule bg-paper/92 backdrop-blur-[6px]',
+  ]}
+>
   <div class="mx-auto flex max-w-[78rem] flex-wrap items-end gap-x-10 gap-y-3 px-5 pb-3 pt-4 sm:px-8">
     <a href="/" class="mr-auto flex flex-col gap-0.5 leading-none">
-      <span class="label text-copper">Case Western Reserve University</span>
-      <span class="font-serif text-[1.1rem] font-[550] tracking-[-0.02em] text-cwru-blue sm:text-[1.22rem]">
+      <span class:list={["label transition-colors duration-300", overHero ? "text-copper/90 [.is-solid_&]:text-copper" : "text-copper"]}>Case Western Reserve University</span>
+      <span class:list={[
+        'font-serif text-[1.1rem] font-[550] tracking-[-0.02em] transition-colors duration-300 sm:text-[1.22rem]',
+        overHero ? 'text-white [.is-solid_&]:text-cwru-blue' : 'text-cwru-blue',
+      ]}>
         Center for Biomolecular Engineering
       </span>
     </a>
@@ -26,9 +42,12 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
                 'relative block py-1 text-[0.9rem] transition-colors duration-200',
                 'after:absolute after:inset-x-0 after:-bottom-[13px] after:h-[2px] after:origin-left after:scale-x-0 after:bg-copper after:transition-transform after:duration-200 after:content-[""]',
                 'hover:after:scale-x-100',
-                isCurrent(item.href)
-                  ? 'font-medium text-cwru-blue after:scale-x-100'
-                  : 'text-ink-soft hover:text-cwru-blue',
+                overHero
+                  ? 'text-white/80 hover:text-white [.is-solid_&]:text-ink-soft [.is-solid_&:hover]:text-cwru-blue'
+                  : isCurrent(item.href)
+                    ? 'font-medium text-cwru-blue after:scale-x-100'
+                    : 'text-ink-soft hover:text-cwru-blue',
+                !overHero && isCurrent(item.href) && 'after:scale-x-100',
               ]}
             >{item.label}</a>
           </li>

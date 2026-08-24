@@ -8,7 +8,14 @@ export default defineConfig({
   site: 'https://lu-lab.pages.dev',
   output: 'static',
   trailingSlash: 'ignore',
-  build: { format: 'directory' },
+  build: {
+    format: 'directory',
+    // The stylesheet is ~9KB, over Astro's auto-inline threshold, so it shipped
+    // as a separate render-blocking request costing ~300ms of First Contentful
+    // Paint on every route. Inlined it gzips to a couple of KB inside the HTML
+    // and blocks nothing.
+    inlineStylesheets: 'always',
+  },
 
   integrations: [react()],
 

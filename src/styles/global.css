@@ -199,6 +199,45 @@
   margin-block: 2em 0.6em;
 }
 
+/* ---- Home page masthead --------------------------------------------------
+   Each line is clipped by its own wrapper and rises out of it, so the title
+   assembles instead of fading. The wrappers are written by GSAP SplitText at
+   runtime; the pre-state below only holds the title until that happens, and
+   only when script is available to finish the job. */
+.hero-line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+.hero-line { display: block; will-change: transform; }
+.js [data-hero-title] { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .js [data-hero-title] { opacity: 1 !important; }
+  .hero-plate { transform: none !important; }
+}
+
+/* ---- Pinned lab sequence -------------------------------------------------
+   The stacked fallback is what mobile and no-JS get; the pinned stage only
+   exists once the script confirms it can drive it. */
+.lab-seq .lab-seq-stage { display: none; }
+.lab-seq.is-pinned .lab-seq-stage { display: block; }
+.lab-seq.is-pinned .lab-seq-fallback { display: none; }
+.lab-seq-frame { will-change: transform, opacity; }
+
+/* Exactly one caption is visible at a time: the script toggles is-active and
+   these two rules do the rest, so a scrub can never show two at once. */
+.lab-seq-caption {
+  opacity: 0;
+  transform: translateY(1.4rem);
+  transition: opacity 420ms var(--ease-out-quart), transform 520ms var(--ease-out-quart);
+  pointer-events: none;
+}
+.lab-seq-caption.is-active {
+  opacity: 1;
+  transform: none;
+}
+
 /* Pre-state for the image reveal. The frame keeps its box; only the mask and
    the picture inside it move, so nothing on the page can shift. */
 .reveal-img > img {

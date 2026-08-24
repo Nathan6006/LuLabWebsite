@@ -79,11 +79,17 @@ carried over exactly as found and is very likely out of date:
 
 ---
 
-## 3. Photographs — the lab's own images are still needed
+## 3. Photographs — partly supplied
 
-Every photograph *of this laboratory* is still a correctly-proportioned
-placeholder with a caption naming what belongs there. Nothing was scraped from
-the old site.
+**Four real photographs of the lab were supplied** and are now used across the
+site: the home page masthead plate, a pinned four-shot sequence on the home
+page, and the page banners on research, instruments and join. They live in
+`src/assets/lab/` with their alt text and captions in
+`src/data/lab-photos.json`.
+
+Still placeholders, because they stand for specific things no photograph
+supplied so far shows: the 11 member portraits, the group photograph, the four
+instruments, the campus map, and the two research diagrams.
 
 Stock imagery from Unsplash **is** now used — treated atmospheric panels beside
 five page headers, two abstract images on the home page research cards, and one
@@ -109,6 +115,7 @@ under a heading naming a specific instrument. Those four remain placeholders.
 | `/research` — Molecular Imaging | 16:9 | Diagram: fibronectin-targeted probe in the tumour microenvironment |
 | `/research` — Gene Therapy | 16:9 | Diagram: ECO lipid structure and the PERC delivery mechanism |
 | `/instruments` — 4 instruments | 3:2 | One photo per instrument |
+| Captions for the four supplied photos | — | Confirm the captions in `src/data/lab-photos.json` describe what is actually happening in each shot |
 | `/contact` | 4:3 | Static campus map showing the Wickenden Building |
 
 Placeholder captions are set per person in `photoNote:` and per research area in

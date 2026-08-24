@@ -1,13 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowDown } from 'lucide-react';
 import Base from '../layouts/Base.astro';
-import HeroTitle from '../components/HeroTitle.tsx';
+import HeroStage from '../components/HeroStage.astro';
+import LabSequence from '../components/LabSequence.astro';
+import RevealImage from '../components/RevealImage.astro';
 import NewsItem from '../components/NewsItem.astro';
 import PublicationItem from '../components/PublicationItem.astro';
 import SectionHead from '../components/SectionHead.astro';
-import Atmosphere from '../components/Atmosphere.astro';
-import RevealImage from '../components/RevealImage.astro';
 import { SITE } from '../lib/site';
 
 const research = await getCollection('research');
@@ -15,112 +15,93 @@ const thrusts = research.filter((r) => !r.data.parent).sort((a, b) => a.data.ord
 
 const allNews = await getCollection('news');
 const news = allNews
-  .sort(
-    (a, b) =>
-      (b.data.date?.getTime() ?? b.data.year * 1e10) - (a.data.date?.getTime() ?? a.data.year * 1e10),
-  )
+  .sort((a, b) => (b.data.date?.getTime() ?? b.data.year * 1e10) - (a.data.date?.getTime() ?? a.data.year * 1e10))
   .filter((n) => n.data.featured)
   .slice(0, 3);
 
 const allPubs = await getCollection('publications');
-const pubs = allPubs
-  .sort((a, b) => b.data.year - a.data.year || a.data.order - b.data.order)
-  .slice(0, 3);
-
+const pubs = allPubs.sort((a, b) => b.data.year - a.data.year || a.data.order - b.data.order).slice(0, 3);
 const alumni = await getCollection('alumni');
 
-// Abstract imagery per research area. Chosen so neither could be mistaken for
-// the lab's own micrographs or scans — see /credits.
+// Counted from the content collections at build time — nothing asserted by
+// hand. See TODO.md on how stale the underlying source is.
+const figures = [
+  { value: allPubs.length, label: 'Publications' },
+  { value: alumni.length, label: 'Lab alumni' },
+  { value: thrusts.length + research.filter((r) => r.data.parent).length, label: 'Research programmes' },
+  { value: 4, label: 'Shared instruments' },
+];
+
+// Imagery per research area. The MRI grid is on-subject — the lab builds MRI
+// contrast agents — and is credited on /credits, because it is not their scan.
 const CARD_IMAGE: Record<string, string> = {
   '01-molecular-imaging': 'card-imaging',
   '02-gene-therapy': 'card-gene',
 };
-
-// Every figure below is counted from the content collections at build time.
-// Nothing here is asserted by hand — see TODO.md on the staleness of the source.
-const figures = [
-  { value: String(allPubs.length), label: 'Publications' },
-  { value: String(alumni.length), label: 'Lab alumni' },
-  { value: String(thrusts.length + research.filter((r) => r.data.parent).length), label: 'Research programmes' },
-  { value: '4', label: 'Shared instruments' },
-];
 ---
 
 <Base description={SITE.mission}>
-  <!-- Hero. A masthead, not a split: the title runs to its own measure and the
-       lede hangs off the right of the same block, so the two settle on
-       different baselines without a panel propping up the empty side. -->
-  <section class="relative border-b border-rule bg-warm">
-    <Atmosphere id="hero-texture" strength={38} desaturate={0.2} />
-    <div class="relative mx-auto max-w-[78rem] px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-20">
-      <div class="flex items-center gap-3">
+  <!-- Hero. Full-bleed lab plate under a deep blue grade; the masthead
+       assembles line by line out of its own mask. -->
+  <section class="relative isolate flex min-h-[92svh] items-end overflow-hidden bg-cwru-dark">
+    <HeroStage id="tube-rack" />
+
+    <div class="relative mx-auto w-full max-w-[78rem] px-5 pb-16 pt-32 sm:px-8 sm:pb-20 sm:pt-40">
+      <div class="flex items-center gap-3" data-hero-follow>
         <span class="h-px w-8 bg-copper"></span>
-        <p class="label text-copper">Case Western Reserve University</p>
+        <p class="label text-cwru-light">Case Western Reserve University</p>
       </div>
 
-      <HeroTitle
-        client:load
-        text="Center for Biomolecular Engineering"
-        className="hero-title mt-7 text-display max-w-[11ch] text-cwru-dark"
-      />
+      <h1
+        data-hero-title
+        class="mt-7 max-w-[13ch] text-display font-[440] leading-[1.02] tracking-[-0.03em] text-white"
+      >Center for Biomolecular Engineering</h1>
 
-      <div class="mt-10 grid gap-x-14 gap-y-8 border-t border-rule pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <p class="max-w-[34ch] text-lede text-ink-soft">
+      <div class="mt-9 grid gap-x-14 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+        <p class="max-w-[34ch] text-lede text-white/85" data-hero-follow>
           Welcome to Dr. Zheng-Rong Lu's Group in the Department of Biomedical
           Engineering.
         </p>
-
-        <div>
-          <p class="max-w-[52ch] text-[0.98rem] leading-relaxed text-ink-soft">
-            {SITE.mission}
-          </p>
+        <div data-hero-follow>
+          <p class="max-w-[52ch] text-[0.98rem] leading-relaxed text-white/70">{SITE.mission}</p>
           <div class="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
             <a
               href="/research"
-              class="group inline-flex items-center gap-2 bg-cwru-blue px-6 py-3.5 text-[0.92rem] font-medium text-white transition-colors duration-200 hover:bg-cwru-dark"
+              class="group inline-flex items-center gap-2 bg-white px-6 py-3.5 text-[0.92rem] font-medium text-cwru-dark transition-colors duration-200 hover:bg-cwru-light"
             >
               Explore our research
-              <ArrowRight
-                className="size-4 transition-transform duration-200 group-hover:translate-x-1"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
+              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
             </a>
-            <a
-              href="/join"
-              class="group inline-flex items-center gap-2 py-3.5 text-[0.92rem] font-medium text-cwru-blue"
-            >
-              <span
-                class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-left-bottom bg-no-repeat pb-[3px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:0%_1px]"
-                >Open positions</span
-              >
-              <ArrowRight
-                className="size-4 transition-transform duration-200 group-hover:translate-x-1"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
+            <a href="/join" class="group inline-flex items-center gap-2 py-3.5 text-[0.92rem] font-medium text-white">
+              <span class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-left-bottom bg-no-repeat pb-[3px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:0%_1px]">Open positions</span>
+              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
             </a>
           </div>
         </div>
       </div>
+
+      <p class="label mt-14 flex items-center gap-2 text-white/45" data-hero-follow>
+        <ArrowDown className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+        Scroll
+      </p>
     </div>
   </section>
 
-  <!-- Figures rail. Numbers as graphic elements, counted from the content. -->
+  <!-- Figures rail. Counted from the content, run up on arrival. -->
   <section class="border-b border-rule bg-cwru-blue text-white">
     <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
       <dl class="grid grid-cols-2 divide-cwru-light/25 sm:grid-cols-4 sm:divide-x" data-reveal>
         {figures.map((f) => (
-          <div class="border-b border-cwru-light/25 px-1 py-7 sm:border-b-0 sm:px-7 sm:first:pl-0 sm:last:pr-0" data-reveal-item>
+          <div class="border-b border-cwru-light/25 px-1 py-8 sm:border-b-0 sm:px-7 sm:first:pl-0 sm:last:pr-0" data-reveal-item>
             <dt class="label text-cwru-light">{f.label}</dt>
-            <dd class="mt-2 font-serif text-[2.4rem] font-[400] leading-none tabular">{f.value}</dd>
+            <dd class="mt-2 font-serif text-[2.6rem] font-[400] leading-none tabular" data-count={f.value}>0</dd>
           </div>
         ))}
       </dl>
     </div>
   </section>
 
-  <!-- Mission -->
+  <!-- Approach -->
   <section class="mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">
     <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
       <SectionHead label="Approach" index="01" />
@@ -131,6 +112,9 @@ const figures = [
       </div>
     </div>
   </section>
+
+  <!-- The lab's own photographs, pinned and scrubbed. -->
+  <LabSequence />
 
   <!-- Research areas -->
   <section class="border-y border-rule bg-warm">
@@ -149,16 +133,13 @@ const figures = [
           <ul class="mt-10 grid gap-px bg-rule sm:grid-cols-2">
             {thrusts.map((t, i) => (
               <li data-reveal-item>
-                <a
-                  href={`/research#${t.id}`}
-                  class="group relative flex h-full flex-col bg-paper transition-colors duration-200 hover:bg-warm"
-                >
+                <a href={`/research#${t.id}`} class="group relative flex h-full flex-col bg-paper transition-colors duration-200 hover:bg-warm">
                   <span class="absolute inset-x-0 top-0 z-10 h-[2px] origin-left scale-x-0 bg-copper transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-x-100"></span>
                   <RevealImage
                     id={CARD_IMAGE[t.id] ?? ''}
                     ratio="21 / 9"
                     interactive
-                    desaturate={0.45}
+                    desaturate={0.15}
                     sizes="(min-width: 640px) 38vw, 100vw"
                   />
                   <div class="flex flex-1 flex-col p-8">
@@ -212,9 +193,7 @@ const figures = [
     </div>
   </section>
 
-  <!-- Lab overview video. Kept, but well down the page and labelled with its
-       age — it is the clip from the Center's previous site and is out of date.
-       See TODO.md. -->
+  <!-- Lab overview video, kept for the archive and labelled with its age. -->
   <section class="border-t border-rule bg-warm">
     <div class="mx-auto max-w-[78rem] px-5 py-16 sm:px-8 sm:py-20">
       <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>

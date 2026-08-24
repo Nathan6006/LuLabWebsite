@@ -67,34 +67,6 @@
     "photoUrl": "https://unsplash.com/photos/meiji-techno-microscope-with-objective-lenses-Rl9bIWKCVF0?utm_source=lu_lab_cbe&utm_medium=referral",
     "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
   },
-  "card-gene": {
-    "file": "card-gene.jpg",
-    "photoId": "TGuk1nuXVRE",
-    "role": "atmosphere",
-    "note": "Gene Therapy card",
-    "alt": "water drop in grayscale photography",
-    "width": 4657,
-    "height": 2619,
-    "color": "#c0c0c0",
-    "photographer": "Lucas Doddema",
-    "photographerUrl": "https://unsplash.com/@lgdpics?utm_source=lu_lab_cbe&utm_medium=referral",
-    "photoUrl": "https://unsplash.com/photos/water-drop-in-grayscale-photography-TGuk1nuXVRE?utm_source=lu_lab_cbe&utm_medium=referral",
-    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
-  },
-  "card-imaging": {
-    "file": "card-imaging.jpg",
-    "photoId": "YWIOwHvRBvU",
-    "role": "atmosphere",
-    "note": "Molecular Imaging card",
-    "alt": "blue and teal smoke digital wallpaper",
-    "width": 5708,
-    "height": 3805,
-    "color": "#f3f3f3",
-    "photographer": "Pawel Czerwinski",
-    "photographerUrl": "https://unsplash.com/@pawel_czerwinski?utm_source=lu_lab_cbe&utm_medium=referral",
-    "photoUrl": "https://unsplash.com/photos/blue-and-teal-smoke-digital-wallpaper-YWIOwHvRBvU?utm_source=lu_lab_cbe&utm_medium=referral",
-    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
-  },
   "band-research": {
     "file": "band-research.jpg",
     "photoId": "oCLuFi9GYNA",
@@ -107,6 +79,34 @@
     "photographer": "National Cancer Institute",
     "photographerUrl": "https://unsplash.com/@nci?utm_source=lu_lab_cbe&utm_medium=referral",
     "photoUrl": "https://unsplash.com/photos/woman-standing-in-front-of-the-digital-machine-oCLuFi9GYNA?utm_source=lu_lab_cbe&utm_medium=referral",
+    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
+  },
+  "card-imaging": {
+    "file": "card-imaging.jpg",
+    "photoId": "BDKid0yJcAk",
+    "role": "atmosphere",
+    "note": "Molecular Imaging card",
+    "alt": "a black and white photo of various mri images",
+    "width": 5400,
+    "height": 3600,
+    "color": "#262626",
+    "photographer": "National Cancer Institute",
+    "photographerUrl": "https://unsplash.com/@nci?utm_source=lu_lab_cbe&utm_medium=referral",
+    "photoUrl": "https://unsplash.com/photos/a-black-and-white-photo-of-various-mri-images-BDKid0yJcAk?utm_source=lu_lab_cbe&utm_medium=referral",
+    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
+  },
+  "card-gene": {
+    "file": "card-gene.jpg",
+    "photoId": "MrWOCGKFVDg",
+    "role": "atmosphere",
+    "note": "Gene Therapy card",
+    "alt": "A dark sphere surrounded by a copper wire frame and floating metallic spheres",
+    "width": 4096,
+    "height": 3112,
+    "color": "#262626",
+    "photographer": "Javier Miranda",
+    "photographerUrl": "https://unsplash.com/@nuvaproductions?utm_source=lu_lab_cbe&utm_medium=referral",
+    "photoUrl": "https://unsplash.com/photos/dark-sphere-with-copper-wire-frame-MrWOCGKFVDg?utm_source=lu_lab_cbe&utm_medium=referral",
     "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
   }
 }

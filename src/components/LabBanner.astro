@@ -1,0 +1,38 @@
+---
+import { Image } from 'astro:assets';
+import { labPhoto } from '../lib/lab';
+
+/**
+ * A page-header bleed panel using one of the lab's own photographs.
+ *
+ * Same gesture as the Unsplash panels it replaces — held to the right, masked
+ * so its left edge dissolves into the ground, wiped open on load — but these
+ * show this laboratory, so they get real alt text rather than being hidden
+ * from assistive technology as decoration.
+ */
+interface Props { id: string; class?: string; strength?: number; desaturate?: number }
+const { id, class: klass = '', strength = 62, desaturate = 0.15 } = Astro.props;
+const photo = labPhoto(id);
+
+const mask = 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 22%, rgba(0,0,0,0.85) 55%, #000 100%)';
+---
+
+{photo && (
+  <div
+    class:list={['reveal-img pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] overflow-hidden md:block', klass]}
+    data-reveal-img
+    data-reveal-img-immediate
+  >
+    <Image
+      src={photo.src}
+      alt={photo.meta.alt}
+      widths={[560, 900, 1300]}
+      sizes="46vw"
+      loading="eager"
+      decoding="async"
+      class="h-full w-full object-cover"
+      style={`opacity:${strength / 100};filter:grayscale(${desaturate}) contrast(1.03);-webkit-mask-image:${mask};mask-image:${mask};`}
+    />
+    <span class="absolute inset-y-0 left-0 w-px bg-rule/60"></span>
+  </div>
+)}
