@@ -1,5 +1,7 @@
 ---
+import { ArrowUpRight } from 'lucide-react';
 import type { CollectionEntry } from 'astro:content';
+
 interface Props { pub: CollectionEntry<'publications'> }
 const { pub } = Astro.props;
 const d = pub.data;
@@ -14,32 +16,37 @@ const mark = (s: string) => s.replace(AUTHOR_RE, '<b class="font-semibold text-i
 const hasAuthors = Boolean(d.authors);
 ---
 
-<li class="rule-top py-5 first:border-t-0 first:pt-0">
-  <h3 class="font-serif text-[1.06rem] leading-snug text-cwru-dark">
+<li class="group rule-top py-5 first:border-t-0 first:pt-0" data-reveal-item>
+  <h3 class="font-serif text-[1.04rem] font-[550] leading-snug text-cwru-dark">
     {d.url ? (
-      <a
-        href={d.url}
-        rel="noopener"
-        class="underline decoration-cwru-blue/25 underline-offset-[3px] transition-colors hover:text-cwru-blue hover:decoration-current"
-        >{d.title}</a>
+      <a href={d.url} rel="noopener" class="inline transition-colors duration-200 hover:text-cwru-blue">
+        <span
+          class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat pb-[2px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:100%_1px]"
+          >{d.title}</span
+        ><ArrowUpRight
+          className="ml-1 inline size-[13px] shrink-0 -translate-y-[1px] text-ink-mute transition-all duration-200 group-hover:-translate-y-[3px] group-hover:text-cwru-blue"
+          strokeWidth={1.75}
+          aria-hidden="true"
+        />
+      </a>
     ) : (
       d.title
     )}
   </h3>
 
   {hasAuthors && (
-    <p class="mt-1.5 text-[0.9rem] leading-relaxed text-ink-soft" set:html={mark(d.authors!)} />
+    <p class="mt-1.5 text-[0.88rem] leading-relaxed text-ink-soft" set:html={mark(d.authors!)} />
   )}
 
   {hasAuthors
     ? (d.journal || d.citation) && (
-        <p class="mt-1 text-[0.88rem] text-ink-mute">
-          {d.journal && <cite class="italic">{d.journal}</cite>}
+        <p class="mt-1 text-[0.85rem] text-ink-mute">
+          {d.journal && <cite class="font-serif italic">{d.journal}</cite>}
           {d.journal && d.citation ? ', ' : ''}
           {d.citation}
         </p>
       )
     : d.citation && (
-        <p class="mt-1.5 text-[0.9rem] leading-relaxed text-ink-soft" set:html={mark(d.citation)} />
+        <p class="mt-1.5 text-[0.88rem] leading-relaxed text-ink-soft" set:html={mark(d.citation)} />
       )}
 </li>

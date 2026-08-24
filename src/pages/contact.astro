@@ -10,36 +10,36 @@ const mapQuery = encodeURIComponent('Wickenden Building, Case Western Reserve Un
 <Base title="Contact" description="How to reach the Center for Biomolecular Engineering at Case Western Reserve University.">
   <PageHeader eyebrow="Contact" title="Find us" lede="The Center is located in the Wickenden Building on the Case Western Reserve University campus in Cleveland, Ohio." />
 
-  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+  <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
     <section class="border-b border-rule py-14">
-      <div class="grid gap-x-14 gap-y-10 lg:grid-cols-2">
+      <div class="grid gap-x-14 gap-y-10 lg:grid-cols-2" data-reveal>
         <div>
-          <h2 class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Director</h2>
+          <h2 class="label text-ink-mute">Director</h2>
           <p class="mt-3 font-serif text-[1.35rem] text-cwru-dark">{CONTACT.director}</p>
 
           <dl class="mt-7 space-y-5 text-[0.95rem]">
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Office</dt>
+              <dt class="label text-ink-mute">Office</dt>
               <dd class="mt-1 text-ink-soft">{CONTACT.office}</dd>
             </div>
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Laboratory</dt>
+              <dt class="label text-ink-mute">Laboratory</dt>
               <dd class="mt-1 text-ink-soft">{CONTACT.lab}</dd>
             </div>
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Phone</dt>
+              <dt class="label text-ink-mute">Phone</dt>
               <dd class="mt-1">
                 <a class="text-cwru-blue underline underline-offset-2 decoration-cwru-blue/40 hover:decoration-current" href={`tel:${CONTACT.phoneHref}`}>{CONTACT.phone}</a>
               </dd>
             </div>
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Email</dt>
+              <dt class="label text-ink-mute">Email</dt>
               <dd class="mt-1">
                 <a class="break-all text-cwru-blue underline underline-offset-2 decoration-cwru-blue/40 hover:decoration-current" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
               </dd>
             </div>
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Mailing address</dt>
+              <dt class="label text-ink-mute">Mailing address</dt>
               <dd class="mt-1">
                 <address class="space-y-0.5 not-italic leading-relaxed text-ink-soft">
                   {CONTACT.mailing.map((line) => <div>{line}</div>)}
@@ -50,7 +50,7 @@ const mapQuery = encodeURIComponent('Wickenden Building, Case Western Reserve Un
         </div>
 
         <div>
-          <h2 class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Location</h2>
+          <h2 class="label text-ink-mute">Location</h2>
           <Placeholder
             ratio="4 / 3"
             caption="Static campus map showing the Wickenden Building — image to be added. TODO: content pending."
@@ -67,8 +67,8 @@ const mapQuery = encodeURIComponent('Wickenden Building, Case Western Reserve Un
     </section>
 
     <section class="py-14">
-      <div class="grid gap-x-10 gap-y-6 lg:grid-cols-[10rem_minmax(0,1fr)]">
-        <h2 class="pt-1 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
+      <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+        <h2 class="pt-1 label text-ink-mute lg:text-right">
           Instruments
         </h2>
         <div class="prose-lab">

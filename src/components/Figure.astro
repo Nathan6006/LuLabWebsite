@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import Placeholder from './Placeholder.astro';
+import { photo } from '../lib/images';
+
+/**
+ * An image slot. Renders the fetched Unsplash photo when one exists, and the
+ * proportioned placeholder when it does not, so the page is complete either
+ * way.
+ *
+ * `caption` describes what SHOULD be here — it is what the placeholder shows,
+ * and it stays visible under an illustrative photo so no one mistakes a stock
+ * instrument for the Center's own. Atmospheric images carry no caption; they
+ * are texture, and captioning texture just adds noise.
+ */
+interface Props {
+  id: string;
+  ratio?: string;
+  caption: string;
+  class?: string;
+  imgClass?: string;
+  loading?: 'lazy' | 'eager';
+  widths?: number[];
+  sizes?: string;
+}
+const {
+  id,
+  ratio = '3 / 2',
+  caption,
+  class: klass = '',
+  imgClass = '',
+  loading = 'lazy',
+  widths = [420, 720, 1100],
+  sizes = '(min-width: 1024px) 40vw, 100vw',
+} = Astro.props;
+
+const found = photo(id);
+---
+
+{found ? (
+  <figure class={klass}>
+    <div class="overflow-hidden border border-rule bg-warm-deep" style={`aspect-ratio: ${ratio};`}>
+      <Image
+        src={found.src}
+        alt={found.credit.role === 'atmosphere' ? '' : found.credit.alt}
+        widths={widths}
+        sizes={sizes}
+        loading={loading}
+        decoding="async"
+        class:list={['h-full w-full object-cover', imgClass]}
+      />
+    </div>
+    {found.credit.role === 'illustrative' && (
+      <figcaption class="mt-2.5 max-w-[42ch] text-[0.74rem] leading-snug text-ink-mute">
+        {caption}
+        <span class="mt-1 block">
+          Illustrative stock photograph, not the Center's own instrument. Photo by{' '}
+          <a class="link-underline hover:link-underline-hover" href={found.credit.photographerUrl} rel="noopener nofollow">{found.credit.photographer}</a>{' '}
+          on <a class="link-underline hover:link-underline-hover" href={found.credit.unsplashUrl} rel="noopener nofollow">Unsplash</a>.
+        </span>
+      </figcaption>
+    )}
+  </figure>
+) : (
+  <Placeholder ratio={ratio} caption={caption} class={klass} />
+)}

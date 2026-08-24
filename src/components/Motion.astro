@@ -1,0 +1,66 @@
+---
+/**
+ * Site-wide motion layer. Two moments only:
+ *   1. the hero headline reveal (the SplitText island on the home page)
+ *   2. one short rise as each [data-reveal] block arrives
+ *
+ * Two things this deliberately does NOT do:
+ *
+ * - It never hides anything from CSS. Pre-hiding blocks in the stylesheet keeps
+ *   the largest text block off screen until this script runs, which pushed LCP
+ *   from 1.7s to 3.5s. Only blocks below the fold are hidden, here, in JS.
+ * - It never hands an already-visible block to ScrollTrigger. A trigger whose
+ *   start line is already behind the scroll position never fires, which left
+ *   the first block on the page stuck at its "from" state.
+ */
+---
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const blocks = gsap.utils.toArray<HTMLElement>('[data-reveal]');
+
+  if (!reduced && blocks.length) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const fold = window.innerHeight * 0.9;
+
+    for (const block of blocks) {
+      // Above the fold: already painted, leave it alone. Animating it would
+      // only cost paint time on the content the visitor came for.
+      if (block.getBoundingClientRect().top < fold) continue;
+
+      // Children marked data-reveal-item arrive in sequence; otherwise the
+      // block moves as one piece.
+      const items = block.querySelectorAll<HTMLElement>('[data-reveal-item]');
+      const subjects = items.length ? Array.from(items) : [block];
+
+      gsap.from(subjects, {
+        y: 22,
+        opacity: 0,
+        duration: 0.62,
+        ease: 'power3.out',
+        stagger: items.length ? 0.055 : 0,
+        force3D: true,
+        scrollTrigger: { trigger: block, start: 'top 88%', once: true },
+        onComplete() {
+          for (const s of subjects) s.style.willChange = 'auto';
+        },
+      });
+    }
+  }
+
+  // Failsafe: nothing may be lost to a decorative animation. If a target is
+  // still transparent well after load, force it back.
+  window.setTimeout(() => {
+    const all = document.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-item]');
+    for (const el of all) {
+      if (getComputedStyle(el).opacity === '0' && el.getBoundingClientRect().top < window.innerHeight) {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      }
+    }
+  }, 2500);
+</script>

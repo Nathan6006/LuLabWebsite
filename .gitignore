@@ -6,3 +6,7 @@ dist/
 .env.production
 .wrangler/
 npm-debug.log*
+
+# Secrets — the Unsplash access key is passed as an env var, never committed
+.env*
+!.env.example

@@ -1,40 +1,67 @@
 ---
+import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
 import { SITE, CONTACT } from '../lib/site';
 const year = new Date().getFullYear();
+
+const elsewhere = [
+  { label: 'Google Scholar', href: SITE.scholar },
+  { label: 'CWRU Center for Imaging Research', href: 'https://case.edu/medicine/ccir/faculty/zheng-rong-lu' },
+  { label: 'Former center page', href: 'https://engineering.case.edu/research/centers/center-biomolecular-engineering' },
+];
 ---
 
-<footer class="mt-24 border-t border-rule bg-warm">
-  <div class="mx-auto grid max-w-[76rem] gap-10 px-5 py-14 sm:px-8 md:grid-cols-3">
+<footer class="mt-28 border-t border-rule bg-warm">
+  <div class="mx-auto grid max-w-[78rem] gap-x-10 gap-y-12 px-5 py-16 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr]">
     <div>
-      <h2 class="font-serif text-[1.15rem] text-cwru-blue">Center for Biomolecular Engineering</h2>
-      <p class="mt-2 max-w-[34ch] text-[0.92rem] text-ink-mute">
-        {SITE.department}<br />{SITE.university}
-      </p>
+      <p class="label text-copper">Case Western Reserve University</p>
+      <h2 class="mt-2 max-w-[16ch] font-serif text-[1.35rem] font-[500] leading-tight text-cwru-blue">
+        Center for Biomolecular Engineering
+      </h2>
+      <p class="mt-3 max-w-[36ch] text-[0.92rem] text-ink-mute">{SITE.department}</p>
     </div>
 
     <div>
-      <h2 class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Contact</h2>
-      <address class="mt-3 space-y-1 text-[0.92rem] not-italic text-ink-soft">
-        <div>{CONTACT.office} &middot; Lab {CONTACT.lab}</div>
-        <div><a class="underline underline-offset-2 hover:text-cwru-blue" href={`tel:${CONTACT.phoneHref}`}>{CONTACT.phone}</a></div>
-        <div><a class="underline underline-offset-2 hover:text-cwru-blue" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></div>
+      <h2 class="label text-ink-mute">Contact</h2>
+      <address class="mt-4 space-y-2.5 text-[0.92rem] not-italic text-ink-soft">
+        <div class="flex items-start gap-2.5">
+          <MapPin className="mt-[3px] size-[15px] shrink-0 text-ink-mute" strokeWidth={1.5} aria-hidden="true" />
+          <span>{CONTACT.office}<br />Lab {CONTACT.lab}</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <Phone className="size-[15px] shrink-0 text-ink-mute" strokeWidth={1.5} aria-hidden="true" />
+          <a class="link-underline hover:link-underline-hover" href={`tel:${CONTACT.phoneHref}`}>{CONTACT.phone}</a>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <Mail className="size-[15px] shrink-0 text-ink-mute" strokeWidth={1.5} aria-hidden="true" />
+          <a class="link-underline break-all hover:link-underline-hover" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+        </div>
       </address>
     </div>
 
     <div>
-      <h2 class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Elsewhere</h2>
-      <ul class="mt-3 space-y-1 text-[0.92rem]">
-        <li><a class="underline underline-offset-2 hover:text-cwru-blue" href={SITE.scholar} rel="noopener">Google Scholar</a></li>
-        <li><a class="underline underline-offset-2 hover:text-cwru-blue" href="https://case.edu/medicine/ccir/faculty/zheng-rong-lu" rel="noopener">CWRU Center for Imaging Research</a></li>
-        <li><a class="underline underline-offset-2 hover:text-cwru-blue" href="https://engineering.case.edu/research/centers/center-biomolecular-engineering" rel="noopener">Former center page</a></li>
+      <h2 class="label text-ink-mute">Elsewhere</h2>
+      <ul class="mt-4 space-y-2.5 text-[0.92rem]">
+        {elsewhere.map((l) => (
+          <li>
+            <a class="group inline-flex items-start gap-1 link-underline hover:link-underline-hover" href={l.href} rel="noopener">
+              {l.label}
+              <ArrowUpRight
+                className="mt-[3px] size-[13px] shrink-0 transition-transform duration-200 group-hover:-translate-y-px group-hover:translate-x-px"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   </div>
 
   <div class="border-t border-rule">
-    <p class="mx-auto max-w-[76rem] px-5 py-5 text-[0.82rem] text-ink-mute sm:px-8">
+    <p class="mx-auto max-w-[78rem] px-5 py-5 text-[0.8rem] text-ink-mute sm:px-8">
       &copy; {year} Case Western Reserve University &middot; Center for Biomolecular Engineering.
       A laboratory of the Department of Biomedical Engineering, Case School of Engineering.
+      <a class="link-underline ml-1 hover:link-underline-hover" href="/credits">Image credits</a>.
     </p>
   </div>
 </footer>

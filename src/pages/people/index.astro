@@ -32,12 +32,12 @@ for (const p of rest) {
     </p>
   </PageHeader>
 
-  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+  <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
     <section class="border-b border-rule py-14">
-      <div class="grid gap-x-12 gap-y-8 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
+      <div class="grid gap-x-12 gap-y-8 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]" data-reveal>
         <Placeholder ratio="4 / 5" caption={director.data.photoNote ?? `Portrait of ${director.data.name}`} />
         <div>
-          <p class="text-[0.72rem] font-bold uppercase tracking-[0.13em] text-copper">Director</p>
+          <p class="label text-copper">Director</p>
           <h2 class="mt-2 text-h2 text-cwru-dark">
             {director.data.name}{director.data.credentials && <span class="text-ink-mute">, {director.data.credentials}</span>}
           </h2>
@@ -48,9 +48,9 @@ for (const p of rest) {
 
           <div class="prose-lab mt-6"><DirectorBio /></div>
 
-          <dl class="mt-8 grid gap-x-10 gap-y-6 sm:grid-cols-2">
+          <dl class="mt-8 grid gap-x-12 gap-y-6 sm:grid-cols-2">
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Contact</dt>
+              <dt class="label text-ink-mute">Contact</dt>
               <dd class="mt-2 space-y-1 text-[0.92rem] text-ink-soft">
                 <div>Office: {director.data.office}</div>
                 <div>Phone: <a class="text-cwru-blue underline underline-offset-2 decoration-cwru-blue/40 hover:decoration-current" href={`tel:+1${director.data.phone?.replace(/\D/g, '')}`}>{director.data.phone}</a></div>
@@ -59,17 +59,17 @@ for (const p of rest) {
               </dd>
             </div>
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Education</dt>
+              <dt class="label text-ink-mute">Education</dt>
               <dd class="mt-2 space-y-1 text-[0.92rem] text-ink-soft">
                 {director.data.education.map((e) => <div>{e}</div>)}
               </dd>
             </div>
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Research interests</dt>
+              <dt class="label text-ink-mute">Research interests</dt>
               <dd class="mt-2 text-[0.92rem] text-ink-soft">{director.data.interests.join(' · ')}</dd>
             </div>
             <div>
-              <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">Links</dt>
+              <dt class="label text-ink-mute">Links</dt>
               <dd class="mt-2 space-y-1 text-[0.92rem]">
                 {director.data.links.map((l) => (
                   <div><a class="text-cwru-blue underline underline-offset-2 decoration-cwru-blue/40 hover:decoration-current" href={l.href} rel="noopener">{l.label}</a></div>
@@ -91,8 +91,8 @@ for (const p of rest) {
 
     {groups.map((g) => (
       <section class="border-b border-rule py-14 last:border-b-0">
-        <div class="grid gap-x-10 gap-y-8 lg:grid-cols-[10rem_minmax(0,1fr)]">
-          <h2 class="pt-1 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
+        <div class="grid gap-x-12 gap-y-8 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+          <h2 class="pt-1 label text-ink-mute lg:text-right">
             {g.name}
           </h2>
           <ul class="grid grid-cols-2 gap-x-7 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">

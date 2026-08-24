@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { allCredits } from '../lib/images';
+
+const credits = allCredits();
+---
+
+<Base title="Image credits" description="Photography credits for the Center for Biomolecular Engineering website.">
+  <PageHeader
+    eyebrow="Credits"
+    title="Image credits"
+    lede="Photography used on this site, and where it came from."
+  />
+
+  <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
+    <section class="border-b border-rule py-14">
+      <div class="grid gap-x-12 gap-y-8 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+        <h2 class="label pt-1 text-ink-mute lg:text-right">Stock photography</h2>
+        <div>
+          <div class="prose-lab">
+            <p>
+              The atmospheric photographs behind the page headers are stock images
+              from <a href="https://unsplash.com" rel="noopener nofollow">Unsplash</a>,
+              used under the Unsplash licence. They are texture, not documentation:
+              <strong>none of them shows this laboratory, its people, or its
+              equipment.</strong>
+            </p>
+            <p>
+              Every portrait, the group photograph, the instrument photographs and
+              the campus map are still placeholders awaiting the lab's own images.
+              See <code>TODO.md</code> in the repository.
+            </p>
+          </div>
+
+          {credits.length > 0 && (
+            <ul class="mt-9 grid gap-6 sm:grid-cols-2">
+              {credits.map((c) => (
+                <li class="rule-top pt-4">
+                  <p class="label text-ink-mute">{c.note}</p>
+                  <p class="mt-1.5 text-[0.93rem] text-ink-soft">
+                    Photo by{' '}
+                    <a class="link-underline hover:link-underline-hover" href={c.photographerUrl} rel="noopener nofollow">{c.photographer}</a>{' '}
+                    on{' '}
+                    <a class="link-underline hover:link-underline-hover" href={c.unsplashUrl} rel="noopener nofollow">Unsplash</a>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <section class="py-14">
+      <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+        <h2 class="label pt-1 text-ink-mute lg:text-right">Typefaces</h2>
+        <div class="prose-lab">
+          <p>
+            Headings are set in Literata by TypeTogether; body text in IBM Plex Sans
+            and metadata in IBM Plex Mono, both by Mike Abbink and Bold Monday for
+            IBM. All three are open source and served from this site.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>

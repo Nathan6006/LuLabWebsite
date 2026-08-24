@@ -46,7 +46,7 @@ const instruments = [
 ---
 
 <Base title="Instruments" description="Shared instrumentation available through the Center for Biomolecular Engineering.">
-  <PageHeader
+  <PageHeader atmosphere="instruments-banner"
     eyebrow="Instruments"
     title="Shared instrumentation"
     lede="We currently have the following instruments available through the Center for Biomolecular Engineering. We are located on the 4th floor of the Wickenden building."
@@ -57,11 +57,11 @@ const instruments = [
     </p>
   </PageHeader>
 
-  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+  <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
     {instruments.map((inst, i) => (
       <section class="border-b border-rule py-14 last:border-b-0">
-        <div class="grid gap-x-10 gap-y-6 lg:grid-cols-[10rem_minmax(0,1fr)]">
-          <p class="pt-2 font-serif text-[1.5rem] leading-none text-copper tabular-nums lg:text-right">
+        <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+          <p class="pt-2 font-serif text-[1.5rem] leading-none text-copper tabular lg:text-right">
             {String(i + 1).padStart(2, '0')}
           </p>
           <div>
@@ -70,7 +70,7 @@ const instruments = [
 
             <Placeholder
               ratio="3 / 2"
-              caption={`Photograph of the ${inst.name}`}
+              caption={`Photograph of the ${inst.name} in Wickenden.`}
               class="my-8 max-w-[26rem]"
             />
 
@@ -78,7 +78,7 @@ const instruments = [
               <dl class="mt-6 max-w-[68ch] space-y-5">
                 {inst.specs.map((s) => (
                   <div>
-                    <dt class="text-[0.72rem] font-bold uppercase tracking-[0.11em] text-ink-mute">{s.head}</dt>
+                    <dt class="label text-ink-mute">{s.head}</dt>
                     <dd class="mt-1.5 text-[0.95rem] leading-relaxed text-ink-soft">{s.body}</dd>
                   </div>
                 ))}

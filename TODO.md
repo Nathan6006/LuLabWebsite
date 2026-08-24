@@ -79,11 +79,22 @@ carried over exactly as found and is very likely out of date:
 
 ---
 
-## 3. Photographs — none supplied
+## 3. Photographs — the lab's own images are still needed
 
-Every photo on the site is a correctly-proportioned grey placeholder with a
-caption naming what belongs there. Nothing was scraped from the old site and no
-stock photography was used, per instruction.
+Every photograph *of this laboratory* is still a correctly-proportioned
+placeholder with a caption naming what belongs there. Nothing was scraped from
+the old site.
+
+Stock imagery from Unsplash **is** now used, but only as treated atmospheric
+banners beside five page headers, and the `/credits` page states outright that
+none of it shows this laboratory. It was deliberately kept out of every slot
+that stands for something specific.
+
+Unsplash was also tried for the four instrument photographs and abandoned: the
+library has no Olympus FV1000, Agilent 5800, ChemiDoc XRS+ or Litesizer 500, and
+the closest matches it returned — an industrial laser engraver, a rack of blood
+collection tubes, an abstract white wall — would have been actively misleading
+under a heading naming a specific instrument. Those four remain placeholders.
 
 | Where | Aspect ratio | What's needed |
 |---|---|---|
@@ -97,6 +108,10 @@ stock photography was used, per instruction.
 
 Placeholder captions are set per person in `photoNote:` and per research area in
 `figureNote:`.
+
+**Also needed:** if the lab supplies its own instrument and laboratory
+photographs, the Unsplash banners should be replaced with them and the
+`/credits` page trimmed accordingly.
 
 ---
 
@@ -172,6 +187,12 @@ were kept, distinguished by outlet. Confirm whether both should stay.
   logo use.**
 - **The favicon is a generic placeholder** (a blue tile with an abstract mark). It
   is not a CWRU asset. Replace or remove it.
+- **Stock imagery is credited as Unsplash requires**, on `/credits` and linked
+  from the footer. The fetch script also calls each photo's download endpoint,
+  which the Unsplash API terms require. If banners are swapped out by hand,
+  keep `src/data/unsplash.json` in step or the credits will be wrong.
+- **Typefaces are Literata and IBM Plex Sans/Mono**, all open licence
+  (SIL OFL), self-hosted. No licensing action needed.
 - **Colours are the current CWRU brand palette** fetched from
   `case.edu/brand/visual-identity/color` on 24 Aug 2026: CWRU Blue `#003071`,
   CWRU Dark Blue `#09143A`, CWRU Light Blue `#A6D2E6`.

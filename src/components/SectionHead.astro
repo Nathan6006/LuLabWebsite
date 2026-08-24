@@ -1,0 +1,14 @@
+---
+/** A section title paired with its mono index, on the shared left rail. */
+interface Props {
+  label: string;
+  index?: string;
+  class?: string;
+}
+const { label, index, class: klass = '' } = Astro.props;
+---
+
+<div class:list={['flex items-baseline gap-3 pt-1.5 lg:flex-col lg:items-end lg:gap-1.5', klass]}>
+  <p class="label text-ink-mute">{label}</p>
+  {index && <p class="label text-copper tabular">{index}</p>}
+</div>

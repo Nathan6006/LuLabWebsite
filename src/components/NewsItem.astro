@@ -1,5 +1,7 @@
 ---
+import { ArrowUpRight } from 'lucide-react';
 import type { CollectionEntry } from 'astro:content';
+
 interface Props { item: CollectionEntry<'news'>; showKind?: boolean }
 const { item, showKind = false } = Astro.props;
 const d = item.data;
@@ -8,21 +10,26 @@ const dateLabel = d.date
   ? d.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
   : String(d.year);
 const meta = [d.outlet, dateLabel].filter(Boolean).join(' · ');
-const Tag = d.url ? 'a' : 'div';
 ---
 
-<li class="rule-top py-5 first:border-t-0 first:pt-0">
-  <p class="text-[0.76rem] font-medium uppercase tracking-[0.09em] text-ink-mute">
+<li class="group rule-top py-5 first:border-t-0 first:pt-0" data-reveal-item>
+  <p class="label text-ink-mute">
     {meta}
     {showKind && d.kind === 'announcement' && <span class="text-copper"> · Lab news</span>}
   </p>
-  <Tag
-    href={d.url}
-    rel={d.url ? 'noopener' : undefined}
-    class:list={[
-      'mt-1.5 block font-serif text-[1.06rem] leading-snug text-cwru-dark',
-      d.url &&
-        'underline decoration-cwru-blue/25 underline-offset-[3px] transition-colors hover:text-cwru-blue hover:decoration-current',
-    ]}
-  >{d.title}</Tag>
+
+  {d.url ? (
+    <a href={d.url} rel="noopener" class="mt-2 block font-serif text-[1.04rem] font-[550] leading-snug text-cwru-dark transition-colors duration-200 hover:text-cwru-blue">
+      <span
+        class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat pb-[2px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:100%_1px]"
+        >{d.title}</span
+      ><ArrowUpRight
+        className="ml-1 inline size-[13px] shrink-0 -translate-y-[1px] text-ink-mute transition-all duration-200 group-hover:-translate-y-[3px] group-hover:text-cwru-blue"
+        strokeWidth={1.75}
+        aria-hidden="true"
+      />
+    </a>
+  ) : (
+    <p class="mt-2 font-serif text-[1.04rem] font-[550] leading-snug text-cwru-dark">{d.title}</p>
+  )}
 </li>

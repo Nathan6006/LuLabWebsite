@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
+import Atmosphere from '../components/Atmosphere.astro';
 import NewsItem from '../components/NewsItem.astro';
 
 const news = await getCollection('news');
@@ -21,19 +22,19 @@ const notesByYear = group(notes);
 ---
 
 <Base title="News" description="Press coverage and announcements from the Center for Biomolecular Engineering.">
-  <PageHeader
+  <PageHeader atmosphere="news-banner"
     eyebrow="News"
     title="Coverage and announcements"
     lede="Press about the lab's work, and news from inside the group."
   />
 
-  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+  <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
     <section class="border-b border-rule py-14">
       <h2 class="text-h2 text-cwru-dark">In the news</h2>
       <div class="mt-10 space-y-12">
         {pressByYear.map(({ year, items }) => (
-          <div class="grid gap-x-10 gap-y-5 lg:grid-cols-[10rem_minmax(0,1fr)]">
-            <h3 class="pt-1 font-serif text-[1.5rem] leading-none text-copper tabular-nums lg:text-right">{year}</h3>
+          <div class="grid gap-x-12 gap-y-5 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+            <h3 class="pt-1 font-serif text-[1.5rem] leading-none text-copper tabular lg:text-right">{year}</h3>
             <ul class="max-w-[70ch]">{items.map((item) => <NewsItem item={item} />)}</ul>
           </div>
         ))}
@@ -47,8 +48,8 @@ const notesByYear = group(notes);
       </p>
       <div class="mt-10 space-y-12">
         {notesByYear.map(({ year, items }) => (
-          <div class="grid gap-x-10 gap-y-5 lg:grid-cols-[10rem_minmax(0,1fr)]">
-            <h3 class="pt-1 font-serif text-[1.5rem] leading-none text-copper tabular-nums lg:text-right">{year}</h3>
+          <div class="grid gap-x-12 gap-y-5 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+            <h3 class="pt-1 font-serif text-[1.5rem] leading-none text-copper tabular lg:text-right">{year}</h3>
             <ul class="max-w-[70ch]">{items.map((item) => <NewsItem item={item} />)}</ul>
           </div>
         ))}

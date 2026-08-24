@@ -1,0 +1,52 @@
+---
+import { Image } from 'astro:assets';
+import { photo } from '../lib/images';
+
+/**
+ * A bleed panel of atmospheric imagery on the right of a section header.
+ *
+ * Held to the right ~46% and masked so its left edge dissolves into the ground,
+ * which reads as a deliberate panel rather than a washed-out full-bleed photo
+ * with a seam down the middle. Desaturated and dimmed, because this is texture:
+ * none of these images shows this laboratory, and none should look like it
+ * does. Renders nothing when the image has not been fetched, so every caller
+ * still stands on its own.
+ */
+interface Props {
+  id: string;
+  class?: string;
+  /** 0–100. How much of the image survives the treatment. */
+  strength?: number;
+  /** 0–1. Photographic banners go near-monochrome; an abstract ground can keep
+      its colour when that colour is already the site's blue. */
+  desaturate?: number;
+  loading?: 'lazy' | 'eager';
+}
+const { id, class: klass = '', strength = 42, desaturate = 0.7, loading = 'lazy' } = Astro.props;
+const found = photo(id);
+
+const mask =
+  'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 22%, rgba(0,0,0,0.85) 55%, #000 100%)';
+---
+
+{found && (
+  <div
+    class:list={['pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] overflow-hidden md:block', klass]}
+    aria-hidden="true"
+  >
+    <Image
+      src={found.src}
+      alt=""
+      widths={[560, 900, 1300]}
+      sizes="46vw"
+      loading={loading}
+      decoding="async"
+      fetchpriority="low"
+      class="h-full w-full object-cover"
+      style={`opacity:${strength / 100};filter:grayscale(${desaturate}) contrast(1.04);-webkit-mask-image:${mask};mask-image:${mask};`}
+    />
+    <!-- A hairline where the panel meets the type column, matching the rules
+         used everywhere else on the site. -->
+    <span class="absolute inset-y-0 left-0 w-px bg-rule/60"></span>
+  </div>
+)}

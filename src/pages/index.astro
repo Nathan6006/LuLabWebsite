@@ -1,15 +1,19 @@
 ---
 import { getCollection } from 'astro:content';
+import { ArrowRight } from 'lucide-react';
 import Base from '../layouts/Base.astro';
+import HeroTitle from '../components/HeroTitle.tsx';
 import NewsItem from '../components/NewsItem.astro';
 import PublicationItem from '../components/PublicationItem.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Atmosphere from '../components/Atmosphere.astro';
 import { SITE } from '../lib/site';
 
-const thrusts = (await getCollection('research'))
-  .filter((r) => !r.data.parent)
-  .sort((a, b) => a.data.order - b.data.order);
+const research = await getCollection('research');
+const thrusts = research.filter((r) => !r.data.parent).sort((a, b) => a.data.order - b.data.order);
 
-const news = (await getCollection('news'))
+const allNews = await getCollection('news');
+const news = allNews
   .sort(
     (a, b) =>
       (b.data.date?.getTime() ?? b.data.year * 1e10) - (a.data.date?.getTime() ?? a.data.year * 1e10),
@@ -17,43 +21,189 @@ const news = (await getCollection('news'))
   .filter((n) => n.data.featured)
   .slice(0, 3);
 
-const pubs = (await getCollection('publications'))
+const allPubs = await getCollection('publications');
+const pubs = allPubs
   .sort((a, b) => b.data.year - a.data.year || a.data.order - b.data.order)
   .slice(0, 3);
+
+const alumni = await getCollection('alumni');
+
+// Every figure below is counted from the content collections at build time.
+// Nothing here is asserted by hand — see TODO.md on the staleness of the source.
+const figures = [
+  { value: String(allPubs.length), label: 'Publications' },
+  { value: String(alumni.length), label: 'Lab alumni' },
+  { value: String(thrusts.length + research.filter((r) => r.data.parent).length), label: 'Research programmes' },
+  { value: '4', label: 'Shared instruments' },
+];
 ---
 
 <Base description={SITE.mission}>
-  <!-- Hero: asymmetric two-column, statement left, video right. -->
-  <section class="border-b border-rule bg-warm">
-    <div class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-24">
-      <div class="grid items-start gap-x-14 gap-y-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+  <!-- Hero. A masthead, not a split: the title runs to its own measure and the
+       lede hangs off the right of the same block, so the two settle on
+       different baselines without a panel propping up the empty side. -->
+  <section class="relative border-b border-rule bg-warm">
+    <Atmosphere id="hero-texture" strength={38} desaturate={0.2} />
+    <div class="relative mx-auto max-w-[78rem] px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-20">
+      <div class="flex items-center gap-3">
+        <span class="h-px w-8 bg-copper"></span>
+        <p class="label text-copper">Case Western Reserve University</p>
+      </div>
+
+      <HeroTitle
+        client:load
+        text="Center for Biomolecular Engineering"
+        className="hero-title mt-7 text-display max-w-[11ch] text-cwru-dark"
+      />
+
+      <div class="mt-10 grid gap-x-14 gap-y-8 border-t border-rule pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+        <p class="max-w-[34ch] text-lede text-ink-soft">
+          Welcome to Dr. Zheng-Rong Lu's Group in the Department of Biomedical
+          Engineering.
+        </p>
+
         <div>
-          <p class="rise rise-1 text-[0.74rem] font-bold uppercase tracking-[0.14em] text-copper">
-            Case Western Reserve University
+          <p class="max-w-[52ch] text-[0.98rem] leading-relaxed text-ink-soft">
+            {SITE.mission}
           </p>
-          <h1 class="rise rise-2 mt-4 text-display text-cwru-dark">
-            Center for<br />Biomolecular<br />Engineering
-          </h1>
-          <p class="rise rise-3 mt-6 max-w-[46ch] text-lede text-ink-soft">
-            Welcome to Dr. Zheng-Rong Lu's Group in the Department of Biomedical
-            Engineering.
-          </p>
-          <div class="rise rise-4 mt-8 flex flex-wrap gap-3">
+          <div class="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3">
             <a
               href="/research"
-              class="rounded-sm bg-cwru-blue px-5 py-3 text-[0.92rem] font-medium text-white transition-colors hover:bg-cwru-dark"
-              >Explore our research</a
+              class="group inline-flex items-center gap-2 bg-cwru-blue px-6 py-3.5 text-[0.92rem] font-medium text-white transition-colors duration-200 hover:bg-cwru-dark"
             >
+              Explore our research
+              <ArrowRight
+                className="size-4 transition-transform duration-200 group-hover:translate-x-1"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+            </a>
             <a
               href="/join"
-              class="rounded-sm border border-cwru-blue/35 px-5 py-3 text-[0.92rem] font-medium text-cwru-blue transition-colors hover:border-cwru-blue hover:bg-white"
-              >Open positions</a
+              class="group inline-flex items-center gap-2 py-3.5 text-[0.92rem] font-medium text-cwru-blue"
             >
+              <span
+                class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-left-bottom bg-no-repeat pb-[3px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:0%_1px]"
+                >Open positions</span
+              >
+              <ArrowRight
+                className="size-4 transition-transform duration-200 group-hover:translate-x-1"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+            </a>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="rise rise-4">
-          <div class="overflow-hidden rounded-sm border border-rule bg-black shadow-sm">
+  <!-- Figures rail. Numbers as graphic elements, counted from the content. -->
+  <section class="border-b border-rule bg-cwru-blue text-white">
+    <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
+      <dl class="grid grid-cols-2 divide-cwru-light/25 sm:grid-cols-4 sm:divide-x" data-reveal>
+        {figures.map((f) => (
+          <div class="border-b border-cwru-light/25 px-1 py-7 sm:border-b-0 sm:px-7 sm:first:pl-0 sm:last:pr-0" data-reveal-item>
+            <dt class="label text-cwru-light">{f.label}</dt>
+            <dd class="mt-2 font-serif text-[2.4rem] font-[400] leading-none tabular">{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">
+    <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+      <SectionHead label="Approach" index="01" />
+      <div class="prose-lab">
+        <p class="font-serif text-[1.36rem] font-[400] leading-[1.42] text-cwru-dark sm:text-[1.58rem]">
+          {SITE.missionExtended}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Research areas -->
+  <section class="border-y border-rule bg-warm">
+    <div class="mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">
+      <div class="grid gap-x-12 gap-y-10 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+        <SectionHead label="Research" index="02" />
+        <div>
+          <div class="flex flex-wrap items-baseline justify-between gap-4">
+            <h2 class="text-h2 text-cwru-dark">Research areas</h2>
+            <a class="group inline-flex items-center gap-1.5 text-[0.88rem] font-medium text-cwru-blue" href="/research">
+              All research
+              <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
+            </a>
+          </div>
+
+          <ul class="mt-10 grid gap-px bg-rule sm:grid-cols-2">
+            {thrusts.map((t, i) => (
+              <li data-reveal-item>
+                <a
+                  href={`/research#${t.id}`}
+                  class="group relative flex h-full flex-col bg-paper p-8 transition-colors duration-200 hover:bg-warm"
+                >
+                  <span class="absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-copper transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-x-100"></span>
+                  <p class="label text-copper tabular">{String(i + 1).padStart(2, '0')}</p>
+                  <h3 class="mt-3 text-h3 text-cwru-dark">{t.data.title}</h3>
+                  <p class="mt-3 text-[0.93rem] leading-relaxed text-ink-soft">{t.data.summary}</p>
+                  <span class="mt-6 inline-flex items-center gap-1.5 text-[0.84rem] font-medium text-cwru-blue">
+                    Read more
+                    <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- News + publications -->
+  <section class="mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">
+    <div class="grid gap-x-14 gap-y-16 lg:grid-cols-2">
+      <div data-reveal>
+        <div class="flex flex-wrap items-baseline justify-between gap-4 border-b border-rule pb-4">
+          <div class="flex items-baseline gap-3">
+            <span class="label text-copper tabular">03</span>
+            <h2 class="text-h2 text-cwru-dark">In the news</h2>
+          </div>
+          <a class="group inline-flex items-center gap-1.5 text-[0.88rem] font-medium text-cwru-blue" href="/news">
+            All news
+            <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
+          </a>
+        </div>
+        <ul class="mt-6">{news.map((item) => <NewsItem item={item} />)}</ul>
+      </div>
+
+      <div data-reveal>
+        <div class="flex flex-wrap items-baseline justify-between gap-4 border-b border-rule pb-4">
+          <div class="flex items-baseline gap-3">
+            <span class="label text-copper tabular">04</span>
+            <h2 class="text-h2 text-cwru-dark">Recent publications</h2>
+          </div>
+          <a class="group inline-flex items-center gap-1.5 text-[0.88rem] font-medium text-cwru-blue" href="/publications">
+            All publications
+            <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
+          </a>
+        </div>
+        <ul class="mt-6">{pubs.map((pub) => <PublicationItem pub={pub} />)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lab overview video. Kept, but well down the page and labelled with its
+       age — it is the clip from the Center's previous site and is out of date.
+       See TODO.md. -->
+  <section class="border-t border-rule bg-warm">
+    <div class="mx-auto max-w-[78rem] px-5 py-16 sm:px-8 sm:py-20">
+      <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+        <SectionHead label="Archive" index="05" />
+        <div class="grid gap-x-10 gap-y-5 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] md:items-start">
+          <div class="overflow-hidden border border-rule bg-black">
             <iframe
               class="block aspect-video w-full"
               src={`https://www.youtube-nocookie.com/embed/${SITE.videoId}`}
@@ -62,72 +212,15 @@ const pubs = (await getCollection('publications'))
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen></iframe>
           </div>
-          <p class="mt-2 text-[0.78rem] text-ink-mute">
-            Lab overview video carried over from the Center's previous site.
-          </p>
+          <div>
+            <h2 class="font-serif text-[1.18rem] font-[550] text-cwru-dark">Lab overview</h2>
+            <p class="mt-2 max-w-[46ch] text-[0.92rem] leading-relaxed text-ink-mute">
+              Carried over from the Center's previous site. The clip predates the
+              current group and is kept here for the archive rather than as a
+              current introduction.
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Mission -->
-  <section class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-20">
-    <div class="grid gap-x-10 gap-y-4 lg:grid-cols-[10rem_minmax(0,1fr)]">
-      <h2 class="pt-2 text-[0.72rem] font-bold uppercase tracking-[0.13em] text-ink-mute lg:text-right">
-        Mission
-      </h2>
-      <div class="prose-lab">
-        <p class="font-serif text-[1.32rem] leading-[1.45] text-cwru-dark sm:text-[1.5rem]">
-          {SITE.mission}
-        </p>
-        <p class="mt-5">{SITE.missionExtended}</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Research areas -->
-  <section class="border-y border-rule bg-warm">
-    <div class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-20">
-      <div class="flex flex-wrap items-baseline justify-between gap-4">
-        <h2 class="text-h2 text-cwru-dark">Research areas</h2>
-        <a class="text-[0.9rem] font-medium text-cwru-blue underline underline-offset-4 decoration-cwru-blue/35 hover:decoration-current" href="/research">All research &rarr;</a>
-      </div>
-      <ul class="mt-10 grid gap-6 sm:grid-cols-2">
-        {thrusts.map((t) => (
-          <li>
-            <a
-              href={`/research#${t.id}`}
-              class="group flex h-full flex-col rounded-sm border border-rule bg-paper p-7 transition-colors hover:border-cwru-blue/45"
-            >
-              <h3 class="text-h3 text-cwru-dark transition-colors group-hover:text-cwru-blue">
-                {t.data.title}
-              </h3>
-              <p class="mt-3 text-[0.95rem] leading-relaxed text-ink-soft">{t.data.summary}</p>
-              <span class="mt-5 text-[0.85rem] font-medium text-cwru-blue">Read more &rarr;</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-
-  <!-- News + publications -->
-  <section class="mx-auto max-w-[76rem] px-5 py-16 sm:px-8 sm:py-20">
-    <div class="grid gap-x-14 gap-y-14 lg:grid-cols-2">
-      <div>
-        <div class="flex flex-wrap items-baseline justify-between gap-4">
-          <h2 class="text-h2 text-cwru-dark">In the news</h2>
-          <a class="text-[0.9rem] font-medium text-cwru-blue underline underline-offset-4 decoration-cwru-blue/35 hover:decoration-current" href="/news">All news &rarr;</a>
-        </div>
-        <ul class="mt-8">{news.map((item) => <NewsItem item={item} />)}</ul>
-      </div>
-
-      <div>
-        <div class="flex flex-wrap items-baseline justify-between gap-4">
-          <h2 class="text-h2 text-cwru-dark">Recent publications</h2>
-          <a class="text-[0.9rem] font-medium text-cwru-blue underline underline-offset-4 decoration-cwru-blue/35 hover:decoration-current" href="/publications">All publications &rarr;</a>
-        </div>
-        <ul class="mt-8">{pubs.map((pub) => <PublicationItem pub={pub} />)}</ul>
       </div>
     </div>
   </section>

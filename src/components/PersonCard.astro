@@ -7,20 +7,20 @@ const { person } = Astro.props;
 const d = person.data;
 ---
 
-<article class="group">
+<article class="group" data-reveal-item>
   <Placeholder
     ratio="4 / 5"
     compact
     caption={d.photoNote ?? `Portrait of ${d.name}`}
-    class="mb-3"
+    class="mb-3.5"
   />
-  <h3 class="font-serif text-[1.08rem] leading-snug text-cwru-dark">
-    {d.name}{d.credentials && <span class="text-ink-mute">, {d.credentials}</span>}
+  <h3 class="font-serif text-[1.02rem] font-[550] leading-snug text-cwru-dark">
+    {d.name}{d.credentials && <span class="font-[400] text-ink-mute">, {d.credentials}</span>}
   </h3>
-  <p class="mt-0.5 text-[0.86rem] text-ink-mute">{d.role}</p>
+  <p class="mt-1 text-[0.84rem] leading-snug text-ink-mute">{d.role}</p>
   {d.email && (
     <a
-      class="mt-1 inline-block break-all text-[0.82rem] text-cwru-blue underline underline-offset-2 decoration-cwru-blue/40 hover:decoration-current"
+      class="mt-1.5 inline-block break-all font-mono text-[0.72rem] tracking-tight link-underline hover:link-underline-hover"
       href={`mailto:${d.email}`}>{d.email}</a>
   )}
 </article>

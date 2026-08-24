@@ -1,0 +1,70 @@
+{
+  "hero-texture": {
+    "file": "hero-texture.jpg",
+    "role": "atmosphere",
+    "note": "Hero background texture",
+    "alt": "a close up of a snow covered ground",
+    "width": 3992,
+    "height": 2992,
+    "color": "#73a6d9",
+    "photographer": "Aaron Burden",
+    "photographerUrl": "https://unsplash.com/@aaronburden?utm_source=lu_lab_cbe&utm_medium=referral",
+    "photoUrl": "https://unsplash.com/photos/a-close-up-of-a-snow-covered-ground-qJrg0ANseFE?utm_source=lu_lab_cbe&utm_medium=referral",
+    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
+  },
+  "join-lab": {
+    "file": "join-lab.jpg",
+    "role": "atmosphere",
+    "note": "Open positions page banner",
+    "alt": "Man working at a microscope in a laboratory",
+    "width": 5738,
+    "height": 4482,
+    "color": "#c0c0c0",
+    "photographer": "Navy Medicine",
+    "photographerUrl": "https://unsplash.com/@navymedicine?utm_source=lu_lab_cbe&utm_medium=referral",
+    "photoUrl": "https://unsplash.com/photos/man-working-at-a-microscope-in-a-laboratory-gxHT8JuIbgQ?utm_source=lu_lab_cbe&utm_medium=referral",
+    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
+  },
+  "news-banner": {
+    "file": "news-banner.jpg",
+    "photoId": "xYyJAC0IdyI",
+    "role": "atmosphere",
+    "note": "News page banner",
+    "alt": "a long row of books in a library",
+    "width": 6027,
+    "height": 4010,
+    "color": "#d9d9d9",
+    "photographer": "Zetong Li",
+    "photographerUrl": "https://unsplash.com/@zetong?utm_source=lu_lab_cbe&utm_medium=referral",
+    "photoUrl": "https://unsplash.com/photos/a-long-row-of-books-in-a-library-xYyJAC0IdyI?utm_source=lu_lab_cbe&utm_medium=referral",
+    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
+  },
+  "instruments-banner": {
+    "file": "instruments-banner.jpg",
+    "photoId": "_9xRHrMOjeg",
+    "role": "atmosphere",
+    "note": "Instruments page banner",
+    "alt": "A laboratory workbench with a microscope and analytical equipment in a bright room",
+    "width": 5845,
+    "height": 3897,
+    "color": "#c0c0c0",
+    "photographer": "Trnava University",
+    "photographerUrl": "https://unsplash.com/@trnavskauni?utm_source=lu_lab_cbe&utm_medium=referral",
+    "photoUrl": "https://unsplash.com/photos/laboratory-workbench-with-microscope-and-equipment-_9xRHrMOjeg?utm_source=lu_lab_cbe&utm_medium=referral",
+    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
+  },
+  "research-banner": {
+    "file": "research-banner.jpg",
+    "photoId": "Rl9bIWKCVF0",
+    "role": "atmosphere",
+    "note": "Research page banner",
+    "alt": "A Meiji Techno microscope with multiple objective lenses above a black stage",
+    "width": 6720,
+    "height": 4480,
+    "color": "#f3f3f3",
+    "photographer": "Logan Gutierrez",
+    "photographerUrl": "https://unsplash.com/@photosoflogan?utm_source=lu_lab_cbe&utm_medium=referral",
+    "photoUrl": "https://unsplash.com/photos/meiji-techno-microscope-with-objective-lenses-Rl9bIWKCVF0?utm_source=lu_lab_cbe&utm_medium=referral",
+    "unsplashUrl": "https://unsplash.com/?utm_source=lu_lab_cbe&utm_medium=referral"
+  }
+}

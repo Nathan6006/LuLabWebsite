@@ -29,11 +29,11 @@ const byYear = years.map((y) => ({
     </p>
   </PageHeader>
 
-  <div class="mx-auto max-w-[76rem] px-5 sm:px-8">
+  <div class="mx-auto max-w-[78rem] px-5 sm:px-8">
     {byYear.map(({ year, items }) => (
       <section class="border-b border-rule py-12 last:border-b-0">
-        <div class="grid gap-x-10 gap-y-6 lg:grid-cols-[10rem_minmax(0,1fr)]">
-          <h2 class="pt-1 font-serif text-[1.6rem] leading-none text-copper tabular-nums lg:text-right">
+        <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+          <h2 class="pt-1 font-serif text-[1.6rem] leading-none text-copper tabular lg:text-right">
             {year}
           </h2>
           <ul class="max-w-[70ch]">{items.map((pub) => <PublicationItem pub={pub} />)}</ul>
