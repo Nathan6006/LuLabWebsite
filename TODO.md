@@ -85,9 +85,14 @@ Every photograph *of this laboratory* is still a correctly-proportioned
 placeholder with a caption naming what belongs there. Nothing was scraped from
 the old site.
 
-Stock imagery from Unsplash **is** now used, but only as treated atmospheric
-banners beside five page headers, and the `/credits` page states outright that
-none of it shows this laboratory. It was deliberately kept out of every slot
+Stock imagery from Unsplash **is** now used — treated atmospheric panels beside
+five page headers, two abstract images on the home page research cards, and one
+full-bleed band on the research page. The `/credits` page states outright that
+none of it shows this laboratory.
+
+The two research-card images were picked to be unmistakably abstract (an ink
+cloud, a water ripple) rather than anything that could be read as one of the
+lab's own micrographs, scans, or figures. It was deliberately kept out of every slot
 that stands for something specific.
 
 Unsplash was also tried for the four instrument photographs and abandoned: the

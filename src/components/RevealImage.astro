@@ -1,0 +1,68 @@
+---
+import { Image } from 'astro:assets';
+import { photo } from '../lib/images';
+
+/**
+ * The site's one image animation, used everywhere an image appears.
+ *
+ * A mask wipes open from the bottom while the picture settles from a slight
+ * overscale — the move a printed plate makes when it is laid onto a page. It is
+ * one gesture, ~0.9s, and it never repeats. Deliberately not parallax: the
+ * image is fixed to its frame and only the mask moves, so nothing drifts
+ * against the type while you read.
+ *
+ * The wrapper holds the frame's aspect ratio from first paint, so the reveal
+ * cannot shift the page. Renders nothing when the image is absent.
+ */
+interface Props {
+  id: string;
+  ratio?: string;
+  class?: string;
+  /** Hover scale, for images inside a link. Off by default. */
+  interactive?: boolean;
+  desaturate?: number;
+  loading?: 'lazy' | 'eager';
+  sizes?: string;
+  widths?: number[];
+  /** Skip the scroll trigger and play as soon as the page loads. */
+  immediate?: boolean;
+}
+const {
+  id,
+  ratio = '16 / 9',
+  class: klass = '',
+  interactive = false,
+  desaturate = 0.35,
+  loading = 'lazy',
+  sizes = '(min-width: 1024px) 45vw, 100vw',
+  widths = [520, 900, 1400],
+  immediate = false,
+} = Astro.props;
+
+const found = photo(id);
+---
+
+{found && (
+  <div
+    class:list={['reveal-img relative overflow-hidden bg-warm-deep', klass]}
+    style={`aspect-ratio: ${ratio};`}
+    data-reveal-img
+    data-reveal-img-immediate={immediate ? '' : undefined}
+  >
+    <Image
+      src={found.src}
+      alt=""
+      widths={widths}
+      sizes={sizes}
+      loading={loading}
+      decoding="async"
+      class:list={[
+        'h-full w-full object-cover',
+        interactive && 'transition-transform duration-[700ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-[1.04]',
+      ]}
+      style={`filter: grayscale(${desaturate}) contrast(1.03);`}
+    />
+    <!-- A hairline frame, matching the rules used everywhere else. -->
+    <span class="pointer-events-none absolute inset-0 border border-rule/70"></span>
+  </div>
+)}

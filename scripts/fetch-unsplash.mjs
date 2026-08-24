@@ -77,6 +77,33 @@ const SLOTS = [
     orientation: 'landscape',
     note: 'Open positions page banner',
   },
+  {
+    id: 'card-imaging',
+    role: 'atmosphere',
+    // Chosen by eye from a survey: an abstract blue ink cloud. Deliberately not
+    // anything that could be mistaken for a micrograph or a scan of theirs.
+    exact: 'YWIOwHvRBvU',
+    query: 'abstract light refraction glass blue macro',
+    orientation: 'landscape',
+    note: 'Molecular Imaging card',
+  },
+  {
+    id: 'card-gene',
+    role: 'atmosphere',
+    query: 'macro liquid droplet science abstract',
+    orientation: 'landscape',
+    note: 'Gene Therapy card',
+  },
+  {
+    id: 'band-research',
+    role: 'atmosphere',
+    // Chosen by eye: a clean contemporary lab interior. The search kept
+    // returning industrial and nuclear plant, which is the wrong register.
+    exact: 'oCLuFi9GYNA',
+    query: 'science laboratory research facility',
+    orientation: 'landscape',
+    note: 'Research page full-bleed band',
+  },
 ];
 
 // Note on the instrument photographs: an earlier pass tried to fill the four
@@ -111,6 +138,10 @@ for (const slot of SLOTS) {
     continue;
   }
 
+  let photo;
+  if (slot.exact) {
+    photo = await api(`https://api.unsplash.com/photos/${slot.exact}`);
+  } else {
   const search = new URL('https://api.unsplash.com/search/photos');
   search.searchParams.set('query', slot.query);
   search.searchParams.set('orientation', slot.orientation);
@@ -121,7 +152,8 @@ for (const slot of SLOTS) {
   // Skip anything already claimed by another slot — two instruments sharing one
   // photograph is worse than no photograph.
   const taken = new Set(Object.values(manifest).map((m) => m.photoId).filter(Boolean));
-  const photo = (results ?? []).filter((r) => !taken.has(r.id))[slot.pick ?? 0];
+  photo = (results ?? []).filter((r) => !taken.has(r.id))[slot.pick ?? 0];
+  }
   if (!photo) {
     console.warn(`! ${slot.id} — no result for "${slot.query}"`);
     continue;

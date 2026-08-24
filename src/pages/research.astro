@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import Placeholder from '../components/Placeholder.astro';
+import RevealImage from '../components/RevealImage.astro';
 import { SITE } from '../lib/site';
 
 const all = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
@@ -32,6 +33,20 @@ const sections = await Promise.all(
         </h2>
         <div class="prose-lab"><p>{SITE.missionExtended}</p></div>
       </div>
+    </section>
+
+    <section class="py-4">
+      <RevealImage
+        id="band-research"
+        ratio="21 / 6"
+        desaturate={0.45}
+        sizes="100vw"
+        widths={[900, 1500, 2200]}
+        class="w-full"
+      />
+      <p class="label mt-3 text-ink-mute">
+        Illustrative &middot; see <a class="link-underline hover:link-underline-hover" href="/credits">image credits</a>
+      </p>
     </section>
 
     {sections.map(({ entry, Content, children }) => (

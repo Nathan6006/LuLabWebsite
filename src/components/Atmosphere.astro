@@ -31,8 +31,10 @@ const mask =
 
 {found && (
   <div
-    class:list={['pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] overflow-hidden md:block', klass]}
+    class:list={['reveal-img pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] overflow-hidden md:block', klass]}
     aria-hidden="true"
+    data-reveal-img
+    data-reveal-img-immediate
   >
     <Image
       src={found.src}

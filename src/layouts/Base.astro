@@ -29,6 +29,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lu-lab.page
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
+    {/* Image reveals start clipped; without JS they must simply be visible. */}
+    <script is:inline>document.documentElement.classList.add('js');</script>
+
     {/* Preload only the latin upright faces — greek and italic are rare on any
         given page and load on demand. Fallbacks are metric-matched, so a
         late-arriving face swaps in without reflowing anything. */}

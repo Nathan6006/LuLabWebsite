@@ -22,11 +22,10 @@
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const blocks = gsap.utils.toArray<HTMLElement>('[data-reveal]');
 
+  gsap.registerPlugin(ScrollTrigger);
+  const fold = window.innerHeight * 0.9;
+
   if (!reduced && blocks.length) {
-    gsap.registerPlugin(ScrollTrigger);
-
-    const fold = window.innerHeight * 0.9;
-
     for (const block of blocks) {
       // Above the fold: already painted, leave it alone. Animating it would
       // only cost paint time on the content the visitor came for.
@@ -52,6 +51,41 @@
     }
   }
 
+  // ---- Image reveals -----------------------------------------------------
+  // One gesture, used for every image on the site: a mask wipes open from the
+  // bottom while the picture settles out of a slight overscale.
+  const frames = gsap.utils.toArray<HTMLElement>('[data-reveal-img]');
+
+  for (const frame of frames) {
+    const img = frame.querySelector('img');
+    if (!img) continue;
+
+    if (reduced) {
+      frame.classList.add('is-revealed');
+      continue;
+    }
+
+    const play = () => {
+      // Hand control to GSAP before clearing the CSS pre-state, so the frame
+      // never flashes open between the two.
+      const tl = gsap.timeline({ onComplete: () => { img.style.willChange = 'auto'; } });
+      tl.fromTo(frame, { clipPath: 'inset(0 0 100% 0)' }, {
+        clipPath: 'inset(0 0 0% 0)', duration: 0.92, ease: 'power3.inOut',
+      }, 0);
+      tl.fromTo(img, { scale: 1.08 }, {
+        scale: 1, duration: 1.15, ease: 'power3.out', force3D: true,
+      }, 0);
+      frame.classList.add('is-revealed');
+    };
+
+    const immediate = frame.hasAttribute('data-reveal-img-immediate');
+    if (immediate || frame.getBoundingClientRect().top < fold) {
+      play();
+    } else {
+      ScrollTrigger.create({ trigger: frame, start: 'top 90%', once: true, onEnter: play });
+    }
+  }
+
   // Failsafe: nothing may be lost to a decorative animation. If a target is
   // still transparent well after load, force it back.
   window.setTimeout(() => {
@@ -61,6 +95,9 @@
         el.style.opacity = '1';
         el.style.transform = 'none';
       }
+    }
+    for (const frame of document.querySelectorAll<HTMLElement>('[data-reveal-img]')) {
+      if (frame.getBoundingClientRect().top < window.innerHeight) frame.classList.add('is-revealed');
     }
   }, 2500);
 </script>

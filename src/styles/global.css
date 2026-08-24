@@ -199,6 +199,22 @@
   margin-block: 2em 0.6em;
 }
 
+/* Pre-state for the image reveal. The frame keeps its box; only the mask and
+   the picture inside it move, so nothing on the page can shift. */
+.reveal-img > img {
+  will-change: transform;
+}
+.js .reveal-img:not(.is-revealed) > img {
+  transform: scale(1.08);
+}
+.js .reveal-img:not(.is-revealed) {
+  clip-path: inset(0 0 100% 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-img > img { transform: none !important; }
+  .reveal-img { clip-path: none !important; }
+}
+
 /* GSAP SplitText writes these; keep the pieces from breaking line layout. */
 .split-parent { overflow: visible !important; }
 .split-line { overflow: hidden; }
