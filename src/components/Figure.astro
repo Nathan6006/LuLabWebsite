@@ -39,7 +39,7 @@ const found = photo(id);
 
 {found ? (
   <figure class={klass}>
-    <div class="overflow-hidden border border-rule bg-warm-deep" style={`aspect-ratio: ${ratio};`}>
+    <div class="overflow-hidden rounded-card border border-rule bg-warm-deep" style={`aspect-ratio: ${ratio};`}>
       <Image
         src={found.src}
         alt={found.credit.role === 'atmosphere' ? '' : found.credit.alt}

@@ -12,7 +12,7 @@ const dateLabel = d.date
 const meta = [d.outlet, dateLabel].filter(Boolean).join(' · ');
 ---
 
-<li class="group rule-top py-5 first:border-t-0 first:pt-0" data-reveal-item>
+<li class="group row-hover rule-top -mx-3 px-3 py-5 first:border-t-0 first:pt-0" data-reveal-item>
   <p class="label text-ink-mute">
     {meta}
     {showKind && d.kind === 'announcement' && <span class="text-copper"> · Lab news</span>}

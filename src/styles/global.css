@@ -49,6 +49,19 @@
   --text-lede: clamp(1.09rem, 1.02rem + 0.33vw, 1.28rem);
   --text-label: 0.7rem;
 
+  /* ---- Radius and elevation ---------------------------------------------
+     The design leans on hairlines, so these are deliberately shallow: enough
+     to lift a surface off its ground, never enough to read as a drop shadow.
+     Two radii only — one for anything card-sized, one for the full-bleed
+     plate that recedes out of the hero. */
+  --radius-card: 0.625rem;
+  --radius-plate: 1.375rem;
+
+  --shadow-card: 0 1px 1px rgb(9 20 58 / 0.03), 0 6px 16px -10px rgb(9 20 58 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(9 20 58 / 0.05), 0 20px 40px -20px rgb(9 20 58 / 0.26);
+  --shadow-header: 0 10px 26px -20px rgb(9 20 58 / 0.4);
+  --shadow-inset-hair: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+
   /* Motion */
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --ease-out-quart: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -94,7 +107,6 @@
   :focus-visible {
     outline: 2px solid var(--color-copper);
     outline-offset: 3px;
-    border-radius: 1px;
   }
 
   ::selection {
@@ -263,6 +275,18 @@
   pointer-events: auto;
 }
 
+/* ---- List rows ----------------------------------------------------------
+   News and publication entries are rows, not cards: they keep their hairline
+   and take a ground on hover instead of a border. The negative margin lets the
+   ground extend past the text without moving it. */
+.row-hover {
+  border-radius: var(--radius-card);
+  transition: background-color 220ms var(--ease-smooth);
+}
+@media (hover: hover) {
+  .row-hover:hover { background-color: color-mix(in srgb, var(--color-warm-deep) 55%, transparent); }
+}
+
 /* ---- The hero slideshow --------------------------------------------------
    Slides are stacked with the first on top, so without script the hero is
    simply the first photograph rather than four of them piled up. The script
@@ -308,14 +332,18 @@
 /* ---- Card tilt + spotlight ----------------------------------------------
    The card leans toward the cursor; a soft highlight tracks under it. Both are
    compositor-only, and both simply do not appear on a touch device. */
+/* No transform-style: preserve-3d here. The card itself rotates inside the
+   perspective its list sets up, so it never needed a 3D context of its own —
+   and preserve-3d forces overflow back to visible, which stopped the card
+   clipping its own picture to its rounded corners. */
 .tilt-card {
-  transform-style: preserve-3d;
   will-change: transform;
 }
 .tilt-card::after {
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   opacity: 0;
   transition: opacity 320ms var(--ease-smooth);
   background: radial-gradient(

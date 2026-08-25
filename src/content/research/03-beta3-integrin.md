@@ -2,7 +2,7 @@
 title: Silencing β3 integrin to inhibit triple-negative breast cancer metastasis
 summary: ECO/siβ3 nanoparticles attenuate epithelial-to-mesenchymal transition, reducing tumor growth and inhibiting metastasis in vivo.
 order: 3
-parent: 02-gene-therapy
+parent: 01-nucleic-acid-therapies
 ---
 
 We have utilized ECO to treat TNBC, a highly aggressive subset of breast cancer where

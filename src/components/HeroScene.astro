@@ -20,7 +20,7 @@ import { allLabPhotos } from '../lib/lab';
 const photos = allLabPhotos();
 ---
 
-<div class="hero-wrap relative bg-cwru-dark" style="perspective: 1600px;">
+<div class="hero-wrap relative bg-[#03081a]" style="perspective: 1600px;">
   <section
     class="hero-card relative isolate flex min-h-[100svh] items-center overflow-hidden bg-cwru-dark"
     data-hero-scene
@@ -86,7 +86,7 @@ const photos = allLabPhotos();
           <a
             href="/research"
             data-magnet
-            class="group relative inline-flex items-center gap-2 overflow-hidden bg-white px-7 py-4 text-[0.92rem] font-medium text-cwru-dark"
+            class="group relative inline-flex items-center gap-2 overflow-hidden rounded-card bg-white px-7 py-4 text-[0.92rem] font-medium text-cwru-dark shadow-lift transition-shadow duration-300 hover:shadow-[0_4px_8px_rgb(9_20_58/0.08),0_28px_54px_-22px_rgb(9_20_58/0.45)]"
           >
             <span class="relative z-10">Explore our research</span>
             <ArrowRight className="relative z-10 size-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
@@ -99,6 +99,15 @@ const photos = allLabPhotos();
         </div>
       </div>
     </div>
+
+    <!-- The plate's own edge. Invisible at rest, when it is off screen anyway;
+         it arrives with the corners as the hero recedes and is what separates
+         the plate from the ground behind it. -->
+    <span
+      class="pointer-events-none absolute inset-0 z-40 rounded-[inherit] ring-1 ring-inset ring-white/12"
+      aria-hidden="true"
+      data-hero-ring
+    ></span>
 
     <!-- Slide caption and controls. Real buttons, because an image carousel
          that can only be advanced by waiting is not operable. -->
@@ -131,9 +140,9 @@ const photos = allLabPhotos();
                 data-hero-dot={i}
                 aria-label={`Show photograph ${i + 1} of ${photos.length}: ${p.meta.caption}`}
               >
-                <span class="relative block h-[2px] w-9 bg-white/35">
+                <span class="relative block h-[2px] w-9 rounded-full bg-white/35">
                   <span
-                    class="absolute inset-y-0 left-0 w-full origin-left scale-x-0 bg-white"
+                    class="absolute inset-y-0 left-0 w-full origin-left scale-x-0 rounded-full bg-white"
                     data-hero-dot-fill
                   ></span>
                 </span>

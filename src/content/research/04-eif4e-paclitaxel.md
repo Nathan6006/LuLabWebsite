@@ -2,7 +2,7 @@
 title: Silencing eIF4E alleviates paclitaxel resistance for TNBC therapy
 summary: Dual pH-sensitive RGD-PEG(Hz)-ECO/siRNA nanoparticles re-sensitize drug-resistant TNBC cells to paclitaxel with negligible side effects.
 order: 4
-parent: 02-gene-therapy
+parent: 01-nucleic-acid-therapies
 ---
 
 Multidrug resistance (MDR), the mechanism where cancer cells become impervious to

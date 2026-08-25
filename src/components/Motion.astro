@@ -308,6 +308,16 @@
         heroTl.fromTo(card,
           { rotateX: 0, scale: 1, y: 0 },
           { rotateX: 10, scale: 0.84, y: -34, ease: 'none', duration: 1 }, 0);
+        // Corners and a cast shadow arrive as the plate leaves the edges of the
+        // viewport — at rest both are off screen and would only cost paint.
+        heroTl.fromTo(card,
+          { borderRadius: '0px', boxShadow: '0 0px 0px rgba(0,0,0,0)' },
+          {
+            borderRadius: '22px',
+            boxShadow: '0 30px 70px -24px rgba(0,0,0,0.85)',
+            ease: 'none', duration: 0.55,
+          }, 0);
+        heroTl.fromTo('[data-hero-ring]', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.55 }, 0);
         // The fade runs late and fast. Tied to the same range as the tilt it
         // dims the photograph while most of it is still on screen, which reads
         // as the picture failing rather than as the hero receding.

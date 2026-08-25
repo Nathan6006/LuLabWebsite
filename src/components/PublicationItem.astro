@@ -16,7 +16,7 @@ const mark = (s: string) => s.replace(AUTHOR_RE, '<b class="font-semibold text-i
 const hasAuthors = Boolean(d.authors);
 ---
 
-<li class="group rule-top py-5 first:border-t-0 first:pt-0" data-reveal-item>
+<li class="group row-hover rule-top -mx-3 px-3 py-5 first:border-t-0 first:pt-0" data-reveal-item>
   <h3 class="font-serif text-[1.04rem] font-[550] leading-snug text-cwru-dark">
     {d.url ? (
       <a href={d.url} rel="noopener" class="inline transition-colors duration-200 hover:text-cwru-blue">

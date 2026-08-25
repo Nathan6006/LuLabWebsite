@@ -40,9 +40,9 @@ const figures = [
 // photograph: it is a picture of the thing the card is about, which no stock
 // image can be.
 const CARD_IMAGE: Record<string, string> = {
-  '01-molecular-imaging': 'card-imaging',
+  '02-molecular-imaging': 'card-imaging',
 };
-const CARD_RENDER = '02-gene-therapy';
+const CARD_RENDER = '01-nucleic-acid-therapies';
 ---
 
 <Base description={SITE.mission}>
@@ -98,17 +98,17 @@ const CARD_RENDER = '02-gene-therapy';
             </a>
           </div>
 
-          <ul class="mt-10 grid gap-px bg-rule sm:grid-cols-2" style="perspective: 1200px;">
+          <ul class="mt-10 grid gap-5 sm:grid-cols-2" style="perspective: 1200px;">
             {thrusts.map((t, i) => (
               <li data-reveal-item>
                 <a
                   href={`/research#${t.id}`}
                   data-tilt
-                  class="tilt-card group relative flex h-full flex-col bg-paper transition-colors duration-200 hover:bg-warm"
+                  class="tilt-card group relative flex h-full flex-col overflow-hidden rounded-card border border-rule bg-paper shadow-card transition-[background-color,box-shadow] duration-300 hover:bg-warm hover:shadow-lift"
                 >
                   <span class="absolute inset-x-0 top-0 z-10 h-[2px] origin-left scale-x-0 bg-copper transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-x-100"></span>
                   {t.id === CARD_RENDER ? (
-                    <div class="relative isolate overflow-hidden bg-cwru-dark" style="aspect-ratio: 21 / 9;">
+                    <div class="relative isolate overflow-hidden border-b border-rule bg-cwru-dark" style="aspect-ratio: 21 / 9;">
                       <div class="absolute inset-0 opacity-[0.5]" aria-hidden="true"
                         style="background-image:linear-gradient(rgba(166,210,230,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(166,210,230,0.18) 1px,transparent 1px);background-size:42px 42px;"></div>
                       <div class="absolute left-[58%] top-1/2 h-[136%] w-auto -translate-x-1/2 -translate-y-1/2 aspect-square">
@@ -128,6 +128,7 @@ const CARD_RENDER = '02-gene-therapy';
                       id={CARD_IMAGE[t.id] ?? ''}
                       ratio="21 / 9"
                       interactive
+                      frame={false}
                       desaturate={0.15}
                       sizes="(min-width: 640px) 38vw, 100vw"
                     />
@@ -189,7 +190,7 @@ const CARD_RENDER = '02-gene-therapy';
       <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
         <SectionHead label="Archive" index="05" />
         <div class="grid gap-x-10 gap-y-5 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] md:items-start">
-          <div class="overflow-hidden border border-rule bg-black">
+          <div class="overflow-hidden rounded-card border border-rule bg-black shadow-card">
             <iframe
               class="block aspect-video w-full"
               src={`https://www.youtube-nocookie.com/embed/${SITE.videoId}`}

@@ -2,7 +2,7 @@
 title: Multifunctional ECO plasmid DNA nanoparticles for gene therapy of Leber's congenital amaurosis and Stargardt disease
 summary: Retinylamine-targeted ECO/pRPE65 nanoparticles produce sustained transfection in the retinal pigment epithelium and improve ERG activity in vivo.
 order: 5
-parent: 02-gene-therapy
+parent: 01-nucleic-acid-therapies
 ---
 
 Leber's congenital amaurosis type 2 (LCA) is a rare genetic disease that causes severe and

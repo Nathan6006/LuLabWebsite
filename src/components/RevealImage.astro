@@ -26,6 +26,9 @@ interface Props {
   widths?: number[];
   /** Skip the scroll trigger and play as soon as the page loads. */
   immediate?: boolean;
+  /** The hairline frame. Off when the picture is already inside a bordered
+      card, where it would double up against the card's own edge. */
+  frame?: boolean;
 }
 const {
   id,
@@ -37,6 +40,7 @@ const {
   sizes = '(min-width: 1024px) 45vw, 100vw',
   widths = [520, 900, 1400],
   immediate = false,
+  frame = true,
 } = Astro.props;
 
 const found = photo(id);
@@ -62,7 +66,9 @@ const found = photo(id);
       ]}
       style={`filter: grayscale(${desaturate}) contrast(1.03);`}
     />
-    <!-- A hairline frame, matching the rules used everywhere else. -->
-    <span class="pointer-events-none absolute inset-0 border border-rule/70"></span>
+    <!-- A hairline frame, matching the rules used everywhere else. Inherits
+         whatever radius the caller gave the frame, so it never cuts a square
+         corner inside a rounded one. -->
+    {frame && <span class="pointer-events-none absolute inset-0 rounded-[inherit] border border-rule/70"></span>}
   </div>
 )}

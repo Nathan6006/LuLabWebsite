@@ -147,7 +147,7 @@ structures while three panels explain them. Two things in it need Dr. Lu's
 sign-off.
 
 **The copy.** All three panels were written from the Center's own Molecular
-Imaging and Gene Therapy research pages, but they are paraphrased into stage
+Imaging and Nucleic Acid Therapies research pages, but they are paraphrased into stage
 form rather than quoted. Panel 02 in particular ("contrast agents are built
 around a chelated metal centre") is a general statement about how contrast
 agents work, not a description of any specific agent this lab has published —
@@ -171,6 +171,22 @@ keep the panels. Say which and it is a small change either way.
 **Terminology check:** the panels say the probes target *fibronectin*, matching
 the Center's own Molecular Imaging page. Confirm that is still the right word
 for the current work.
+
+### 4.0b Ordering of the two research areas
+Nucleic acid therapeutics now leads molecular imaging everywhere the site sets
+that order itself: the research thrusts, the home page cards, the pinned
+platform panels, and the `/join` lede.
+
+**Two places were deliberately left alone**, because they are verbatim
+transcriptions of Dr. Lu's own text rather than the site's own wording:
+
+- the bio on `/people` ("His laboratory concentrates on molecular imaging and
+  drug delivery ..."), taken from his faculty page;
+- his research-interests list on the same page, which starts "Novel MRI
+  contrast agents · Molecular imaging ...".
+
+Reordering either would be editing a quoted record. **Say the word and both can
+be re-ordered to match**, or better, replaced with wording Dr. Lu confirms.
 
 ### 4.1 `/join` — nothing for prospective students
 The old site's positions page advertised **only** a postdoctoral position. There

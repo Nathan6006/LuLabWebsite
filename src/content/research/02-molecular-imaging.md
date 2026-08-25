@@ -1,7 +1,7 @@
 ---
 title: Molecular Imaging
 summary: Imaging probes targeted to biomarkers in the tumor microenvironment, for detecting and risk-stratifying aggressive breast and prostate cancer.
-order: 1
+order: 2
 figureNote: Diagram — fibronectin-targeted probe binding in the tumor microenvironment (16:9)
 figureRatio: "16 / 9"
 ---

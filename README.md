@@ -258,7 +258,7 @@ and they become separate paragraphs on the page.
 
 A file with a `parent:` field becomes a numbered sub-project nested under that
 research area. The value is the parent's file name without `.md` — for example
-`parent: 02-gene-therapy`.
+`parent: 01-nucleic-acid-therapies`.
 
 ## Editing contact details, the menu, and the instruments list
 
