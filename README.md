@@ -366,9 +366,10 @@ brand palette.
 Motion is GSAP, and it all lives in one file: `src/components/Motion.astro`.
 Every page gets scroll reveals, image wipes and the progress bar from it with no
 React at all. The home page additionally gets, from the same file, the masthead
-that assembles and hands the site name to the header, the pinned platform
-section, the word-by-word reading highlight, and the hero slideshow's
-tilt-away.
+that assembles and hands the site name to the header, the word-by-word reading
+highlight, and the hero slideshow's tilt-away. It also hands ScrollTrigger to
+the LNP journey below the mission statement, which owns its own pin from there
+on.
 GSAP's ScrollTrigger and SplitText are loaded only on the home page, so no other
 route pays for them.
 
@@ -388,16 +389,27 @@ context first and render nothing at all if there isn't one:
   hidden, and draws a single frame and stops under reduced motion. The CSS
   gradient behind it in `index.astro` is not a placeholder — it is what ships
   without WebGL.
-- **`src/components/MoleculeCanvas.tsx`** — the point cloud in the pinned
-  platform section, which morphs through three schematic structures as you
-  scroll. It publishes `window.__molecule`; `Motion.astro` drives it from the
-  section's scroll progress. **The structures it draws are schematic, not real
-  structure data** — see TODO.md §4.0 before treating them as depictions of a
-  specific compound.
+- **`src/components/journey/ParticleBookend.tsx`** — the point cloud at either
+  end of the LNP journey, closed at the head of the section and opened with its
+  cargo unspooled at the tail. It registers itself through
+  `src/lib/journey-bridge.ts`, a typed namespace on `window`, and the journey's
+  controller drives it. **The structure it draws is schematic, not real
+  structure data** — see TODO.md §4.0a before treating it as a depiction of a
+  specific compound. `ogl` is imported inside the capability gate, so nothing
+  below 1024px or under reduced motion ever fetches it.
 
-Below 1024px, and for anyone whose system asks for reduced motion, neither
-pinned section exists: both ship a plain stacked fallback that is also what a
-reader with no JavaScript gets.
+The whole section below the mission statement — the pinned, scroll-driven
+animation of a nanoparticle travelling to a target site — is documented
+separately in **ANIMATION_SPEC.md**, which is the spec as built rather than as
+originally briefed. Every tunable value in it lives in `src/lib/journey.ts`,
+and adding `?debug` to the home page URL mounts a live panel for all of them
+plus a slider that scrubs the animation without moving the page.
+
+Below 1024px, and for anyone whose system asks for reduced motion, the journey
+does not pin at all: it ships a finished static composition, which is also what
+a reader with no JavaScript gets. That composition is the default state in the
+markup — the animated pre-state is applied by script, never the other way
+round, so an undrawn frame can never be what someone is left looking at.
 
 Icons are `lucide-react`, rendered inside `.astro` files so they compile to
 static SVG and ship no JavaScript.

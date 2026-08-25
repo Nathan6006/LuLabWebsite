@@ -1,0 +1,79 @@
+---
+import ParticleBookend from './ParticleBookend.tsx';
+import BodyScaffold from './BodyScaffold.astro';
+import { JOURNEY } from '../../lib/journey';
+
+/**
+ * The LNP journey. A particle fills the frame, the camera pulls back until it
+ * is a point of light inside a body, the point travels to a target site, and
+ * the camera pushes back in as the cargo is released.
+ *
+ * Decorative, and marked as such: no labels, no organ names, no callouts, and
+ * nothing in it makes a claim that would need citing. The heading exists for
+ * screen readers and for the document outline; the animation itself is hidden
+ * from the accessibility tree entirely.
+ *
+ * WHAT SHIPS is the static composition — the arrival frame on the warm ground,
+ * with the cargo released. The animated path is an upgrade applied only once
+ * the controller has confirmed it can pin, scrub and drive it. That is why the
+ * gate below is inline and synchronous: it has to take effect before this
+ * section is ever painted, and it has to undo itself if the controller never
+ * arrives.
+ */
+---
+
+<section class="journey relative" data-journey aria-labelledby="journey-heading">
+  <h2 id="journey-heading" class="sr-only">Nanoparticle delivery animation</h2>
+
+  <div
+    class="journey-stage relative isolate min-h-[100svh] overflow-hidden"
+    data-journey-stage
+  >
+    <!-- The ground. Dark navy at the head of the section, warm off-white
+         through the body sequence, navy again by the end. -->
+    <div
+      class="absolute inset-0"
+      aria-hidden="true"
+      data-journey-ground
+      style={`background-color:${JOURNEY.colors.warm};`}
+    >
+    </div>
+
+    <!-- client:idle with a bounded timeout, not client:visible: the island
+         renders null until it has cleared the gate and confirmed a WebGL
+         context, so it has no box for Astro's IntersectionObserver to see and
+         client:visible would never fire. The timeout matters because a plain
+         idle callback on a busy main thread can be several seconds late, and
+         the island is what attaches the observer that starts the real work —
+         being late to mount made the particle late to arrive. It stays idle
+         rather than load because the expensive part is deferred separately. -->
+    <div class="absolute inset-0" aria-hidden="true" data-journey-canvas>
+      <ParticleBookend client:idle={{ timeout: 800 }} />
+    </div>
+
+    <!-- The body sequence. Sized to the stage height; the viewBox does the
+         rest, so the line weight scales with the viewport on its own. -->
+    <div class="absolute inset-0 flex items-center justify-center py-[5vh]" aria-hidden="true">
+      <BodyScaffold />
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ gate: JOURNEY.gatePx }}>
+  /* Synchronous, so the shipped static composition is swapped for the animated
+     pre-state before this section is painted rather than after. If the
+     controller never reports in, this puts the static frame straight back. */
+  (function () {
+    var el = document.currentScript && document.currentScript.previousElementSibling;
+    if (!el || !el.hasAttribute('data-journey')) el = document.querySelector('[data-journey]');
+    if (!el) return;
+    var ok =
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+      window.matchMedia('(min-width: ' + gate + 'px)').matches;
+    if (!ok) return;
+    el.classList.add('is-animated');
+    setTimeout(function () {
+      if (!el.classList.contains('is-live')) el.classList.remove('is-animated');
+    }, 3000);
+  })();
+</script>

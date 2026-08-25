@@ -4,7 +4,46 @@ import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import Placeholder from '../components/Placeholder.astro';
 import RevealImage from '../components/RevealImage.astro';
+import Nanoparticle from '../components/Nanoparticle.astro';
 import { SITE } from '../lib/site';
+
+/**
+ * The three panels that used to run alongside the pinned canvas on the home
+ * page. That section has been replaced by a decorative animation that carries
+ * no copy, so the text moved here verbatim rather than being lost.
+ *
+ * NOTE: two of the three overlap substantially with the thrust pages below —
+ * "A carrier built to come apart" restates the ECO description in
+ * 01-nucleic-acid-therapies, and "Docking onto the remodelled matrix" restates
+ * the fibronectin paragraphs in 02-molecular-imaging. Nothing has been merged
+ * or rewritten. See TODO.md.
+ */
+const PLATFORM = [
+  {
+    index: '01',
+    label: 'Nucleic acid delivery',
+    title: 'A carrier built to come apart',
+    body:
+      'ECO is a pH-sensitive multifunctional lipid: a protonable ethylenediamine head group, two cysteine-based linkers, two oleic acid tails. It condenses siRNA or plasmid DNA electrostatically, locks the particle with reversible disulfides, and holds it together hydrophobically.',
+    note: 'Lipid shell condensed around a nucleic acid cargo',
+  },
+  {
+    index: '02',
+    label: 'Molecular imaging',
+    title: 'Probes that report the microenvironment',
+    body:
+      'The same design discipline, turned to a different job. Contrast agents are built around a chelated metal centre rather than a cargo compartment — the structure exists to hold the reporting atom in place and to be cleared afterwards, not to deliver anything into a cell.',
+    note: 'Macrocyclic chelate, metal centre held by four pendant arms',
+  },
+  {
+    index: '03',
+    label: 'Targeting',
+    title: 'Docking onto the remodelled matrix',
+    body:
+      'The tumour microenvironment is heavily remodelled during cancer progression. Our probes target fibronectin, an extracellular matrix molecule that helps drive that progression, and in doing so detect aggressive breast and prostate cancer with sensitivity and specificity beyond the clinical agents.',
+    note: 'Targeting peptide bound to a fibronectin fibril',
+  },
+];
 
 const all = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
 const thrusts = all.filter((r) => !r.data.parent);
@@ -47,6 +86,36 @@ const sections = await Promise.all(
       <p class="label mt-3 text-ink-mute">
         Illustrative &middot; see <a class="link-underline hover:link-underline-hover" href="/credits">image credits</a>
       </p>
+    </section>
+
+    <!-- The platform. Three short pieces on what the lab builds, ahead of the
+         thrusts they belong to. -->
+    <section id="platform" class="scroll-mt-8 border-b border-rule py-14">
+      <div class="grid gap-x-12 gap-y-8 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+        <p class="pt-1 label text-copper lg:text-right">The platform</p>
+        <div>
+          <div class="grid gap-x-12 gap-y-10 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] md:items-start">
+            <div class="relative mx-auto aspect-square w-full max-w-[15rem] rounded-plate bg-cwru-dark shadow-card">
+              <div class="absolute inset-[16%] rounded-full bg-cwru-true/25 blur-[46px]"></div>
+              <Nanoparticle class="relative h-full w-full" widths={[320, 560]} sizes="15rem" strength={54} />
+              <p class="label absolute bottom-3 left-0 right-0 text-center text-cwru-light/55">
+                Illustrative render
+              </p>
+            </div>
+
+            <ol class="space-y-11">
+              {PLATFORM.map((s) => (
+                <li data-reveal-item>
+                  <p class="label text-copper tabular">{s.index} &nbsp;/&nbsp; {s.label}</p>
+                  <h2 class="mt-2.5 max-w-[26ch] text-h3 text-cwru-dark">{s.title}</h2>
+                  <p class="mt-3 max-w-[54ch] text-[0.97rem] leading-relaxed text-ink-soft">{s.body}</p>
+                  <p class="label mt-4 text-ink-mute">{s.note}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
     </section>
 
     {sections.map(({ entry, Content, children }) => (

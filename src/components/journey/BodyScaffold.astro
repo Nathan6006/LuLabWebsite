@@ -1,0 +1,197 @@
+---
+/**
+ * The body scaffold: a human figure, front view, as abstract line art.
+ *
+ * Markup and IDs only — every value here is geometry, and every animated
+ * property is written by stage.ts. Nothing in this file moves on its own.
+ *
+ * Front view rather than the side view the original spec called for: a
+ * side-on human silhouette reads as a stock pictogram, and a front view gives
+ * the vessel path somewhere to travel. Injection is at the antecubital vein,
+ * the inner elbow, which is the human equivalent of the spec's tail vein.
+ *
+ * The figure is deliberately abstract. The target site is a glow with no
+ * label, no outline and no organ under it — the animation identifies nothing
+ * and therefore claims nothing.
+ *
+ * Drawn in two passes: #body-outline is one continuous closed path (head,
+ * neck, torso), #limb-outline is the arms and legs and is drawn after it. The
+ * original spec's #tail-outline is this slot.
+ *
+ * DEFAULT STATE IS THE FINAL FRAME. Strokes are undashed, the point sits at
+ * the target and the released cargo is visible, so the section is a finished
+ * composition with no JavaScript at all. The controller rewinds it to the
+ * opening frame only once it has confirmed it can drive it — see global.css,
+ * where `.js .journey.is-animated` is what hides the static composition.
+ */
+import { JOURNEY } from '../../lib/journey';
+
+const [vw, vh] = JOURNEY.geometry.viewBox;
+const [ix, iy] = JOURNEY.geometry.injection;
+const [tx, ty] = JOURNEY.geometry.target;
+const C = JOURNEY.colors;
+---
+
+<svg
+  class="journey-svg h-full w-full"
+  viewBox={`0 0 ${vw} ${vh}`}
+  fill="none"
+  aria-hidden="true"
+  data-journey-svg
+>
+  <defs>
+    <!-- Soft radial glow. A gradient, not a bloom post-process. -->
+    <radialGradient id="jrn-glow">
+      <stop offset="0%" stop-color={C.amberBright} stop-opacity="0.9" />
+      <stop offset="45%" stop-color={C.amber} stop-opacity="0.32" />
+      <stop offset="100%" stop-color={C.amber} stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="jrn-target-glow">
+      <stop offset="0%" stop-color={C.amberBright} stop-opacity="0.55" />
+      <stop offset="60%" stop-color={C.amber} stop-opacity="0.14" />
+      <stop offset="100%" stop-color={C.amber} stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- The figure. Stroke width is in user units, so it scales with the
+       viewBox and stays visually consistent at every viewport. -->
+  <g data-journey-figure stroke={C.line} stroke-opacity={C.lineOpacity} stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      id="body-outline"
+      d="M 200 28
+         C 217 28 231 43 231 62
+         C 231 79 222 92 212 96
+         L 211 113
+         C 233 117 250 123 258 135
+         C 266 147 267 171 265 201
+         C 263 233 255 253 251 273
+         C 259 293 261 313 257 331
+         C 240 341 160 341 143 331
+         C 139 313 141 293 149 273
+         C 145 253 137 233 135 201
+         C 133 171 134 147 142 135
+         C 150 123 167 117 189 113
+         L 188 96
+         C 178 92 169 79 169 62
+         C 169 43 183 28 200 28 Z"
+    />
+
+    <path
+      id="limb-outline"
+      d="M 256 136
+         C 276 146 292 178 300 212
+         C 306 240 314 288 318 322
+         C 320 336 322 348 320 356
+         C 314 360 306 358 303 352
+         C 298 340 294 318 290 296
+         C 284 262 276 222 268 196
+         C 262 176 254 158 248 146 Z
+         M 144 136
+         C 124 146 108 178 100 212
+         C 94 240 86 288 82 322
+         C 80 336 78 348 80 356
+         C 86 360 94 358 97 352
+         C 102 340 106 318 110 296
+         C 116 262 124 222 132 196
+         C 138 176 146 158 152 146 Z
+         M 252 335
+         C 254 385 250 430 247 470
+         C 244 512 241 556 240 585
+         C 246 592 258 594 262 599
+         C 262 604 254 606 240 606
+         L 226 606
+         C 224 596 226 590 227 585
+         C 226 556 224 512 222 470
+         C 220 430 210 385 205 340 Z
+         M 148 335
+         C 146 385 150 430 153 470
+         C 156 512 159 556 160 585
+         C 154 592 142 594 138 599
+         C 138 604 146 606 160 606
+         L 174 606
+         C 176 596 174 590 173 585
+         C 174 556 176 512 178 470
+         C 180 430 190 385 195 340 Z"
+    />
+  </g>
+
+  <!-- The route. One path, no subpaths: stage.ts samples it into a lookup
+       table at refresh and never touches it again. It is never stroked
+       directly — the trail segments below are what you see. -->
+  <path
+    id="vessel-path"
+    d="M 288 224
+       C 279 205 270 185 261 166
+       C 254 152 247 143 238 138
+       C 227 132 216 133 209 140
+       C 200 149 198 162 202 174
+       C 207 189 216 200 220 214
+       C 224 229 220 243 209 249
+       C 197 255 184 251 176 241
+       C 168 231 165 218 166 206
+       C 166 202 167 199 168 196"
+    stroke="none"
+    fill="none"
+  />
+
+  <!-- The comet tail. SVG has no along-path gradient, so the route is cut into
+       short segments at mount and each one is written opacity-only per frame.
+       That is what makes the tail fade by arc length rather than by screen
+       direction, and it is what keeps the fade a function of distance behind
+       the point rather than of elapsed time. -->
+  <g
+    id="trail-group"
+    data-journey-trail
+    stroke={C.amber}
+    stroke-width="2.4"
+    stroke-linecap="round"
+    fill="none"
+  ></g>
+
+  <!-- Endpoints. The injection site is where the particle converges; the
+       target is an unlabelled glow. -->
+  <circle id="injection-site" data-journey-injection cx={ix} cy={iy} r="3.2" fill={C.amber} fill-opacity="0.5" />
+
+  <g id="target-site" data-journey-target>
+    <circle cx={tx} cy={ty} r="34" fill="url(#jrn-target-glow)" />
+    <circle cx={tx} cy={ty} r="3.6" fill={C.amber} fill-opacity="0.55" />
+  </g>
+
+  <!-- One pulse on arrival. Scaled about the target, never repeated. -->
+  <circle
+    data-journey-pulse
+    cx={tx}
+    cy={ty}
+    r="18"
+    fill="url(#jrn-glow)"
+    opacity="0"
+    style={`transform-origin:${tx}px ${ty}px;transform-box:view-box;`}
+  />
+
+  <!-- The travelling point, moved by transform in user units. -->
+  <g data-journey-dot style="transform-box:view-box;transform-origin:0 0;">
+    <circle cx="0" cy="0" r="17" fill="url(#jrn-glow)" />
+    <circle cx="0" cy="0" r="3.4" fill={C.amberBright} />
+  </g>
+
+  <!-- The released cargo, for the static composition only. On the animated
+       path the WebGL bookend renders this and the group stays hidden. -->
+  <g data-journey-final style={`transform-box:view-box;transform-origin:${tx}px ${ty}px;`}>
+    <circle cx={tx} cy={ty} r="26" fill="url(#jrn-glow)" opacity="0.7" />
+    <path
+      d={`M ${tx - 13} ${ty - 6} A 15 15 0 0 1 ${tx - 2} ${ty - 17}`}
+      stroke={C.amber} stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.85"
+    />
+    <path
+      d={`M ${tx + 13} ${ty + 6} A 15 15 0 0 1 ${tx + 2} ${ty + 17}`}
+      stroke={C.amber} stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.85"
+    />
+    <path
+      d={`M ${tx - 4} ${ty + 2}
+          c 8 -6 14 4 22 -2
+          c 8 -6 14 4 22 -2
+          c 8 -6 14 4 22 -2`}
+      stroke={C.amberBright} stroke-width="2" stroke-linecap="round" fill="none"
+    />
+  </g>
+</svg>

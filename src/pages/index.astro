@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import { ArrowRight } from 'lucide-react';
 import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
-import PlatformScroll from '../components/PlatformScroll.astro';
+import JourneySection from '../components/journey/JourneySection.astro';
 import RevealImage from '../components/RevealImage.astro';
 import Nanoparticle from '../components/Nanoparticle.astro';
 import AuroraField from '../components/AuroraField.tsx';
@@ -109,9 +109,11 @@ const CARD_RENDER = '01-nucleic-acid-therapies';
     </div>
   </section>
 
-  <!-- The signature moment: pinned, scrubbed, one point cloud morphing through
-       the three structures the lab actually builds. -->
-  <PlatformScroll />
+  <!-- The signature moment: pinned, scrubbed. A particle fills the frame, the
+       camera pulls back until it is a point of light inside a body, the point
+       travels to a target site, and the camera pushes back in as the cargo is
+       released. Decorative — it carries no labels and makes no claims. -->
+  <JourneySection />
 
   <!-- Research areas -->
   <section class="border-y border-rule bg-warm">

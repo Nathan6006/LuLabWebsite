@@ -236,7 +236,6 @@
 }
 @media print {
   [data-hero-title], [data-dock-title] { opacity: 1 !important; }
-  .platform-panel { position: static !important; opacity: 1 !important; transform: none !important; }
 }
 
 @keyframes nudge {
@@ -249,30 +248,6 @@
    rotation has no hue there to turn. All that is left here is the cast shadow. */
 .lnp-render {
   filter: drop-shadow(0 26px 64px rgba(0, 20, 60, 0.6));
-}
-
-/* ---- The pinned platform section ----------------------------------------
-   The stage only exists once the script has confirmed it can pin and drive it;
-   until then, and on anything narrower than 1024px, the stacked fallback is
-   what ships. Panels are index-driven, exactly one visible at a time — under a
-   scrub, two crossfading tweens can both be partly visible at the same scroll
-   position, and an index cannot do that. */
-.platform .platform-stage { display: none; }
-.platform.is-pinned .platform-stage { display: block; }
-.platform.is-pinned .platform-fallback { display: none; }
-
-.platform-panel {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transform: translateY(1.5rem);
-  transition: opacity 480ms var(--ease-out-quart), transform 620ms var(--ease-out-quart);
-  pointer-events: none;
-}
-.platform-panel.is-active {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
 }
 
 /* ---- List rows ----------------------------------------------------------
@@ -382,4 +357,45 @@
    11ch and "Biomolecular" is longer than that, so it never sets tighter. */
 .hero-title {
   min-height: calc(var(--text-display) * 1.13 * 3);
+}
+
+/* ---- The LNP journey -----------------------------------------------------
+   The section ships as a finished static composition: strokes undrawn is a
+   JavaScript state, not a shipped one, so with no script, under reduced
+   motion, or below the width gate the reader gets the arrival frame as a plain
+   image block. `is-animated` is set synchronously by the gate script and is
+   what swaps that for the animated pre-state; `is-live` comes off the
+   controller once it has actually written a frame.
+
+   Between those two the SVG is held back, because the shipped composition is a
+   fully drawn body on a warm ground and the animated pre-state is an empty
+   navy frame — showing one and then cutting to the other is worse than showing
+   nothing for the few hundred milliseconds it takes to import ScrollTrigger. */
+.journey-svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+.journey.is-animated [data-journey-ground] {
+  background-color: var(--color-cwru-dark);
+}
+.journey.is-animated:not(.is-live) .journey-svg {
+  opacity: 0;
+}
+/* On the animated path the WebGL bookend renders the released cargo, so the
+   SVG's version of it must not sit underneath. */
+.journey.is-animated [data-journey-final] {
+  opacity: 0;
+}
+
+/* Only transform, opacity and stroke-dashoffset are ever written here. */
+.journey [data-journey-figure] path {
+  will-change: stroke-dashoffset;
+}
+.journey [data-journey-dot] {
+  will-change: transform, opacity;
+}
+
+@media print {
+  .journey .journey-stage { min-height: 0; }
+  .journey.is-animated .journey-svg { opacity: 1 !important; }
 }

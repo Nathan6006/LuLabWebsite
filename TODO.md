@@ -141,41 +141,72 @@ photographs, the Unsplash banners should be replaced with them and the
 
 ## 4. Pages with missing or incomplete content
 
-### 4.0 Home page platform section — copy AND the 3D structures need a read
-The home page pins a section in which a WebGL point cloud morphs through three
-structures while three panels explain them. Two things in it need Dr. Lu's
-sign-off.
+### 4.0 The platform copy moved to `/research`, and it overlaps
+The home page used to pin a section in which a WebGL point cloud morphed
+through three structures while three panels explained them. That section has
+been replaced by a decorative animation which carries no copy at all, so the
+three panels were moved to `/research` under the heading "The platform",
+**verbatim** — nothing was rewritten, merged or summarised.
 
-**The copy.** All three panels were written from the Center's own Molecular
-Imaging and Nucleic Acid Therapies research pages, but they are paraphrased into stage
-form rather than quoted. Panel 02 in particular ("contrast agents are built
-around a chelated metal centre") is a general statement about how contrast
-agents work, not a description of any specific agent this lab has published —
-it was written that way deliberately, because the source pages say the probes
-are used "with both MRI and PET" and do not name a chelate.
+**Two of the three now say the same thing twice on one page.** This is
+deliberate and is for you to resolve, not for the site to decide:
 
-**The structures.** The three shapes the point cloud forms — a lipid shell
-around a nucleic acid core, a macrocyclic chelate with four pendant arms, and
-that chelate carrying a peptide docked onto a fibril — are **schematic**. They
-are generated from parametric primitives to read as the right *class* of
-molecule at a glance. They are not derived from any structure file, and no
-claim is made about bond lengths, conformation, stoichiometry, or which
-specific compound is depicted. The section carries the caption "Schematic ·
-illustrative, not to scale" under the canvas, and the code says the same thing
-at the top of `src/components/MoleculeCanvas.tsx`.
+- "A carrier built to come apart" restates the ECO description that already
+  appears a few sections below it in Thrust 01, Nucleic Acid Therapies — the
+  head group, the cysteine linkers, the oleic acid tails, the electrostatic
+  condensation, the reversible disulfides.
+- "Docking onto the remodelled matrix" restates the fibronectin paragraphs in
+  Thrust 02, Molecular Imaging.
+- Panel 02, "Probes that report the microenvironment", is the only one with no
+  counterpart on the page.
 
-If that framing is too loose for a lab website, the honest alternatives are (a)
-supply real structure data and render that instead, or (b) drop the canvas and
-keep the panels. Say which and it is a small change either way.
+Three honest options: delete the two duplicates and keep only panel 02; keep
+all three and cut the overlapping paragraphs from the thrust bodies; or keep
+the duplication as a deliberate summary-then-detail structure. Say which.
+
+**Panel 02 also still needs a read on its own terms.** "Contrast agents are
+built around a chelated metal centre" is a general statement about how contrast
+agents work, not a description of any specific agent this lab has published. It
+was written that way deliberately, because the source pages say the probes are
+used "with both MRI and PET" and do not name a chelate.
 
 **Terminology check:** the panels say the probes target *fibronectin*, matching
 the Center's own Molecular Imaging page. Confirm that is still the right word
 for the current work.
 
+### 4.0a The home page animation below the mission statement
+A scroll-driven, pinned sequence: a lipid nanoparticle fills the frame, the
+camera pulls back until it is a point of light inside a human figure, the point
+travels to a target site, and the camera pushes back in as the cargo is
+released. See ANIMATION_SPEC.md for the full build.
+
+It is **decorative**, and it has been kept decorative on purpose: no labels, no
+organ names, no arrows, no callouts, nothing named anywhere in it. It is hidden
+from screen readers and carries only an off-screen heading. Three things follow
+that you may still want to change:
+
+- **The figure is human, front view.** That implicitly frames the work as
+  clinical rather than preclinical. It is defensible — MT218 is in trials — but
+  if the site should read as preclinical, the silhouette should be a mouse and
+  the injection should move to the tail vein. It is one file
+  (`src/components/journey/BodyScaffold.astro`) and no other code changes.
+- **The target site is unlabelled on purpose.** It is a glow in the upper
+  torso with no organ under it and no caption. Nothing identifies it, so
+  nothing is claimed. If you would rather it were specifically the liver, or a
+  tumour site, that becomes a factual statement and needs your say-so.
+- **The particle is schematic**, exactly as the old point cloud was: a lipid
+  shell around a condensed nucleic acid core, generated from parametric
+  primitives to read as the right *class* of object. It is not derived from any
+  structure file and no claim is made about bond lengths, conformation or
+  stoichiometry. Unlike the old section there is now **no visible caption**
+  saying so, because the animation carries no text at all — the disclaimer
+  lives only in the source. If that is not good enough, the section can take a
+  caption below it without disturbing the animation.
+
 ### 4.0b Ordering of the two research areas
 Nucleic acid therapeutics now leads molecular imaging everywhere the site sets
-that order itself: the research thrusts, the home page cards, the pinned
-platform panels, and the `/join` lede.
+that order itself: the research thrusts, the home page cards, the platform
+panels on `/research`, and the `/join` lede.
 
 **Two places were deliberately left alone**, because they are verbatim
 transcriptions of Dr. Lu's own text rather than the site's own wording:

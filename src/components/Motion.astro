@@ -29,7 +29,6 @@
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fold = window.innerHeight * 0.9;
-  const wide = window.matchMedia('(min-width: 1024px)').matches;
 
   /** Run `fn` once, now if the element is already on screen, else on approach. */
   function whenSeen(el: Element, fn: () => void, margin = '0px 0px -10% 0px') {
@@ -381,84 +380,13 @@
         });
       }
 
-      /* -- 7d. The pinned platform section --------------------------------
-         The stage pins; the wheel then drives one progress value that feeds
-         the WebGL morph, the panel index, the rail and the ground colour.
-         scrub: 1 adds the lag that makes the animation ease toward the scroll
-         position instead of snapping to it. */
-      const platform = document.querySelector<HTMLElement>('[data-platform]');
-      const stage = platform?.querySelector<HTMLElement>('[data-platform-stage]');
-      if (platform && stage && wide) {
-        platform.classList.add('is-pinned');
-
-        const panels = gsap.utils.toArray<HTMLElement>('[data-platform-panel]', platform);
-        const nodes = gsap.utils.toArray<SVGCircleElement>('[data-rail-node]', platform);
-        const railPath = platform.querySelector<SVGLineElement>('[data-rail-path]');
-        const panelBox = platform.querySelector<HTMLElement>('[data-platform-panels]');
-        const caption = platform.querySelector<HTMLElement>('[data-platform-caption]');
-        const grid = platform.querySelector<HTMLElement>('[data-platform-grid]');
-
-        // The rail draws itself: the whole stroke is one dash, offset out of
-        // view and pulled back in as the section advances.
-        const railLen = 284;
-        if (railPath) {
-          railPath.style.strokeDasharray = String(railLen);
-          railPath.style.strokeDashoffset = String(railLen);
-        }
-        gsap.set(nodes, { transformOrigin: '50% 50%', scale: 0.55, opacity: 0.35 });
-
-        // Panel copy changes just after each morph begins, so the reader has
-        // the new heading in front of them while the structure assembles.
-        const CUTS = [0.38, 0.75];
-        const setPanel = (i: number) => {
-          panels.forEach((p, k) => p.classList.toggle('is-active', k === i));
-          nodes.forEach((nd, k) => gsap.to(nd, {
-            scale: k <= i ? 1 : 0.55,
-            opacity: k <= i ? 1 : 0.35,
-            duration: 0.35, ease: 'power2.out',
-          }));
-        };
-        let active = -1;
-
-        // The section above is the shader field now, so there is no longer a
-        // light ground to darken out of — the entry lifts a little and settles
-        // instead, which still reads as arriving somewhere without putting a
-        // seam between the two dark sections. The panel copy is held back until
-        // it has settled, so light text never sits on the intermediate colour.
-        const mixer = gsap.utils.interpolate('#123363', '#09143a');
-        gsap.set(panelBox, { opacity: 0 });
-        gsap.set([caption, grid], { opacity: 0 });
-
-        ScrollTrigger.create({
-          trigger: platform,
-          start: 'top top',
-          end: () => '+=' + window.innerHeight * 3.6,
-          pin: stage,
-          scrub: 1,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate(self) {
-            const p = self.progress;
-            window.__molecule?.set(p);
-
-            // The ground darkens first and the copy follows it, with no
-            // overlap: white text at 75% over a mid slate is the one place a
-            // colour transition like this breaks contrast, and this keeps the
-            // two out of each other's way entirely.
-            const ground = Math.min(1, p / 0.055);
-            const copy = Math.min(1, Math.max(0, (p - 0.055) / 0.05));
-            stage.style.backgroundColor = mixer(ground);
-            gsap.set(panelBox, { opacity: copy });
-            gsap.set(caption, { opacity: copy * 0.9 });
-            gsap.set(grid, { opacity: ground * 0.16 });
-            if (railPath) railPath.style.strokeDashoffset = String(railLen * (1 - p));
-
-            const i = p < CUTS[0] ? 0 : p < CUTS[1] ? 1 : 2;
-            if (i !== active) { active = i; setPanel(i); }
-          },
-        });
-        setPanel(0);
-      }
+      /* -- 7d. The LNP journey -------------------------------------------
+         The section below the mission statement owns its own pin, its own
+         scrub and its own renderers; this hands it ScrollTrigger and gets out
+         of the way. It is the only thing on the page that reads scroll
+         position for that section. */
+      const { initJourney } = await import('./journey/controller');
+      initJourney(ScrollTrigger);
 
       ScrollTrigger.refresh();
     })();
