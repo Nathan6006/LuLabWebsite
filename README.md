@@ -363,11 +363,32 @@ tracked metadata labels that run through the whole design. Colours are defined
 once as design tokens in `src/styles/global.css` and taken from the current CWRU
 brand palette.
 
-Motion is GSAP. `src/components/Motion.astro` handles scroll reveals sitewide
-with no React at all; the only React island is the home page masthead, which
-uses the React Bits `SplitText` component (vendored into
-`src/components/reactbits/`). Icons are `lucide-react`, rendered inside `.astro`
-files so they compile to static SVG and ship no JavaScript.
+Motion is GSAP, and it all lives in one file: `src/components/Motion.astro`.
+Every page gets scroll reveals, image wipes and the progress bar from it with no
+React at all. The home page additionally gets, from the same file, the masthead
+that assembles and hands the site name to the header, the pinned platform
+section, the word-by-word reading highlight, and the horizontal photo strip.
+GSAP's ScrollTrigger and SplitText are loaded only on the home page, so no other
+route pays for them.
+
+The home page has two WebGL islands, both of which check for a working WebGL
+context first and render nothing at all if there isn't one:
+
+- **`src/components/ParticleField.tsx`** — the drift behind the hero, using the
+  React Bits `Particles` component vendored into `src/components/reactbits/`.
+- **`src/components/MoleculeCanvas.tsx`** — the point cloud in the pinned
+  platform section, which morphs through three schematic structures as you
+  scroll. It publishes `window.__molecule`; `Motion.astro` drives it from the
+  section's scroll progress. **The structures it draws are schematic, not real
+  structure data** — see TODO.md §4.0 before treating them as depictions of a
+  specific compound.
+
+Below 1024px, and for anyone whose system asks for reduced motion, neither
+pinned section exists: both ship a plain stacked fallback that is also what a
+reader with no JavaScript gets.
+
+Icons are `lucide-react`, rendered inside `.astro` files so they compile to
+static SVG and ship no JavaScript.
 
 ```
 src/

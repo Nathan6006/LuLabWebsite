@@ -1,10 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
-import { ArrowRight, ArrowDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
-import NanoparticleScroll from '../components/NanoparticleScroll.astro';
-import LabSequence from '../components/LabSequence.astro';
+import PlatformScroll from '../components/PlatformScroll.astro';
+import PhotoStrip from '../components/PhotoStrip.astro';
 import RevealImage from '../components/RevealImage.astro';
 import NewsItem from '../components/NewsItem.astro';
 import PublicationItem from '../components/PublicationItem.astro';
@@ -58,23 +58,27 @@ const CARD_IMAGE: Record<string, string> = {
     </div>
   </section>
 
-  <!-- Approach -->
-  <section id="approach" class="scroll-mt-24 mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">
-    <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
+  <!-- Approach. The one paragraph on the site that is read a word at a time:
+       it starts dim and each word takes its full colour as the paragraph
+       crosses the middle of the viewport, which sets a reading pace on exactly
+       the sentence that most needs reading. Used once, deliberately. -->
+  <section id="approach" class="scroll-mt-24 mx-auto max-w-[78rem] px-5 py-28 sm:px-8 sm:py-36">
+    <div class="grid gap-x-12 gap-y-8 lg:grid-cols-[11rem_minmax(0,1fr)]">
       <SectionHead label="Approach" index="01" />
-      <div class="prose-lab">
-        <p class="font-serif text-[1.36rem] font-[400] leading-[1.42] text-cwru-dark sm:text-[1.58rem]">
+      <div>
+        <p
+          class="max-w-[30ch] font-serif text-[1.72rem] font-[420] leading-[1.3] tracking-[-0.018em] text-cwru-dark sm:text-[2.25rem]"
+          data-highlight
+        >
           {SITE.missionExtended}
         </p>
       </div>
     </div>
   </section>
 
-  <!-- The delivery mechanism, turned in 3D as you scroll. -->
-  <NanoparticleScroll />
-
-  <!-- The lab's own photographs, pinned and scrubbed. -->
-  <LabSequence />
+  <!-- The signature moment: pinned, scrubbed, one point cloud morphing through
+       the three structures the lab actually builds. -->
+  <PlatformScroll />
 
   <!-- Research areas -->
   <section class="border-y border-rule bg-warm">
@@ -123,6 +127,9 @@ const CARD_IMAGE: Record<string, string> = {
       </div>
     </div>
   </section>
+
+  <!-- The lab's own photographs, pinned and travelled sideways. -->
+  <PhotoStrip />
 
   <!-- News + publications -->
   <section class="mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">

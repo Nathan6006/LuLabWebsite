@@ -1,0 +1,77 @@
+---
+import { Image } from 'astro:assets';
+import { allLabPhotos } from '../lib/lab';
+
+/**
+ * The lab's own four photographs, pinned and translated sideways as you scroll
+ * down. Short by design — roughly three screens of horizontal travel — and it
+ * is never the only way to reach anything: the same four photographs are
+ * stacked in the fallback below, which is what mobile and no-JS get.
+ */
+const photos = allLabPhotos();
+---
+
+{photos.length > 0 && (
+  <section class="strip relative bg-cwru-dark" data-strip>
+    <div class="strip-stage relative h-[100svh] overflow-hidden">
+      <div class="absolute inset-x-0 top-0 z-10 mx-auto flex max-w-[86rem] items-end justify-between gap-6 px-8 pt-28">
+        <div>
+          <p class="label text-copper-brand">In the lab</p>
+          <h2 class="mt-3 max-w-[18ch] text-h2 text-white">Wickenden Building, Cleveland</h2>
+        </div>
+        <p class="label hidden text-white/35 sm:block" data-strip-counter>01 / {String(photos.length).padStart(2, '0')}</p>
+      </div>
+
+      <div class="flex h-full items-center pt-16">
+        <div class="flex items-center gap-8 pl-8 will-change-transform" data-strip-track>
+          {photos.map((p, i) => (
+            <figure class="w-[min(46vw,40rem)] shrink-0" data-strip-card>
+              <div class="relative overflow-hidden bg-black/40">
+                <Image
+                  src={p.src}
+                  alt={p.meta.alt}
+                  widths={[560, 900]}
+                  sizes="46vw"
+                  quality={62}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  class="aspect-[4/3] w-full scale-[1.06] object-cover opacity-90"
+                  data-strip-img
+                />
+              </div>
+              <figcaption class="mt-4 flex items-baseline gap-3">
+                <span class="label text-copper-brand tabular">{String(i + 1).padStart(2, '0')}</span>
+                <span class="text-[0.92rem] text-cwru-light/75">{p.meta.caption}</span>
+              </figcaption>
+            </figure>
+          ))}
+          <div class="w-[12vw] shrink-0" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="strip-fallback">
+      <div class="mx-auto max-w-[78rem] px-5 py-16 sm:px-8">
+        <p class="label text-copper-brand">In the lab</p>
+        <h2 class="mt-3 text-h2 text-white">Wickenden Building, Cleveland</h2>
+        <ul class="mt-10 grid gap-8 sm:grid-cols-2">
+          {photos.map((p) => (
+            <li>
+              <Image
+                src={p.src}
+                alt={p.meta.alt}
+                widths={[440, 720]}
+                sizes="(min-width: 640px) 38vw, 92vw"
+                quality={62}
+                loading="lazy"
+                decoding="async"
+                class="aspect-[4/3] w-full object-cover"
+              />
+              <p class="mt-3 text-[0.9rem] text-cwru-light/75">{p.meta.caption}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+)}

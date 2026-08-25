@@ -33,7 +33,10 @@ const byYear = years.map((y) => ({
     {byYear.map(({ year, items }) => (
       <section class="border-b border-rule py-12 last:border-b-0">
         <div class="grid gap-x-12 gap-y-6 lg:grid-cols-[11rem_minmax(0,1fr)]" data-reveal>
-          <h2 class="pt-1 font-serif text-[1.6rem] leading-none text-copper tabular lg:text-right">
+          {/* The year sticks under the header while its own papers scroll past
+              and is pushed out by the next one. Over a list spanning fifteen
+              years this is the difference between usable and not. */}
+          <h2 class="sticky top-[5.4rem] z-10 h-fit bg-paper py-1 font-serif text-[1.6rem] leading-none text-copper tabular lg:text-right">
             {year}
           </h2>
           <ul class="max-w-[70ch]">{items.map((pub) => <PublicationItem pub={pub} />)}</ul>

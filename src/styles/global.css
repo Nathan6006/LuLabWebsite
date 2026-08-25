@@ -212,15 +212,21 @@
 }
 .hero-line { display: block; will-change: transform; }
 .js [data-hero-title] { opacity: 0; }
+
+/* On the home page the header wordmark is written in as the masthead scrolls
+   away. Without script it is simply there from the start. */
+.js [data-dock-title] { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .js [data-hero-title] { opacity: 1 !important; }
+  /* The handoff never runs under reduced motion, so the wordmark must not be
+     waiting for it. */
+  .js [data-dock-title] { opacity: 1 !important; }
   .hero-plate { transform: none !important; }
 }
-
-/* ---- Hero depth planes ---------------------------------------------------
-   Each plane is offset by the cursor at its own rate. Transform only, so it
-   composites on the GPU and never triggers layout. */
-[data-depth] { will-change: transform; }
+@media print {
+  [data-hero-title], [data-dock-title] { opacity: 1 !important; }
+  .platform-panel { position: static !important; opacity: 1 !important; transform: none !important; }
+}
 
 @keyframes nudge {
   0%, 100% { transform: translateY(0); }
@@ -234,25 +240,47 @@
   filter: drop-shadow(0 26px 64px rgba(0, 20, 60, 0.6));
 }
 
-/* ---- Nanoparticle scrollytelling ----------------------------------------
-   Stage copy is index-driven, exactly one visible at a time. */
-.nano .nano-stage { display: none; }
-.nano.is-pinned .nano-stage { display: flex; }
-.nano.is-pinned .nano-fallback { display: none; }
+/* ---- The pinned platform section ----------------------------------------
+   The stage only exists once the script has confirmed it can pin and drive it;
+   until then, and on anything narrower than 1024px, the stacked fallback is
+   what ships. Panels are index-driven, exactly one visible at a time — under a
+   scrub, two crossfading tweens can both be partly visible at the same scroll
+   position, and an index cannot do that. */
+.platform .platform-stage { display: none; }
+.platform.is-pinned .platform-stage { display: block; }
+.platform.is-pinned .platform-fallback { display: none; }
 
-.nano-stage-copy {
+.platform-panel {
+  position: absolute;
+  inset: 0;
   opacity: 0;
-  transform: translateY(1.6rem);
-  transition: opacity 460ms var(--ease-out-quart), transform 560ms var(--ease-out-quart);
+  transform: translateY(1.5rem);
+  transition: opacity 480ms var(--ease-out-quart), transform 620ms var(--ease-out-quart);
   pointer-events: none;
 }
-.nano-stage-copy.is-active {
+.platform-panel.is-active {
   opacity: 1;
   transform: none;
   pointer-events: auto;
 }
 
-[data-nano-orbit] { will-change: transform; transform-style: preserve-3d; }
+/* ---- The horizontal photo strip ------------------------------------------ */
+.strip .strip-stage { display: none; }
+.strip.is-pinned .strip-stage { display: block; }
+.strip.is-pinned .strip-fallback { display: none; }
+
+/* ---- The reading-highlight paragraph -------------------------------------
+   GSAP SplitText writes .hl-word. It must keep the paragraph's line box, so no
+   inline-block here — that would change the wrapping the moment the split runs
+   and shift everything below it. */
+.hl-word { will-change: opacity; }
+
+/* ---- Scroll progress ----------------------------------------------------- */
+.progress-bar {
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
 
 /* ---- Card tilt + spotlight ----------------------------------------------
    The card leans toward the cursor; a soft highlight tracks under it. Both are
@@ -276,27 +304,6 @@
 }
 .tilt-card:hover::after { opacity: 1; }
 
-/* ---- Pinned lab sequence -------------------------------------------------
-   The stacked fallback is what mobile and no-JS get; the pinned stage only
-   exists once the script confirms it can drive it. */
-.lab-seq .lab-seq-stage { display: none; }
-.lab-seq.is-pinned .lab-seq-stage { display: block; }
-.lab-seq.is-pinned .lab-seq-fallback { display: none; }
-.lab-seq-frame { will-change: transform, opacity; }
-
-/* Exactly one caption is visible at a time: the script toggles is-active and
-   these two rules do the rest, so a scrub can never show two at once. */
-.lab-seq-caption {
-  opacity: 0;
-  transform: translateY(1.4rem);
-  transition: opacity 420ms var(--ease-out-quart), transform 520ms var(--ease-out-quart);
-  pointer-events: none;
-}
-.lab-seq-caption.is-active {
-  opacity: 1;
-  transform: none;
-}
-
 /* Pre-state for the image reveal. The frame keeps its box; only the mask and
    the picture inside it move, so nothing on the page can shift. */
 .reveal-img > img {
@@ -306,7 +313,7 @@
   transform: scale(1.08);
 }
 .js .reveal-img:not(.is-revealed) {
-  clip-path: inset(0 0 100% 0);
+  clip-path: inset(0 100% 0 0);
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal-img > img { transform: none !important; }
@@ -322,16 +329,6 @@
    differ and everything below the headline jumps — that single shift was the
    whole of the page's 0.051 CLS. Three lines is a safe floor: the measure is
    11ch and "Biomolecular" is longer than that, so it never sets tighter. */
-.hero-title {
-  min-height: calc(var(--text-display) * 1.13 * 3);
-}
-
-/* The hero headline is measured before React hydrates and again after GSAP
-   wraps each word in a span. Without a reserved box those two measurements
-   differ and everything below the headline jumps — it scored the page's entire
-   0.051 CLS. The masthead wraps to exactly three lines at every width, because
-   max-width is 9ch and "Biomolecular" is longer than that, so three lines is a
-   safe floor to hold open. */
 .hero-title {
   min-height: calc(var(--text-display) * 1.13 * 3);
 }

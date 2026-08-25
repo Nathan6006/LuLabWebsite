@@ -19,6 +19,9 @@ interface Props {
   imgClass?: string;
   duotone?: boolean;
   strength?: number;
+  /** Pulls the render's own colour down before the tint is blended over it.
+      At hero size the untouched violet and red overwhelm the blue ground. */
+  saturate?: number;
   loading?: 'lazy' | 'eager';
   widths?: number[];
   sizes?: string;
@@ -29,6 +32,7 @@ const {
   imgClass = '',
   duotone = true,
   strength = 62,
+  saturate = 1,
   loading = 'lazy',
   widths = [420, 700],
   sizes = '28rem',
@@ -44,6 +48,7 @@ const {
     sizes={sizes}
     loading={loading}
     decoding="async"
+    style={saturate === 1 ? undefined : `filter:saturate(${saturate}) drop-shadow(0 26px 64px rgba(0,20,60,0.6));`}
     class:list={['lnp-render relative block h-full w-full object-contain', imgClass]}
   />
   {duotone && (

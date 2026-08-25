@@ -4,16 +4,19 @@ import { ArrowRight, ArrowDown } from 'lucide-react';
 import ParticleField from '../components/ParticleField.tsx';
 import { labPhoto } from '../lib/lab';
 import Nanoparticle from './Nanoparticle.astro';
-import { SITE } from '../lib/site';
 
 /**
- * The home page opening: four depth planes that move at different rates under
- * the cursor, so the whole thing sits in space rather than flat on the page.
+ * The home page opening.
  *
- *   0  the lab photograph, graded almost to black
- *   1  a WebGL particle drift
- *   2  the masthead and copy
- *   3  the nanoparticle render, floating nearest the viewer
+ * The page loads with the nanoparticle close enough to fill most of the frame.
+ * Scrolling the first viewport pulls it back and lifts the masthead away, while
+ * the site title takes over in the header — so the hero's one big move happens
+ * during the scroll you were doing anyway to get past it, and costs no extra
+ * page height.
+ *
+ * There is deliberately no cursor tracking here. Planes drifting under the
+ * pointer read as fidget rather than as depth, and it competed with the pull
+ * back for the same attention.
  */
 const plate = labPhoto('tube-rack');
 ---
@@ -23,7 +26,7 @@ const plate = labPhoto('tube-rack');
   data-hero-scene
 >
   {plate && (
-    <div class="absolute inset-0" aria-hidden="true" data-depth="0.018">
+    <div class="absolute inset-0" aria-hidden="true">
       <Image
         src={plate.src}
         alt=""
@@ -33,9 +36,9 @@ const plate = labPhoto('tube-rack');
         loading="eager"
         fetchpriority="high"
         decoding="async"
-        class="hero-plate h-full w-full scale-[1.06] object-cover"
+        class="hero-plate h-full w-full scale-[1.16] object-cover"
       />
-      <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark via-cwru-dark/92 to-cwru-dark/55"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark via-cwru-dark/92 to-cwru-dark/50"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-cwru-dark via-cwru-dark/35 to-cwru-dark/70"></div>
     </div>
   )}
@@ -43,12 +46,42 @@ const plate = labPhoto('tube-rack');
   <!-- Particle drift. client:idle, not client:visible: the island renders null
        until it has confirmed a WebGL context, so it has no box for an
        IntersectionObserver to see and client:visible would never fire. -->
-  <div class="pointer-events-none absolute inset-0 opacity-70" aria-hidden="true">
+  <div class="pointer-events-none absolute inset-0 opacity-70" aria-hidden="true" data-hero-particles>
     <ParticleField client:idle />
   </div>
 
-  <div class="relative mx-auto grid w-full max-w-[78rem] items-center gap-x-12 gap-y-14 px-5 py-28 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-    <div data-depth="0.055">
+  <!-- The nanoparticle sits behind the type and pulls back with the scroll. On
+       load it is close in and bleeding off the right edge. -->
+  <div
+    class="pointer-events-none absolute inset-y-0 right-[-12%] hidden w-[62%] items-center lg:flex"
+    aria-hidden="true"
+    data-hero-lnp
+  >
+    <div class="relative aspect-square w-full">
+      <div class="absolute inset-[14%] rounded-full bg-cwru-true/20 blur-[90px]"></div>
+      <div class="absolute inset-[28%] rounded-full bg-cwru-light/14 blur-[60px]"></div>
+      <Nanoparticle
+        class="relative h-full w-full"
+        widths={[560, 900]}
+        sizes="62vw"
+        loading="eager"
+        strength={84}
+        saturate={0.32}
+      />
+    </div>
+  </div>
+
+  <!-- Scrims over the render, not under it. The particle is large enough to
+       reach both the nav and the masthead, and white type on its pale shell
+       does not clear AA on its own. -->
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark via-cwru-dark/72 to-transparent"></div>
+    <div class="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-cwru-dark via-cwru-dark/70 to-transparent"></div>
+    <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-cwru-dark to-transparent"></div>
+  </div>
+
+  <div class="relative mx-auto w-full max-w-[78rem] px-5 py-28 sm:px-8" data-hero-content>
+    <div class="max-w-[46rem]">
       <div class="flex items-center gap-3" data-hero-follow>
         <span class="h-px w-8 bg-copper"></span>
         <p class="label text-cwru-light">Case Western Reserve University</p>
@@ -56,10 +89,10 @@ const plate = labPhoto('tube-rack');
 
       <h1
         data-hero-title
-        class="mt-7 max-w-[12ch] text-display font-[440] leading-[1.02] tracking-[-0.03em] text-white"
+        class="hero-title mt-7 max-w-[11ch] text-display font-[440] leading-[1.02] tracking-[-0.03em] text-white"
       >Center for Biomolecular Engineering</h1>
 
-      <p class="mt-8 max-w-[42ch] text-lede text-white/80" data-hero-follow>
+      <p class="mt-6 max-w-[40ch] text-lede text-white/80" data-hero-follow>
         Nanoplatforms that carry nucleic acid therapeutics where they need to go,
         and imaging agents that show clinicians the disease before it spreads.
       </p>
@@ -80,29 +113,11 @@ const plate = labPhoto('tube-rack');
         </a>
       </div>
     </div>
-
-    <!-- The nanoparticle, nearest the viewer. -->
-    <div class="relative hidden lg:block" data-depth="0.11" data-hero-follow>
-      <div class="relative mx-auto aspect-square w-full max-w-[30rem]">
-        <div class="absolute inset-[8%] rounded-full bg-cwru-true/22 blur-[70px]"></div>
-        <div class="absolute inset-[22%] rounded-full bg-cwru-light/18 blur-[50px]"></div>
-        <Nanoparticle
-          class="relative h-full w-full"
-          widths={[380, 620]}
-          sizes="30rem"
-          loading="eager"
-          strength={58}
-        />
-      </div>
-      <p class="label mt-2 text-center text-white/40">
-        ECO lipid nanoparticle &middot; illustrative render
-      </p>
-    </div>
   </div>
 
   <a
     href="#approach"
-    class="absolute inset-x-0 bottom-8 mx-auto flex w-fit items-center gap-2 text-white/45 transition-colors duration-200 hover:text-white"
+    class="absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit items-center gap-2 text-white/45 transition-colors duration-200 hover:text-white"
     data-hero-follow
   >
     <ArrowDown className="size-3.5 animate-[nudge_2.4s_ease-in-out_infinite]" strokeWidth={1.75} aria-hidden="true" />

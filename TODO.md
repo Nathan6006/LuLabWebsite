@@ -139,12 +139,36 @@ photographs, the Unsplash banners should be replaced with them and the
 
 ## 4. Pages with missing or incomplete content
 
-### 4.0 Home page mechanism copy needs a read
-The three stages in the "How ECO carries its cargo" section were written from
-the Gene Therapy text on the Center's own research page, but they are
-paraphrased into stage form rather than quoted. **Dr. Lu should check the
-wording is accurate**, particularly the framing of endosomal escape and the
-PERC step.
+### 4.0 Home page platform section — copy AND the 3D structures need a read
+The home page pins a section in which a WebGL point cloud morphs through three
+structures while three panels explain them. Two things in it need Dr. Lu's
+sign-off.
+
+**The copy.** All three panels were written from the Center's own Molecular
+Imaging and Gene Therapy research pages, but they are paraphrased into stage
+form rather than quoted. Panel 02 in particular ("contrast agents are built
+around a chelated metal centre") is a general statement about how contrast
+agents work, not a description of any specific agent this lab has published —
+it was written that way deliberately, because the source pages say the probes
+are used "with both MRI and PET" and do not name a chelate.
+
+**The structures.** The three shapes the point cloud forms — a lipid shell
+around a nucleic acid core, a macrocyclic chelate with four pendant arms, and
+that chelate carrying a peptide docked onto a fibril — are **schematic**. They
+are generated from parametric primitives to read as the right *class* of
+molecule at a glance. They are not derived from any structure file, and no
+claim is made about bond lengths, conformation, stoichiometry, or which
+specific compound is depicted. The section carries the caption "Schematic ·
+illustrative, not to scale" under the canvas, and the code says the same thing
+at the top of `src/components/MoleculeCanvas.tsx`.
+
+If that framing is too loose for a lab website, the honest alternatives are (a)
+supply real structure data and render that instead, or (b) drop the canvas and
+keep the panels. Say which and it is a small change either way.
+
+**Terminology check:** the panels say the probes target *fibronectin*, matching
+the Center's own Molecular Imaging page. Confirm that is still the right word
+for the current work.
 
 ### 4.1 `/join` — nothing for prospective students
 The old site's positions page advertised **only** a postdoctoral position. There

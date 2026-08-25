@@ -47,6 +47,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://lu-lab.page
       >Skip to main content</a
     >
 
+    <!-- Scroll progress. A hairline, not a bar: it should be readable as
+         position without becoming a second piece of chrome. -->
+    <div class="pointer-events-none fixed inset-x-0 top-0 z-50 h-[2px]" aria-hidden="true">
+      <div class="progress-bar h-full w-full bg-copper" data-progress-bar></div>
+    </div>
+
     <Header />
     <main id="main" tabindex="-1" class="focus:outline-none">
       <slot />

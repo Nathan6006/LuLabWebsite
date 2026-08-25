@@ -24,7 +24,15 @@ const overHero = path === '/';
   ]}
 >
   <div class="mx-auto flex max-w-[78rem] flex-wrap items-end gap-x-10 gap-y-3 px-5 pb-3 pt-4 sm:px-8">
-    <a href="/" class="mr-auto flex flex-col gap-0.5 leading-none">
+    <!-- On the home page the wordmark is not shown at rest: the hero masthead
+         is carrying the name. It writes itself in here as the masthead scrolls
+         away, so one title does both jobs. Without script it is simply
+         visible. -->
+    <a
+      href="/"
+      class="mr-auto flex flex-col gap-0.5 leading-none"
+      data-dock-title={overHero ? '' : undefined}
+    >
       <span class:list={["label transition-colors duration-300", overHero ? "text-copper/90 [.is-solid_&]:text-copper" : "text-copper"]}>Case Western Reserve University</span>
       <span class:list={[
         'font-serif text-[1.1rem] font-[550] tracking-[-0.02em] transition-colors duration-300 sm:text-[1.22rem]',
