@@ -25,7 +25,10 @@ const photos = allLabPhotos();
     class="hero-card relative isolate flex min-h-[100svh] items-center overflow-hidden bg-cwru-dark"
     data-hero-scene
   >
-    <div class="absolute inset-0" data-hero-slides>
+    <!-- isolate, so the slides' own stacking order is sealed inside this group
+         and can never compete with the scrims, the masthead or the plate edge
+         no matter what the script does to it. -->
+    <div class="absolute inset-0 isolate z-0" data-hero-slides>
       {photos.map((p, i) => (
         <div
           class="hero-slide absolute inset-0 overflow-hidden"

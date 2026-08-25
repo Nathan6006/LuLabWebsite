@@ -38,6 +38,11 @@ const FRAG = /* glsl */ `
   uniform vec2 uRes;
   uniform float uTime;
   uniform float uHold;
+  /* The block of text, in this canvas's own normalised coordinates:
+     centre.xy, half-extent.xy. Measured from the paragraph itself. */
+  uniform vec4 uBox;
+  /* How far the section has travelled through the viewport, 0 to 1. */
+  uniform float uProgress;
   varying vec2 vUv;
 
   /* No sin() here. The usual fract(sin(dot(...))) hash costs a transcendental
@@ -59,6 +64,11 @@ const FRAG = /* glsl */ `
       mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
       u.y
     );
+  }
+
+  float sdRoundBox(vec2 p, vec2 b, float r) {
+    vec2 q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
   }
 
   float fbm(vec2 p) {
@@ -105,6 +115,14 @@ const FRAG = /* glsl */ `
     col = mix(col, light, glow * 0.36);
     col += light * filament * 0.5;
 
+    /* ---- The text's pocket, and the line that bends around it -----------
+       Distance to the block of type, so the field can be told to leave it
+       alone and a contour can be drawn round its edge. */
+    float aspect = uRes.x / max(1.0, uRes.y);
+    vec2 ap = vec2((vUv.x - uBox.x) * aspect, vUv.y - uBox.y);
+    vec2 bh = vec2(uBox.z * aspect, uBox.w);
+    float d = sdRoundBox(ap, bh, min(0.09, min(bh.x, bh.y) * 0.5));
+
     /* Hold the left side down: the mission statement reads across it, and this
        is cheaper and steadier than trying to scrim a field that moves.
 
@@ -114,6 +132,39 @@ const FRAG = /* glsl */ `
        at 3.6:1 on a 390px screen. */
     col *= mix(0.36, 1.16, smoothstep(0.04, 0.94, vUv.x));
     col *= mix(1.0, 0.55, uHold);
+
+    /* Quieten the field inside the block. The type then has a steady ground
+       whatever the noise happens to be doing above it, and the light reads as
+       parting around the words rather than passing under them. */
+    /* Narrow viewports get a deeper, wider pocket: the block spans the full
+       width there, so the contour runs closer to the glyphs and there is no
+       margin of dark field either side of them to fall back on. */
+    float inside = 1.0 - smoothstep(-0.03, mix(0.11, 0.17, uHold), d);
+    col *= mix(1.0, mix(0.42, 0.30, uHold), inside);
+
+    /* The contour itself, displaced by the same field it sits in — so it bends
+       with the silk instead of reading as a geometric outline pasted over it. */
+    float dw = d - mix(0.095, 0.145, uHold) + 0.05 * (f - 0.5) + 0.03 * (r.y - 0.5);
+    float core = exp(-dw * dw / 0.00011);
+    float halo = exp(-dw * dw / 0.0016) * 0.16;
+
+    /* Drawn on by scroll. The angle around the block runs monotonically all
+       the way round it, so gating on that angle sweeps the line from one end
+       of the loop to the other — and reverses exactly on the way back up. */
+    float ang = atan(ap.y, ap.x);
+    float arc = fract((ang + 3.14159265) / 6.28318531 + 0.63);
+    float head = uProgress * 1.12;
+    /* A wide gate. A tight one cuts the halo along a radial line, and that
+       straight edge sweeping through the field is the one thing here that
+       reads as a computer drawing rather than as light. */
+    float drawn = smoothstep(head, head - 0.22, arc);
+    float tip = exp(-pow((arc - head) / 0.035, 2.0));
+
+    /* The line keeps more of itself on the held-down side than the field does;
+       otherwise the half of the loop that matters most simply is not there. */
+    float lineHold = mix(0.55, 1.0, smoothstep(0.02, 0.90, vUv.x)) * mix(1.0, 0.5, uHold);
+    col += light * (core + halo) * drawn * 0.55 * lineHold;
+    col += vec3(0.90, 0.95, 1.0) * core * tip * 0.5 * lineHold;
 
     /* Settle both edges onto the sections above and below, so the band has no
        seam at either end. */
@@ -171,6 +222,8 @@ export default function AuroraField() {
         uRes: { value: [1, 1] },
         uTime: { value: 0 },
         uHold: { value: 0 },
+        uBox: { value: [0.5, 0.5, 0.22, 0.2] },
+        uProgress: { value: 0 },
       },
       depthTest: false,
       depthWrite: false,
@@ -189,6 +242,7 @@ export default function AuroraField() {
     const frame = (t: number) => {
       raf = requestAnimationFrame(frame);
       if (!t0) t0 = t;
+      program.uniforms.uProgress.value = readProgress();
       draw((t - t0) / 1000);
     };
 
@@ -203,6 +257,36 @@ export default function AuroraField() {
       cancelAnimationFrame(raf);
     };
 
+    /* Where the block of type actually is. Measured rather than hard-coded,
+       because the paragraph's height depends on the face that ends up loading
+       and on the viewport it wraps into. */
+    const focus = document.querySelector<HTMLElement>('[data-aurora-focus]');
+    const measureBox = () => {
+      if (!focus) return;
+      const hr = el.getBoundingClientRect();
+      if (hr.width < 1 || hr.height < 1) return;
+      const tr = focus.getBoundingClientRect();
+      program.uniforms.uBox.value = [
+        (tr.left + tr.width / 2 - hr.left) / hr.width,
+        (tr.top + tr.height / 2 - hr.top) / hr.height,
+        tr.width / 2 / hr.width,
+        tr.height / 2 / hr.height,
+      ];
+      if (!running) draw(program.uniforms.uTime.value);
+    };
+
+    /* Section position, mapped to the same window the reading highlight uses,
+       so the line draws itself around the paragraph while the words brighten.
+       A pure function of scroll position, so scrolling back undraws it. */
+    const readProgress = () => {
+      if (still) return 1;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const from = vh * 0.76;
+      const to = vh * 0.55 - r.height;
+      return Math.min(1, Math.max(0, (from - r.top) / Math.max(1, from - to)));
+    };
+
     const resize = () => {
       const w = el.clientWidth || 1;
       const h = el.clientHeight || 1;
@@ -210,12 +294,19 @@ export default function AuroraField() {
       program.uniforms.uRes.value = [w, h];
       // Below this the type has no quiet side of the frame to sit on.
       program.uniforms.uHold.value = w < 760 ? 1 : 0;
+      measureBox();
+      program.uniforms.uProgress.value = readProgress();
       // A paused field still has to be correct at its new size.
       if (!running) draw(program.uniforms.uTime.value);
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(el);
+    // The paragraph's own box, which changes when the real face swaps in and
+    // when the text is split into words. A ResizeObserver on it catches both
+    // without having to guess at timings.
+    const roText = focus ? new ResizeObserver(measureBox) : null;
+    if (focus && roText) roText.observe(focus);
 
     const io = new IntersectionObserver(
       (entries) => { for (const e of entries) (e.isIntersecting ? start : stop)(); },
@@ -230,6 +321,7 @@ export default function AuroraField() {
       stop();
       io.disconnect();
       ro.disconnect();
+      roText?.disconnect();
       document.removeEventListener('visibilitychange', onVis);
       gl.canvas.remove();
       (gl.getExtension('WEBGL_lose_context') as { loseContext(): void } | null)?.loseContext();
