@@ -2,125 +2,146 @@
 import { Image } from 'astro:assets';
 import { ArrowRight, ArrowDown } from 'lucide-react';
 import ParticleField from '../components/ParticleField.tsx';
-import { labPhoto } from '../lib/lab';
-import Nanoparticle from './Nanoparticle.astro';
+import { allLabPhotos } from '../lib/lab';
 
 /**
- * The home page opening.
+ * The home page opening: the lab's own four photographs as a slideshow.
  *
- * The page loads with the nanoparticle close enough to fill most of the frame.
- * Scrolling the first viewport pulls it back and lifts the masthead away, while
- * the site title takes over in the header — so the hero's one big move happens
- * during the scroll you were doing anyway to get past it, and costs no extra
- * page height.
+ * Each slide wipes in over the one before it and keeps drifting while it is up,
+ * so the frame is never still. Scrolling past tilts the whole hero back on its
+ * X axis, scales it down and fades it out, while the picture inside it travels
+ * at a slower rate than the frame — the parallax happens between the photograph
+ * and its own edge rather than between the hero and the page.
  *
- * There is deliberately no cursor tracking here. Planes drifting under the
- * pointer read as fidget rather than as depth, and it competed with the pull
- * back for the same attention.
+ * The plate is the wrapper's job, not the section's: the section is what gets
+ * transformed, and a 3D transform on a shrinking element would otherwise show
+ * the page ground through the gap it opens at its edges.
  */
-const plate = labPhoto('tube-rack');
+const photos = allLabPhotos();
 ---
 
-<section
-  class="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-cwru-dark"
-  data-hero-scene
->
-  {plate && (
-    <div class="absolute inset-0" aria-hidden="true">
-      <Image
-        src={plate.src}
-        alt=""
-        widths={[880, 1400, 1920]}
-        sizes="100vw"
-        quality={58}
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        class="hero-plate h-full w-full scale-[1.16] object-cover"
-      />
-      <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark via-cwru-dark/92 to-cwru-dark/50"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-cwru-dark via-cwru-dark/35 to-cwru-dark/70"></div>
-    </div>
-  )}
-
-  <!-- Particle drift. client:idle, not client:visible: the island renders null
-       until it has confirmed a WebGL context, so it has no box for an
-       IntersectionObserver to see and client:visible would never fire. -->
-  <div class="pointer-events-none absolute inset-0 opacity-70" aria-hidden="true" data-hero-particles>
-    <ParticleField client:idle />
-  </div>
-
-  <!-- The nanoparticle sits behind the type and pulls back with the scroll. On
-       load it is close in and bleeding off the right edge. -->
-  <div
-    class="pointer-events-none absolute inset-y-0 right-[-12%] hidden w-[62%] items-center lg:flex"
-    aria-hidden="true"
-    data-hero-lnp
+<div class="hero-wrap relative bg-cwru-dark" style="perspective: 1600px;">
+  <section
+    class="hero-card relative isolate flex min-h-[100svh] items-center overflow-hidden bg-cwru-dark"
+    data-hero-scene
   >
-    <div class="relative aspect-square w-full">
-      <div class="absolute inset-[14%] rounded-full bg-cwru-true/20 blur-[90px]"></div>
-      <div class="absolute inset-[28%] rounded-full bg-cwru-light/14 blur-[60px]"></div>
-      <Nanoparticle
-        class="relative h-full w-full"
-        widths={[560, 900]}
-        sizes="62vw"
-        loading="eager"
-        strength={84}
-        saturate={0.32}
-      />
-    </div>
-  </div>
-
-  <!-- Scrims over the render, not under it. The particle is large enough to
-       reach both the nav and the masthead, and white type on its pale shell
-       does not clear AA on its own. -->
-  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-    <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark via-cwru-dark/72 to-transparent"></div>
-    <div class="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-cwru-dark via-cwru-dark/70 to-transparent"></div>
-    <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-cwru-dark to-transparent"></div>
-  </div>
-
-  <div class="relative mx-auto w-full max-w-[78rem] px-5 py-28 sm:px-8" data-hero-content>
-    <div class="max-w-[46rem]">
-      <div class="flex items-center gap-3" data-hero-follow>
-        <span class="h-px w-8 bg-copper"></span>
-        <p class="label text-cwru-light">Case Western Reserve University</p>
-      </div>
-
-      <h1
-        data-hero-title
-        class="hero-title mt-7 max-w-[11ch] text-display font-[440] leading-[1.02] tracking-[-0.03em] text-white"
-      >Center for Biomolecular Engineering</h1>
-
-      <p class="mt-6 max-w-[40ch] text-lede text-white/80" data-hero-follow>
-        Nanoplatforms that carry nucleic acid therapeutics where they need to go,
-        and imaging agents that show clinicians the disease before it spreads.
-      </p>
-
-      <div class="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3" data-hero-follow>
-        <a
-          href="/research"
-          data-magnet
-          class="group relative inline-flex items-center gap-2 overflow-hidden bg-white px-7 py-4 text-[0.92rem] font-medium text-cwru-dark"
+    <div class="absolute inset-0" data-hero-slides>
+      {photos.map((p, i) => (
+        <div
+          class="hero-slide absolute inset-0 overflow-hidden"
+          data-hero-slide
+          style={`z-index:${photos.length - i};`}
         >
-          <span class="relative z-10">Explore our research</span>
-          <ArrowRight className="relative z-10 size-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
-          <span class="absolute inset-0 origin-left scale-x-0 bg-cwru-light transition-transform duration-400 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-x-100"></span>
-        </a>
-        <a href="/join" class="group inline-flex items-center gap-2 py-4 text-[0.92rem] font-medium text-white">
-          <span class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-left-bottom bg-no-repeat pb-[3px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:0%_1px]">Open positions</span>
-          <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
-        </a>
+          <div class="absolute inset-x-0 -top-[9%] h-[118%]" data-hero-parallax>
+            <Image
+              src={p.src}
+              alt={p.meta.alt}
+              widths={[900, 1400, 1920]}
+              sizes="100vw"
+              quality={58}
+              loading={i < 2 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+              decoding="async"
+              class="hero-slide-img h-full w-full object-cover"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Particle drift. client:idle, not client:visible: the island renders null
+         until it has confirmed a WebGL context, so it has no box for an
+         IntersectionObserver to see and client:visible would never fire. -->
+    <div class="pointer-events-none absolute inset-0 z-20 opacity-70" aria-hidden="true" data-hero-particles>
+      <ParticleField client:idle />
+    </div>
+
+    <!-- Scrims. The photographs are bright enough in places that white type on
+         them would not clear AA on its own. -->
+    <div class="pointer-events-none absolute inset-0 z-20" aria-hidden="true">
+      <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark via-cwru-dark/68 to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-cwru-dark/78 via-transparent to-cwru-dark/30"></div>
+      <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-cwru-dark/80 to-transparent"></div>
+      <div class="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-cwru-dark/78 to-transparent"></div>
+    </div>
+
+    <div class="relative z-30 mx-auto w-full max-w-[78rem] px-5 py-28 sm:px-8" data-hero-content>
+      <div class="max-w-[46rem]">
+        <div class="flex items-center gap-3" data-hero-follow>
+          <span class="h-px w-8 bg-copper"></span>
+          <p class="label text-cwru-light">Case Western Reserve University</p>
+        </div>
+
+        <h1
+          data-hero-title
+          class="hero-title mt-7 max-w-[11ch] text-display font-[440] leading-[1.02] tracking-[-0.03em] text-white"
+        >Center for Biomolecular Engineering</h1>
+
+        <p class="mt-6 max-w-[40ch] text-lede text-white/80" data-hero-follow>
+          Nanoplatforms that carry nucleic acid therapeutics where they need to go,
+          and imaging agents that show clinicians the disease before it spreads.
+        </p>
+
+        <div class="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3" data-hero-follow>
+          <a
+            href="/research"
+            data-magnet
+            class="group relative inline-flex items-center gap-2 overflow-hidden bg-white px-7 py-4 text-[0.92rem] font-medium text-cwru-dark"
+          >
+            <span class="relative z-10">Explore our research</span>
+            <ArrowRight className="relative z-10 size-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
+            <span class="absolute inset-0 origin-left scale-x-0 bg-cwru-light transition-transform duration-400 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-x-100"></span>
+          </a>
+          <a href="/join" class="group inline-flex items-center gap-2 py-4 text-[0.92rem] font-medium text-white">
+            <span class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-left-bottom bg-no-repeat pb-[3px] transition-[background-size] duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:bg-[length:0%_1px]">Open positions</span>
+            <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" strokeWidth={1.75} aria-hidden="true" />
+          </a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <a
-    href="#approach"
-    class="absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit items-center gap-2 text-white/45 transition-colors duration-200 hover:text-white"
-    data-hero-follow
-  >
-    <ArrowDown className="size-3.5 animate-[nudge_2.4s_ease-in-out_infinite]" strokeWidth={1.75} aria-hidden="true" />
-    <span class="label">Scroll</span>
-  </a>
-</section>
+    <!-- Slide caption and controls. Real buttons, because an image carousel
+         that can only be advanced by waiting is not operable. -->
+    <div
+      class="absolute inset-x-0 bottom-8 z-30 mx-auto flex max-w-[78rem] flex-wrap items-end justify-between gap-6 px-5 sm:px-8"
+      data-hero-follow
+    >
+      <a
+        href="#approach"
+        class="flex items-center gap-2 text-white/75 transition-colors duration-200 hover:text-white"
+      >
+        <ArrowDown className="size-3.5 animate-[nudge_2.4s_ease-in-out_infinite]" strokeWidth={1.75} aria-hidden="true" />
+        <span class="label">Scroll</span>
+      </a>
+
+      <div class="hidden items-end gap-8 sm:flex">
+        <div class="relative h-[2.6rem] w-[26ch]">
+          {photos.map((p) => (
+            <p class="hero-caption absolute inset-x-0 bottom-0 text-right text-[0.82rem] leading-snug text-white/80" data-hero-caption>
+              {p.meta.caption}
+            </p>
+          ))}
+        </div>
+        <ul class="flex items-center gap-2.5 pb-1">
+          {photos.map((p, i) => (
+            <li>
+              <button
+                type="button"
+                class="group block cursor-pointer py-2"
+                data-hero-dot={i}
+                aria-label={`Show photograph ${i + 1} of ${photos.length}: ${p.meta.caption}`}
+              >
+                <span class="relative block h-[2px] w-9 bg-white/35">
+                  <span
+                    class="absolute inset-y-0 left-0 w-full origin-left scale-x-0 bg-white"
+                    data-hero-dot-fill
+                  ></span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>

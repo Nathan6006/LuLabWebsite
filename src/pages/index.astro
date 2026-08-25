@@ -4,8 +4,8 @@ import { ArrowRight } from 'lucide-react';
 import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
 import PlatformScroll from '../components/PlatformScroll.astro';
-import PhotoStrip from '../components/PhotoStrip.astro';
 import RevealImage from '../components/RevealImage.astro';
+import Nanoparticle from '../components/Nanoparticle.astro';
 import NewsItem from '../components/NewsItem.astro';
 import PublicationItem from '../components/PublicationItem.astro';
 import SectionHead from '../components/SectionHead.astro';
@@ -35,10 +35,14 @@ const figures = [
 
 // Imagery per research area. The MRI grid is on-subject — the lab builds MRI
 // contrast agents — and is credited on /credits, because it is not their scan.
+//
+// The nucleic acid card carries the lipid nanoparticle render instead of a
+// photograph: it is a picture of the thing the card is about, which no stock
+// image can be.
 const CARD_IMAGE: Record<string, string> = {
   '01-molecular-imaging': 'card-imaging',
-  '02-gene-therapy': 'card-gene',
 };
+const CARD_RENDER = '02-gene-therapy';
 ---
 
 <Base description={SITE.mission}>
@@ -103,13 +107,31 @@ const CARD_IMAGE: Record<string, string> = {
                   class="tilt-card group relative flex h-full flex-col bg-paper transition-colors duration-200 hover:bg-warm"
                 >
                   <span class="absolute inset-x-0 top-0 z-10 h-[2px] origin-left scale-x-0 bg-copper transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-x-100"></span>
-                  <RevealImage
-                    id={CARD_IMAGE[t.id] ?? ''}
-                    ratio="21 / 9"
-                    interactive
-                    desaturate={0.15}
-                    sizes="(min-width: 640px) 38vw, 100vw"
-                  />
+                  {t.id === CARD_RENDER ? (
+                    <div class="relative isolate overflow-hidden bg-cwru-dark" style="aspect-ratio: 21 / 9;">
+                      <div class="absolute inset-0 opacity-[0.5]" aria-hidden="true"
+                        style="background-image:linear-gradient(rgba(166,210,230,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(166,210,230,0.18) 1px,transparent 1px);background-size:42px 42px;"></div>
+                      <div class="absolute left-[58%] top-1/2 h-[136%] w-auto -translate-x-1/2 -translate-y-1/2 aspect-square">
+                        <div class="absolute inset-[14%] rounded-full bg-cwru-true/25 blur-[46px]"></div>
+                        <Nanoparticle
+                          class="relative h-full w-full transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-105"
+                          widths={[320, 560]}
+                          sizes="38vw"
+                          strength={58}
+                          saturate={0.6}
+                        />
+                      </div>
+                      <p class="label absolute bottom-3 left-4 z-10 text-cwru-light/55">Illustrative render</p>
+                    </div>
+                  ) : (
+                    <RevealImage
+                      id={CARD_IMAGE[t.id] ?? ''}
+                      ratio="21 / 9"
+                      interactive
+                      desaturate={0.15}
+                      sizes="(min-width: 640px) 38vw, 100vw"
+                    />
+                  )}
                   <div class="flex flex-1 flex-col p-8">
                     <p class="label text-copper tabular">{String(i + 1).padStart(2, '0')}</p>
                     <h3 class="mt-3 text-h3 text-cwru-dark">{t.data.title}</h3>
@@ -127,9 +149,6 @@ const CARD_IMAGE: Record<string, string> = {
       </div>
     </div>
   </section>
-
-  <!-- The lab's own photographs, pinned and travelled sideways. -->
-  <PhotoStrip />
 
   <!-- News + publications -->
   <section class="mx-auto max-w-[78rem] px-5 py-20 sm:px-8 sm:py-24">

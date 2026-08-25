@@ -367,7 +367,8 @@ Motion is GSAP, and it all lives in one file: `src/components/Motion.astro`.
 Every page gets scroll reveals, image wipes and the progress bar from it with no
 React at all. The home page additionally gets, from the same file, the masthead
 that assembles and hands the site name to the header, the pinned platform
-section, the word-by-word reading highlight, and the horizontal photo strip.
+section, the word-by-word reading highlight, and the hero slideshow's
+tilt-away.
 GSAP's ScrollTrigger and SplitText are loaded only on the home page, so no other
 route pays for them.
 

@@ -82,15 +82,17 @@ carried over exactly as found and is very likely out of date:
 ## 3. Photographs — partly supplied
 
 **Four real photographs of the lab were supplied** and are now used across the
-site: the home page masthead plate, a pinned four-shot sequence on the home
-page, and the page banners on research, instruments and join. They live in
+site: all four are the home page hero, which cycles through them, and they also
+carry the page banners on research, instruments and join. They live in
 `src/assets/lab/` with their alt text and captions in
-`src/data/lab-photos.json`.
+`src/data/lab-photos.json`. The hero captions are those captions — they are the
+most prominent text on the site after the masthead, so they are worth a read.
 
-A lipid nanoparticle render was also supplied and now carries the home page
-masthead and the delivery-mechanism section. It is labelled "illustrative
-render" wherever it appears, because it is an illustration of the ECO platform
-rather than a micrograph of a particle the lab made. **Confirm that framing.**
+A lipid nanoparticle render was also supplied. It now illustrates the Nucleic
+Acid Therapies card on the home page and the fallback for the platform section.
+It is labelled "illustrative render" wherever it appears, because it is an
+illustration of the ECO platform rather than a micrograph of a particle the lab
+made. **Confirm that framing.**
 
 The render is tinted into the site's blue by a masked blend in
 `Nanoparticle.astro` — the source is violet on a pale shell, which read badly on
@@ -123,7 +125,7 @@ under a heading naming a specific instrument. Those four remain placeholders.
 | `/people` — 10 members | 4:5 portrait | One portrait per member |
 | `/people` — group photo | 3:1 panorama | Current group photo |
 | `/research` — Molecular Imaging | 16:9 | Diagram: fibronectin-targeted probe in the tumour microenvironment |
-| `/research` — Gene Therapy | 16:9 | Diagram: ECO lipid structure and the PERC delivery mechanism |
+| `/research` — Nucleic Acid Therapies | 16:9 | Diagram: ECO lipid structure and the PERC delivery mechanism |
 | `/instruments` — 4 instruments | 3:2 | One photo per instrument |
 | Captions for the four supplied photos | — | Confirm the captions in `src/data/lab-photos.json` describe what is actually happening in each shot |
 | `/contact` | 4:3 | Static campus map showing the Wickenden Building |

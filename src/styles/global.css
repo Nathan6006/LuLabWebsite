@@ -221,7 +221,6 @@
   /* The handoff never runs under reduced motion, so the wordmark must not be
      waiting for it. */
   .js [data-dock-title] { opacity: 1 !important; }
-  .hero-plate { transform: none !important; }
 }
 @media print {
   [data-hero-title], [data-dock-title] { opacity: 1 !important; }
@@ -264,10 +263,34 @@
   pointer-events: auto;
 }
 
-/* ---- The horizontal photo strip ------------------------------------------ */
-.strip .strip-stage { display: none; }
-.strip.is-pinned .strip-stage { display: block; }
-.strip.is-pinned .strip-fallback { display: none; }
+/* ---- The hero slideshow --------------------------------------------------
+   Slides are stacked with the first on top, so without script the hero is
+   simply the first photograph rather than four of them piled up. The script
+   takes over the stacking order from there. */
+.hero-card {
+  transform-origin: 50% 32%;
+  will-change: transform, opacity;
+}
+.hero-slide { will-change: opacity, clip-path; }
+.hero-slide-img { will-change: transform; }
+[data-hero-parallax] { will-change: transform; }
+
+/* Exactly one caption at a time — the same index rule the pinned section uses,
+   for the same reason. */
+.hero-caption {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition: opacity 460ms var(--ease-out-quart), transform 520ms var(--ease-out-quart);
+}
+.hero-caption.is-active { opacity: 1; transform: none; }
+
+[data-hero-dot] .absolute { transition: transform 200ms var(--ease-smooth); }
+[data-hero-dot]:hover span > span { background: var(--color-cwru-light); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-card { transform: none !important; opacity: 1 !important; }
+  .hero-caption { transition: none; }
+}
 
 /* ---- The reading-highlight paragraph -------------------------------------
    GSAP SplitText writes .hl-word. It must keep the paragraph's line box, so no

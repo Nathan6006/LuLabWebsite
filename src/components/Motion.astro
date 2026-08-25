@@ -120,7 +120,8 @@
   /* ---- 4. Header over the hero -------------------------------------------- */
   const header = document.querySelector<HTMLElement>('[data-header][data-over-hero]');
   if (header) {
-    const first = document.querySelector<HTMLElement>('main > section');
+    const first = document.querySelector<HTMLElement>('[data-hero-scene]')
+      ?? document.querySelector<HTMLElement>('main > section');
     const setSolid = () => {
       const past = first
         ? first.getBoundingClientRect().bottom <= header.offsetHeight + 8
@@ -130,6 +131,99 @@
     setSolid();
     window.addEventListener('scroll', setSolid, { passive: true });
     window.addEventListener('resize', setSolid);
+  }
+
+  /* ---- 4b. Hero slideshow -------------------------------------------------
+     The lab's four photographs. Each wipes in over the one before it and keeps
+     drifting while it is up, so the frame is never still.
+
+     Deliberately outside the home-only async block below: this is the first
+     thing anyone sees, and it should not be waiting on two scroll plugins to
+     download. It also stops entirely when the hero is off screen or the tab is
+     hidden — there is no reason to run a picture animation nobody is looking
+     at. */
+  const slides = gsap.utils.toArray<HTMLElement>('[data-hero-slide]');
+  if (slides.length > 1) {
+    const n = slides.length;
+    const pics = slides.map((s) => s.querySelector<HTMLElement>('img')!);
+    const caps = gsap.utils.toArray<HTMLElement>('[data-hero-caption]');
+    const fills = gsap.utils.toArray<HTMLElement>('[data-hero-dot-fill]');
+    const dots = gsap.utils.toArray<HTMLElement>('[data-hero-dot]');
+    const DWELL = 5.6;
+
+    let index = 0;
+    let z = n;
+    let advance: gsap.core.Tween | null = null;
+    let fill: gsap.core.Tween | null = null;
+    let drift: gsap.core.Tween | null = null;
+    let running = !reduced;
+
+    gsap.set(slides, { autoAlpha: 0 });
+    gsap.set(slides[0], { autoAlpha: 1 });
+    gsap.set(fills, { scaleX: 0, transformOrigin: '0 50%' });
+
+    const mark = (i: number) => {
+      caps.forEach((c, k) => c.classList.toggle('is-active', k === i));
+      dots.forEach((d, k) => d.setAttribute('aria-current', k === i ? 'true' : 'false'));
+    };
+
+    const arm = (i: number) => {
+      advance?.kill();
+      fill?.kill();
+      gsap.set(fills, { scaleX: 0 });
+      if (!running) { gsap.set(fills[i], { scaleX: 1 }); return; }
+      fill = gsap.fromTo(fills[i], { scaleX: 0 }, { scaleX: 1, duration: DWELL, ease: 'none' });
+      advance = gsap.delayedCall(DWELL, () => show((i + 1) % n));
+    };
+
+    const show = (next: number) => {
+      if (next === index) { arm(next); return; }
+      const from = slides[index];
+      const to = slides[next];
+      index = next;
+
+      // The incoming slide wipes across the outgoing one, which is simply
+      // switched off once it is fully covered — no crossfade, so the two
+      // photographs are never both half-visible.
+      gsap.set(to, { zIndex: ++z, autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' });
+      gsap.to(to, {
+        clipPath: 'inset(0 0% 0 0)', duration: 1.15, ease: 'power3.inOut',
+        onComplete() { if (from !== to) gsap.set(from, { autoAlpha: 0 }); },
+      });
+
+      drift?.kill();
+      drift = gsap.fromTo(pics[next],
+        { scale: 1, xPercent: 0 },
+        { scale: 1.08, xPercent: -1.6, duration: DWELL + 2.4, ease: 'none' });
+
+      mark(next);
+      arm(next);
+    };
+
+    mark(0);
+    arm(0);
+    if (running) {
+      drift = gsap.fromTo(pics[0],
+        { scale: 1, xPercent: 0 },
+        { scale: 1.08, xPercent: -1.6, duration: DWELL + 2.4, ease: 'none' });
+    }
+
+    dots.forEach((d, k) => d.addEventListener('click', () => show(k)));
+
+    const setRunning = (on: boolean) => {
+      if (reduced || on === running) return;
+      running = on;
+      if (on) { arm(index); drift?.resume(); }
+      else { advance?.kill(); fill?.pause(); drift?.pause(); }
+    };
+    const heroEl = document.querySelector('[data-hero-scene]');
+    if (heroEl) {
+      new IntersectionObserver(
+        (entries) => { for (const e of entries) setRunning(e.isIntersecting); },
+        { threshold: 0 },
+      ).observe(heroEl);
+    }
+    document.addEventListener('visibilitychange', () => setRunning(!document.hidden));
   }
 
   /* ---- 5. Magnetic buttons ------------------------------------------------ */
@@ -192,28 +286,38 @@
         y: 18, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.09, delay: 0.42,
       });
 
-      /* -- 7b. Camera pull back, and the title docks into the header -------
-         The nanoparticle loads close in and recedes as you scroll the first
-         viewport; the masthead lifts away and the header wordmark writes
-         itself in as it goes. One title, two jobs, and no extra page height —
-         it all plays during the scroll you were making anyway. */
-      const scene = document.querySelector<HTMLElement>('[data-hero-scene]');
-      if (scene) {
+      /* -- 7b. The hero tilts away, and the title docks into the header ----
+         Scrolling past leans the whole hero back on its X axis, scales it down
+         and fades it out, so it recedes into the page rather than sliding off
+         it. The photograph inside travels at its own rate, so the parallax
+         happens between the picture and its own frame — nothing drifts against
+         the type while you are still reading it.
+
+         The perspective lives on the wrapper and the transform on the section:
+         a shrinking element with a 3D transform opens a gap at its own edges,
+         and the wrapper is what fills it. */
+      const wrap = document.querySelector<HTMLElement>('.hero-wrap');
+      const card = document.querySelector<HTMLElement>('.hero-card');
+      if (wrap && card) {
         const heroTl = gsap.timeline({
           scrollTrigger: {
-            trigger: scene, start: 'top top', end: 'bottom top',
-            scrub: 0.5, invalidateOnRefresh: true,
+            trigger: wrap, start: 'top top', end: 'bottom 15%',
+            scrub: 0.6, invalidateOnRefresh: true,
           },
         });
-        const lnp = scene.querySelector<HTMLElement>('[data-hero-lnp]');
-        if (lnp) heroTl.fromTo(lnp,
-          { scale: 1.28, xPercent: 0, yPercent: 0 },
-          { scale: 0.84, xPercent: -9, yPercent: -6, ease: 'none', duration: 1 }, 0);
-        heroTl.fromTo('.hero-plate', { scale: 1.16 }, { scale: 1.0, ease: 'none', duration: 1 }, 0);
+        heroTl.fromTo(card,
+          { rotateX: 0, scale: 1, y: 0 },
+          { rotateX: 10, scale: 0.84, y: -34, ease: 'none', duration: 1 }, 0);
+        // The fade runs late and fast. Tied to the same range as the tilt it
+        // dims the photograph while most of it is still on screen, which reads
+        // as the picture failing rather than as the hero receding.
+        heroTl.fromTo(card, { opacity: 1 }, { opacity: 0.08, ease: 'power2.in', duration: 0.52 }, 0.48);
+        heroTl.fromTo('[data-hero-parallax]',
+          { yPercent: -3.5 }, { yPercent: 5.5, ease: 'none', duration: 1 }, 0);
         heroTl.fromTo('[data-hero-particles]', { opacity: 0.7 }, { opacity: 0, ease: 'none', duration: 1 }, 0);
         heroTl.fromTo('[data-hero-content]',
           { y: 0, opacity: 1 },
-          { y: -80, opacity: 0, ease: 'power2.in', duration: 0.68 }, 0);
+          { y: -70, opacity: 0, ease: 'power2.in', duration: 0.4 }, 0);
 
         // The wordmark arrives as the masthead leaves rather than at the very
         // last pixel of the hero, so the two never both read as the title and
@@ -223,7 +327,7 @@
           gsap.set(dock, { opacity: 0, y: 8 });
           heroTl.fromTo(dock,
             { opacity: 0, y: 8 },
-            { opacity: 1, y: 0, ease: 'power2.out', duration: 0.3 }, 0.42);
+            { opacity: 1, y: 0, ease: 'power2.out', duration: 0.28 }, 0.38);
         }
       }
 
@@ -320,42 +424,6 @@
           },
         });
         setPanel(0);
-      }
-
-      /* -- 7e. Horizontal photo strip -------------------------------------
-         Short on purpose, and never the only route to the content: the same
-         four photographs are stacked in the fallback for narrow viewports and
-         for no-JS. */
-      const strip = document.querySelector<HTMLElement>('[data-strip]');
-      const track = strip?.querySelector<HTMLElement>('[data-strip-track]');
-      if (strip && track && wide) {
-        strip.classList.add('is-pinned');
-        const counter = strip.querySelector<HTMLElement>('[data-strip-counter]');
-        const cards = gsap.utils.toArray<HTMLElement>('[data-strip-card]', strip);
-        const imgs = gsap.utils.toArray<HTMLElement>('[data-strip-img]', strip);
-        const total = String(cards.length).padStart(2, '0');
-        const travel = () => Math.max(0, track.scrollWidth - window.innerWidth + 64);
-
-        const stripTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: strip,
-            start: 'top top',
-            end: () => '+=' + travel(),
-            pin: '.strip-stage',
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            onUpdate(self) {
-              if (!counter) return;
-              const i = Math.min(cards.length - 1, Math.floor(self.progress * cards.length + 0.15));
-              counter.textContent = `${String(i + 1).padStart(2, '0')} / ${total}`;
-            },
-          },
-        });
-        stripTl.to(track, { x: () => -travel(), ease: 'none' }, 0);
-        // Each picture drifts against its own frame, so there is motion inside
-        // the cards as well as across the row.
-        stripTl.fromTo(imgs, { xPercent: 5 }, { xPercent: -5, ease: 'none' }, 0);
       }
 
       ScrollTrigger.refresh();

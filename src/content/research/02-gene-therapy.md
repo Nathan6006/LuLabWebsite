@@ -1,5 +1,5 @@
 ---
-title: Gene Therapy
+title: Nucleic Acid Therapies
 summary: Simple, safe, and smart multifunctional lipids — including the pH-sensitive carrier ECO — that deliver non-coding RNAs and plasmid DNA to their targets.
 order: 2
 figureNote: Diagram — ECO lipid structure and the PERC delivery mechanism (16:9)
