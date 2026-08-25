@@ -1,5 +1,5 @@
 ---
-import ParticleBookend from './ParticleBookend.tsx';
+import Nanoparticle from './Nanoparticle.tsx';
 import BodyScaffold from './BodyScaffold.astro';
 import { JOURNEY } from '../../lib/journey';
 
@@ -29,13 +29,15 @@ import { JOURNEY } from '../../lib/journey';
     class="journey-stage relative isolate min-h-[100svh] overflow-hidden"
     data-journey-stage
   >
-    <!-- The ground. Dark navy at the head of the section, warm off-white
-         through the body sequence, navy again by the end. -->
+    <!-- The ground. It barely moves: deep navy, lifting a shade through the
+         middle and settling back. The previous version inverted it to warm
+         off-white and back, which was itself one of the hard cuts this
+         rebuild exists to remove. -->
     <div
       class="absolute inset-0"
       aria-hidden="true"
       data-journey-ground
-      style={`background-color:${JOURNEY.colors.warm};`}
+      style={`background-color:${JOURNEY.colors.navyLift};`}
     >
     </div>
 
@@ -48,12 +50,14 @@ import { JOURNEY } from '../../lib/journey';
          being late to mount made the particle late to arrive. It stays idle
          rather than load because the expensive part is deferred separately. -->
     <div class="absolute inset-0" aria-hidden="true" data-journey-canvas>
-      <ParticleBookend client:idle={{ timeout: 800 }} />
+      <Nanoparticle client:idle={{ timeout: 800 }} />
     </div>
 
-    <!-- The body sequence. Sized to the stage height; the viewBox does the
-         rest, so the line weight scales with the viewport on its own. -->
-    <div class="absolute inset-0 flex items-center justify-center py-[5vh]" aria-hidden="true">
+    <!-- The scene: the curve, the body and the trail. Full bleed and the same
+         box as the canvas above it, because the controller projects the
+         particle's position through this element's rect — if the two boxes
+         differed, the particle would sit off the line it is travelling. -->
+    <div class="absolute inset-0" aria-hidden="true">
       <BodyScaffold />
     </div>
   </div>

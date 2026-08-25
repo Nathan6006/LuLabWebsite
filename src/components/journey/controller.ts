@@ -7,8 +7,13 @@
  * nor the WebGL island reads scroll position, and neither holds a clock that
  * decides anything structural.
  *
- * All reading happens at refresh — path length, the sample table, the injection
- * site's screen position. The update path is write-only.
+ * It is also what keeps the two renderers in the same scene: the particle's
+ * position on the curve is projected through the same camera the SVG is given,
+ * so the object cannot drift off the line it is supposed to be travelling.
+ *
+ * All reading happens at refresh — path length, the sample table, the host
+ * box. The update path is write-only apart from one rect read per frame,
+ * which is needed to project into pixels and is taken once, before any write.
  */
 import { TUNING, computeFrame, type JourneyFrame } from '../../lib/journey';
 import { getParticle, onParticle } from '../../lib/journey-bridge';
@@ -47,16 +52,26 @@ export function initJourney(ScrollTrigger: any): JourneyHandles | null {
 
   const render = (p: number) => {
     lastP = p;
-    const frame: JourneyFrame = computeFrame(p, cfg);
+    const frame: JourneyFrame = computeFrame(p, cfg, (t) => stage.pointAt(t));
     stage.apply(frame);
-    getParticle()?.set(frame);
+
+    const particle = getParticle();
+    if (particle) {
+      // The particle sits on the curve, seen through the camera the SVG is
+      // using — one projection, so there is no second source of truth about
+      // where "on the curve" is on screen.
+      const scene = stage.pointAt(frame.lnpDistance);
+      const at = stage.project(scene, frame.svgCamera, canvasHost);
+      if (at) {
+        particle.place(at.x, at.y, cfg.particle.radius * frame.lnpScale * at.scale);
+      }
+      particle.set(frame);
+    }
   };
 
   /** Everything that reads geometry. Never called from an update. */
   const remeasure = () => {
     stage.measure();
-    const pt = stage.injectionPoint(canvasHost);
-    if (pt) getParticle()?.aim(pt.x, pt.y);
   };
 
   const trigger = ScrollTrigger.create({
@@ -67,9 +82,8 @@ export function initJourney(ScrollTrigger: any): JourneyHandles | null {
     // Pin by moving the element, not by taking it out of flow. A `fixed` pin
     // switches a full-viewport element from static to fixed at the moment it
     // reaches the top, and the browser books that as a layout shift the size
-    // of the element — measured at CLS ~2.0 per pass through the section, on
-    // every trial. A transform pin leaves the box where it is and translates
-    // it, which cannot shift layout at all.
+    // of the element — measured at CLS ~4 per pass through the section. A
+    // transform pin leaves the box in flow and cannot shift layout at all.
     pinType: 'transform',
     scrub: cfg.scrub,
     invalidateOnRefresh: true,
@@ -84,8 +98,7 @@ export function initJourney(ScrollTrigger: any): JourneyHandles | null {
   render(0);
 
   // The island defers its own setup until the section is near the viewport, so
-  // it may register long after this runs. Hand it the aim point and the
-  // current frame the moment it does.
+  // it may register long after this runs. Give it a frame the moment it does.
   onParticle(() => {
     remeasure();
     render(lastP);

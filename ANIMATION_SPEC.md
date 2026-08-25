@@ -61,18 +61,18 @@ opposite directions. Measured drift: 0.00%.
 
 ## Architecture
 
-Six files. `journey.ts` is the only place a tunable number appears.
-
 | File | Owns |
 |---|---|
-| `src/lib/journey.ts` | Every tunable, the easing curves, and `computeFrame(p) → JourneyFrame`. Pure — no DOM, no GSAP, no `window`. |
-| `src/lib/journey-bridge.ts` | The typed, namespaced channel to the WebGL island. |
-| `src/components/journey/JourneySection.astro` | Section wrapper, screen-reader heading, ground layer, inline capability gate. |
-| `src/components/journey/BodyScaffold.astro` | The inline SVG. Markup and IDs only. |
-| `src/components/journey/ParticleBookend.tsx` | ogl point cloud for the two bookends. |
-| `src/components/journey/stage.ts` | Applies a frame to the ground and the SVG. |
+| `src/lib/journey.ts` | Every tunable, the easing curves, `cameraAt(p)` and `computeFrame(p) → JourneyFrame`. Pure — no DOM, no GSAP, no `window`. |
+| `src/lib/journey-bridge.ts` | The typed, namespaced channel to the particle island. |
+| `src/components/journey/JourneySection.astro` | Section wrapper, screen-reader heading, ground, inline capability gate. |
+| `src/components/journey/BodyScaffold.astro` | The scene SVG: curve, body, trail. Markup and IDs only. |
+| `src/components/journey/Nanoparticle.tsx` | Scrubs the rendered frame sequences onto a canvas. |
+| `src/components/journey/stage.ts` | Applies a frame to the ground and the SVG; owns the curve geometry. |
 | `src/components/journey/controller.ts` | The single ScrollTrigger. |
-| `src/components/journey/debug.ts` | The `?debug` panel. Dynamically imported; never in the normal bundle. |
+| `src/components/journey/debug.ts` | The `?debug` panel. Dynamically imported. |
+| `blender/scene.py` | The particle itself, generated procedurally. |
+| `blender/encode.sh` | PNG sequences → WebP. |
 
 ### How progress reaches each element
 
@@ -80,70 +80,64 @@ Six files. `journey.ts` is the only place a tunable number appears.
 ScrollTrigger.onUpdate(self)
   → p = self.progress
   → frame = computeFrame(p)          // pure, in journey.ts
-  → stage.apply(frame)               // ground + every SVG element
-  → getParticle()?.set(frame)        // canvas: stores it, rAF eases toward it
+  → stage.apply(frame)               // ground + camera + curve + body
+  → getParticle()?.place(x, y, r)    // projected through the SAME camera
+  → getParticle()?.set(frame)
 ```
 
-`computeFrame` returns a flat record of already-eased numbers. Nothing
-downstream knows what percentage it is, what range it came from, or what easing
-it got — it receives a number and writes it. That is what makes forward and
-backward identical by construction rather than by care.
+**One camera.** `cameraAt` returns a focus point and a zoom; the SVG takes it as
+a transform and the particle takes it as a projected screen position and size.
+Because the particle's place on the curve is projected through the camera the
+SVG is already using, the two cannot drift apart — measured at **2px** across
+the travel.
 
-**All reading happens at refresh**, never per frame: stroke lengths, the vessel
-path sample table, and the injection site's screen position are computed in
-`onRefresh` and cached. The update path is write-only.
+An earlier version damped the SVG camera to keep the curve on screen while the
+camera was inside the particle. That is incoherent: the particle rides the
+curve, so damping one and not the other puts the particle off its own path. It
+ended up pinned to the left edge at a third of its intended size.
 
-Nothing else in this section reads scroll position. (Elsewhere on the page the
-progress bar, hero timeline and reading highlight do, as they always have.)
+### The particle
 
-### Layer 1 — the 3D bookends
+Rendered in Blender, not drawn in real time. Two sequences, both square,
+centred and transparent, so placement stays the controller's job:
 
-An `ogl` point cloud (~50 KB), forked from the old `MoleculeCanvas`. Two states
-at the same array indices — closed, and open with the strand out — so the
-opening is a per-particle interpolation in the vertex shader: one draw call, no
-geometry rebuilt, exactly reversible.
+- **`section`** (22 frames) — the cut plane retracts from a cross-section to a
+  closed sphere. Frame 0 is the cutaway; the last frame is the closed particle,
+  which is held through the journey, so no third sequence is needed.
+- **`release`** (30 frames) — the shell parts again and the mRNA strand emerges.
 
-Neither of the original spec's two options was used; see the changes list.
+`blender/scene.py` generates the whole thing from constants: ~1,500 outer and
+~850 inner lipids as individual molecules sharing one mesh datablock, four
+inverted micelles each holding a metaball blob of condensed cargo, interstitial
+ionizable lipids, and the released strand as a backbone with nucleotides.
 
-**The particle must be gone before the ground lifts.** The cloud is additively
-blended, which is what makes it luminous on navy and what makes it invisible on
-off-white. `particleFade` ends at 32% and `groundLift` does not finish until
-40%, with an ease-in-out so the ground is still dark at 30%.
+Frames are fetched only when the section is near, decoded once into
+ImageBitmaps and blitted to a canvas. A glow is drawn behind the particle
+weighted toward small sizes — through the journey it is about 30px across, and
+a render of several thousand lipids downsampled that far is unreadable noise,
+so the glow carries it and the detail carries the two ends.
 
-### Layer 2 — the SVG body sequence
+### Things that cost a rebuild to discover
 
-One inline SVG, fixed viewBox `0 0 400 640`, so line weight scales with the
-viewport on its own.
-
-- `#body-outline` — head, neck and torso as one continuous closed path
-- `#limb-outline` — arms and legs, drawn after the body (the original spec's `#tail-outline` slot)
-- `#vessel-path` — single path, no subpaths, sampled into a 193-point lookup table at refresh
-- `#injection-site`, `#target-site`, `#particle-dot`, `#trail-group`
-
-**The trail** is 48 short segments generated at mount, each written
-opacity-only per frame. SVG has no along-path gradient — a stroke gradient is
-spatial, not arc-length — so a single path cannot fade a comet tail correctly.
-Segmenting also makes the fade a function of **distance behind the point**
-rather than elapsed time, which is what keeps it reversible and still when the
-scroll is still.
-
-### Layer 3 — the controller
-
-One `ScrollTrigger` with `pin`, `pinType: 'transform'`, `scrub: 0.6` and
-`invalidateOnRefresh`. It is handed `ScrollTrigger` by `Motion.astro`, which
-already owns the plugin import for the home page.
-
-**`pinType: 'transform'` is load-bearing, not a preference.** ScrollTrigger's
-default `fixed` pin takes a full-viewport element out of flow at the moment it
-reaches the top, and the browser books that as a layout shift the size of the
-element — measured at **CLS 3.96**, on every trial, once on pin and once on
-unpin. `anticipatePin: 1` accounted for half of it and was removed; the rest is
-inherent to a fixed pin. A transform pin leaves the box in flow and translates
-it, which cannot shift layout: **CLS 0.000**, four trials of four.
+- **AgX**, Blender's default view transform, deliberately desaturates and rolls
+  off highlights. On a saturated navy page it washed everything toward white.
+  Standard transform instead.
+- **A back light on the camera axis.** A transmissive sphere is a lens; an area
+  light behind it refracted straight into the lens and the shell rendered as a
+  flat white disc. Every light is now well off axis.
+- **The world colour has to be the page's ground.** `film_transparent` hides the
+  background from the render but transmissive surfaces still refract it, so a
+  neutral studio world reads as a bright disc once composited onto navy.
+- **Alpha, not colour, dominates the file size.** A near-lossless alpha channel
+  over a silhouette of several thousand lipid tips cost more than the image;
+  `alpha_q 28` at 640px took a frame from ~190KB to ~80KB with no visible
+  change at display size.
+- **Judge renders on the ground they will sit on.** Several iterations were
+  spent on a problem that was invisible against white.
 
 ## The scaffold
 
-**Subject: a human figure, front view.** Injection at the antecubital vein (the
+**Subject: a human figure, front view.** (The body, not the particle.) Injection at the antecubital vein (the
 inner elbow). The target is an **unlabelled glow in the upper torso** — no
 organ under it, no caption, nothing named. An unlabelled dot claims nothing,
 which also sidesteps the liver-vs-tumour question entirely.
@@ -220,8 +214,18 @@ Long tasks over the whole load: 667ms total, longest 177ms.
 
 - The section is `aria-hidden` in its entirety and carries one screen-reader
   heading: **"Nanoparticle delivery animation"**. No visible copy.
-- Under `prefers-reduced-motion: reduce`: no pin, no scrub, no WebGL, and
-  **`ogl` is never fetched** — the import lives inside the capability gate.
+- Under `prefers-reduced-motion: reduce`: no pin, no scrub, and no WebGL
+  context for this section.
+
+  **Correction to an earlier claim in this file:** it previously said `ogl` is
+  never fetched below the gate. That was never true, and the test that
+  "proved" it was matching on the string `ogl` while the bundler had named the
+  chunk `src.*` — a false pass. `ogl` ships to the home page regardless,
+  because `ParticleField` (the hero drift) and `AuroraField` (the mission
+  shader) both import it statically and both predate this section. What this
+  section controls is whether it *builds* anything: below the gate it creates
+  no context, no geometry and no render loop, and it adds nothing to the
+  bundle that the page was not already loading.
 - The page is readable and scrollable with JavaScript disabled.
 
 **Ship-final, JS-rewinds.** The scaffold's default state *is* the finished
@@ -238,8 +242,8 @@ static block should show the whole picture.
 ## Mobile
 
 Below **1024px** — matching the site's existing pin gate rather than
-introducing a second one at 768 — there is no pin, no canvas and no `ogl`. The
-static composition is what ships. Pinned scroll sections are unreliable on
+introducing a second one at 768 — there is no pin, no canvas and no render
+loop. The static composition is what ships. Pinned scroll sections are unreliable on
 mobile browsers because of viewport resize on toolbar collapse.
 
 ## Tuning
@@ -285,22 +289,43 @@ The module is dynamically imported and never appears in the normal bundle.
 
 ## Acceptance criteria
 
-Measured on the production build (`astro preview`), not the dev server.
+Measured on the production build (`astro preview`), real GPU.
 
 | # | Criterion | Result |
 |---|---|---|
-| 1 | Forward and backward produce identical states | **PASS** — byte-identical at five scroll positions |
-| 2 | Opening and closing camera scales match within a few percent | **PASS** — 0.00% drift |
-| 3 | No timers, nothing running independent of scroll | **PASS** — parked 4s with no change; zero `setInterval` |
-| 4 | Section unpins cleanly with no jump at either boundary | **PASS** — CLS 0.000 across four passes |
-| 5 | Reduced-motion path has zero pinning and zero WebGL | **PASS** — no pin spacer, no canvas, `ogl` never fetched |
-| 6 | Lighthouse performance above 90 | **PASS** — 99 / 100 / 100 |
-| 7 | All tunable values in one exported constants object | **PASS** — `JOURNEY` in `src/lib/journey.ts`, 114 live controls under `?debug` |
+| 1 | Forward and backward identical | **PASS** |
+| 2 | Opening and closing camera scales match | **PASS** — same constant, 0% drift |
+| 3 | No timers, nothing independent of scroll | **PASS** — parked 4s unchanged |
+| 4 | Unpins cleanly, no jump at either boundary | **PASS** — CLS 0.000 over four passes |
+| 5 | Reduced-motion path has no pin and no WebGL | **PASS** |
+| 6 | Lighthouse above 90 | **PASS** — 99 / 97 / 99, TBT 0–40ms, LCP 0.7–0.9s |
+| 7 | All tunable values in one constants object | **PASS** — `JOURNEY`, 125 live controls under `?debug` |
 
-Also verified: the canvas-to-SVG handoff converges to **3px** at p=0.30 (13px at
-p=0.26) against a 54px tolerance; the travel is monotonic with a **77.5×** ratio
-between its fastest and slowest step; all 20 route/viewport combinations clean;
-the page renders and scrolls with JavaScript disabled.
+Also verified: the particle sits **2px** off its own curve across the travel;
+the camera is continuous (largest change-in-step 2.1% of the largest step);
+frames total **3.75MB**, fetched only on approach, with no JS heap growth
+(3.0MB → 4.2MB); the page renders and scrolls with JavaScript disabled.
+
+**Not asserted:** that `ogl` is absent below the gate. It is not this section's
+to gate — the hero particle field and the mission shader both import it
+statically on this page. This section no longer uses WebGL at all.
+
+## Tuning after the move to Blender
+
+The `?debug` panel still drives timing, camera, the curve and the trail — the
+things that live in `journey.ts`. The particle's *appearance* is now a
+re-render: edit the constants at the top of `blender/scene.py`, then
+
+```
+blender -b -P blender/scene.py -- --shot section --frames 22 --res 800
+blender -b -P blender/scene.py -- --shot release --frames 30 --res 800
+./blender/encode.sh
+```
+
+That is the real cost of the move, and it was the right trade: a rasteriser
+approximates a transmissive membrane and subsurface scattering, and no amount
+of fresnel maths in a shader made the real-time version read as an object
+rather than a diagram.
 
 ## Still open for Dr. Lu
 

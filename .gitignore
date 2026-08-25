@@ -10,3 +10,7 @@ npm-debug.log*
 # Secrets — the Unsplash access key is passed as an env var, never committed
 .env*
 !.env.example
+
+# Blender render intermediates. The scene script and the encoded frames in
+# public/journey are what matter; the PNGs are 55MB of regenerable output.
+blender/out/

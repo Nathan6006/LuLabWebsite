@@ -194,14 +194,26 @@ that you may still want to change:
   torso with no organ under it and no caption. Nothing identifies it, so
   nothing is claimed. If you would rather it were specifically the liver, or a
   tumour site, that becomes a factual statement and needs your say-so.
-- **The particle is schematic**, exactly as the old point cloud was: a lipid
-  shell around a condensed nucleic acid core, generated from parametric
-  primitives to read as the right *class* of object. It is not derived from any
-  structure file and no claim is made about bond lengths, conformation or
-  stoichiometry. Unlike the old section there is now **no visible caption**
-  saying so, because the animation carries no text at all — the disclaimer
-  lives only in the source. If that is not good enough, the section can take a
+- **The particle is schematic.** It is now rendered in Blender rather than
+  drawn in the browser, which makes it look considerably more like a real
+  electron-microscope-style depiction — and that raises the stakes. It shows a
+  lipid shell of individual molecules, four inverted micelles each holding a
+  condensed nucleic acid blob, and interstitial ionizable lipids. That
+  architecture follows the reference render on the Nucleic Acid Therapies card,
+  but **it is generated from parametric primitives, not from structure data**:
+  no claim is made about lipid counts, micelle number, packing, bond lengths or
+  stoichiometry.
+
+  The more convincing it looks, the more a reader may take it as a measurement.
+  There is **no visible caption** saying otherwise, because the animation
+  carries no text at all — the disclaimer lives only in the source. **This is
+  the one thing here I would most want your ruling on.** The section can take a
   caption below it without disturbing the animation.
+
+- **One colour is off-palette on purpose.** The inverted micelles are violet.
+  With them in the same blue family as the shell the interior read as an
+  undifferentiated mass and the structure was invisible; the reference render
+  uses purple for the same reason. Say the word and they go back to blue.
 
 ### 4.0b Ordering of the two research areas
 Nucleic acid therapeutics now leads molecular imaging everywhere the site sets

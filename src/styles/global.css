@@ -381,18 +381,12 @@
 .journey.is-animated:not(.is-live) .journey-svg {
   opacity: 0;
 }
-/* On the animated path the WebGL bookend renders the released cargo, so the
-   SVG's version of it must not sit underneath. */
-.journey.is-animated [data-journey-final] {
-  opacity: 0;
-}
-
 /* Only transform, opacity and stroke-dashoffset are ever written here. */
 .journey [data-journey-figure] path {
   will-change: stroke-dashoffset;
 }
-.journey [data-journey-dot] {
-  will-change: transform, opacity;
+.journey [data-journey-camera] {
+  will-change: transform;
 }
 
 @media print {

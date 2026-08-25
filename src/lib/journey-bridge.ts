@@ -8,10 +8,10 @@
  * under one `__luLab` key, and neither side reaches for a property name
  * directly.
  *
- * The controller must work whether or not the island ever registers — WebGL may
- * be unavailable, the island may still be idle, or the gate may have kept it
- * from loading at all. `getParticle()` returning undefined is a normal state,
- * not an error.
+ * The controller must work whether or not the island ever registers — WebGL
+ * may be unavailable, the island may still be idle, or the gate may have kept
+ * it from loading at all. `getParticle()` returning undefined is a normal
+ * state, not an error.
  */
 import type { JourneyFrame } from './journey';
 
@@ -19,10 +19,12 @@ export interface ParticleBridge {
   /** Called once per scrubbed frame with the whole frame record. */
   set(frame: JourneyFrame): void;
   /**
-   * Where the shrinking particle should converge, in pixels relative to the
-   * island's own host box. Set at refresh, not per frame.
+   * Where the particle sits and how big it is, in pixels relative to the
+   * island's own host box. The controller computes this by projecting the
+   * particle's position on the curve through the same camera the SVG uses, so
+   * the two cannot drift apart.
    */
-  aim(x: number, y: number): void;
+  place(x: number, y: number, radius: number): void;
 }
 
 type Listener = (bridge: ParticleBridge) => void;
@@ -59,7 +61,7 @@ export function registerParticle(bridge: ParticleBridge): () => void {
  *
  * The island defers its own setup until the section is near the viewport, so
  * on a page loaded at the top it may not register for a long time, or ever.
- * Polling for it with a deadline meant the aim point was silently never
+ * Polling for it with a deadline meant the placement was silently never
  * delivered on a slow load; this cannot miss.
  */
 export function onParticle(fn: Listener): void {

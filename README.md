@@ -389,14 +389,20 @@ context first and render nothing at all if there isn't one:
   hidden, and draws a single frame and stops under reduced motion. The CSS
   gradient behind it in `index.astro` is not a placeholder — it is what ships
   without WebGL.
-- **`src/components/journey/ParticleBookend.tsx`** — the point cloud at either
-  end of the LNP journey, closed at the head of the section and opened with its
-  cargo unspooled at the tail. It registers itself through
+- **`src/components/journey/Nanoparticle.tsx`** — the lipid nanoparticle, as a
+  scrubbed image sequence rendered in Blender. The scene that produces it is
+  `blender/scene.py`, which is procedural: a few thousand individual lipid
+  molecules, inverted micelles holding condensed cargo, and the mRNA strand,
+  all generated from constants at the top of the file. **The structure is
+  schematic** — see TODO.md §4.0a. Frames are fetched only when the section is
+  near and never below 1024px. It registers itself through
   `src/lib/journey-bridge.ts`, a typed namespace on `window`, and the journey's
   controller drives it. **The structure it draws is schematic, not real
   structure data** — see TODO.md §4.0a before treating it as a depiction of a
-  specific compound. `ogl` is imported inside the capability gate, so nothing
-  below 1024px or under reduced motion ever fetches it.
+  specific compound. `ogl` is imported inside the capability gate, so this
+  island never *builds* anything below 1024px or under reduced motion —
+  though the library itself is on the home page either way, because the hero
+  particle field and the mission shader both import it statically.
 
 The whole section below the mission statement — the pinned, scroll-driven
 animation of a nanoparticle travelling to a target site — is documented
