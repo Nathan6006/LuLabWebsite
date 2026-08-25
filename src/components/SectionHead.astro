@@ -3,12 +3,16 @@
 interface Props {
   label: string;
   index?: string;
+  /** `light` for the sections that sit on a dark ground. */
+  tone?: 'dark' | 'light';
   class?: string;
 }
-const { label, index, class: klass = '' } = Astro.props;
+const { label, index, tone = 'dark', class: klass = '' } = Astro.props;
 ---
 
 <div class:list={['flex items-baseline gap-3 pt-1.5 lg:flex-col lg:items-end lg:gap-1.5', klass]}>
-  <p class="label text-ink-mute">{label}</p>
-  {index && <p class="label text-copper tabular">{index}</p>}
+  <p class:list={['label', tone === 'light' ? 'text-cwru-light/70' : 'text-ink-mute']}>{label}</p>
+  {index && (
+    <p class:list={['label tabular', tone === 'light' ? 'text-copper-brand' : 'text-copper']}>{index}</p>
+  )}
 </div>

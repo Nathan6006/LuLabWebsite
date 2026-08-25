@@ -188,6 +188,19 @@ transcriptions of Dr. Lu's own text rather than the site's own wording:
 Reordering either would be editing a quoted record. **Say the word and both can
 be re-ordered to match**, or better, replaced with wording Dr. Lu confirms.
 
+### 4.0c The mission statement now reads on a moving ground
+The mission statement sits on a shader field rather than on paper. It is
+atmosphere only — no meaning is carried by it — but two things follow:
+
+- The paragraph is white on deep blue, and it brightens a word at a time as you
+  scroll. The un-read words sit at 50% opacity. Measured against the brightest
+  frame of the moving field over six samples, that floor holds 3.4:1 at 1440px
+  and 3.5:1 at 390px. **The bar is 3:1, not 4.5:1**, because the paragraph is
+  set at 27px and up and therefore counts as large text. If the copy is ever
+  set smaller, that floor has to be raised or the effect dropped.
+- Below 760px the field dims itself, because the type spans the whole width and
+  there is no quiet side of the frame to put it on.
+
 ### 4.1 `/join` — nothing for prospective students
 The old site's positions page advertised **only** a postdoctoral position. There
 was no guidance for prospective PhD applicants or undergraduate researchers. That

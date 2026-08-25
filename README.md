@@ -377,6 +377,13 @@ context first and render nothing at all if there isn't one:
 
 - **`src/components/ParticleField.tsx`** — the drift behind the hero, using the
   React Bits `Particles` component vendored into `src/components/reactbits/`.
+- **`src/components/AuroraField.tsx`** — the field behind the mission
+  statement. One fragment shader, one covering triangle, no geometry and no
+  per-object work, so it is by far the cheapest animation on the site. It caps
+  itself at device pixel ratio 1.25, stops when it is off screen or the tab is
+  hidden, and draws a single frame and stops under reduced motion. The CSS
+  gradient behind it in `index.astro` is not a placeholder — it is what ships
+  without WebGL.
 - **`src/components/MoleculeCanvas.tsx`** — the point cloud in the pinned
   platform section, which morphs through three schematic structures as you
   scroll. It publishes `window.__molecule`; `Motion.astro` drives it from the
