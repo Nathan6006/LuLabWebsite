@@ -177,23 +177,36 @@
 
     const show = (next: number) => {
       if (next === index) { arm(next); return; }
-      const from = slides[index];
       const to = slides[next];
       index = next;
 
-      // The incoming slide wipes across the outgoing one, which is simply
-      // switched off once it is fully covered — no crossfade, so the two
-      // photographs are never both half-visible.
-      // Two levels, not a running counter. The counter this used to increment
-      // never reset, so after about twenty-seven advances the slides climbed
-      // past the scrims and then past the masthead's own z-index and covered
-      // the text. Only ever two slides matter: the one leaving and the one
-      // arriving.
-      gsap.set(slides, { zIndex: 1 });
+      // The incoming slide wipes across the outgoing one, which is switched
+      // off once it is fully covered — no crossfade, so the two photographs
+      // are never both half-visible.
+      //
+      // Two levels of z-index, not a running counter: the counter this used to
+      // increment never reset, so the slides eventually climbed past the
+      // scrims and then past the masthead and covered them both.
+      //
+      // Any wipe still in flight belongs to a switch that has been overtaken.
+      // Kill it and show that slide in full rather than leaving it frozen
+      // half-clipped — it is about to be covered anyway.
+      gsap.killTweensOf(slides);
+      for (let k = 0; k < n; k++) {
+        if (k !== next) gsap.set(slides[k], { zIndex: 1, clipPath: 'none' });
+      }
       gsap.set(to, { zIndex: 2, autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' });
       gsap.to(to, {
         clipPath: 'inset(0 0% 0 0)', duration: 1.15, ease: 'power3.inOut',
-        onComplete() { if (from !== to) gsap.set(from, { autoAlpha: 0 }); },
+        // Hide whatever is not showing NOW, read at completion time. Hiding a
+        // captured `from` let a stale completion from an overtaken switch turn
+        // off the slide that had since become the current one, and the hero
+        // went to bare ground.
+        onComplete() {
+          for (let k = 0; k < n; k++) {
+            if (k !== index) gsap.set(slides[k], { autoAlpha: 0 });
+          }
+        },
       });
 
       drift?.kill();
