@@ -117,7 +117,7 @@ const FRAG = /* glsl */ `
 
     /* ---- The text's pocket, and the line that bends around it -----------
        Distance to the block of type, so the field can be told to leave it
-       alone and a contour can be drawn round its edge. */
+       alone and the rings below can be sized and centred on it. */
     float aspect = uRes.x / max(1.0, uRes.y);
     vec2 ap = vec2((vUv.x - uBox.x) * aspect, vUv.y - uBox.y);
     vec2 bh = vec2(uBox.z * aspect, uBox.w);
@@ -142,29 +142,56 @@ const FRAG = /* glsl */ `
     float inside = 1.0 - smoothstep(-0.03, mix(0.11, 0.17, uHold), d);
     col *= mix(1.0, mix(0.42, 0.30, uHold), inside);
 
-    /* The contour itself, displaced by the same field it sits in — so it bends
-       with the silk instead of reading as a geometric outline pasted over it. */
-    float dw = d - mix(0.095, 0.145, uHold) + 0.05 * (f - 0.5) + 0.03 * (r.y - 0.5);
-    float core = exp(-dw * dw / 0.00011);
-    float halo = exp(-dw * dw / 0.0016) * 0.16;
+    /* ---- Rings around the block of type ---------------------------------
+       Concentric arcs that begin at the paragraph's own edge and expand
+       outward, cut away toward their ends so they read as open arcs rather
+       than as a box drawn round the text. Scroll drives the cycle, so the
+       rings travel outward as you read and run back in when you scroll up.
 
-    /* Drawn on by scroll. The angle around the block runs monotonically all
-       the way round it, so gating on that angle sweeps the line from one end
-       of the loop to the other — and reverses exactly on the way back up. */
-    float ang = atan(ap.y, ap.x);
-    float arc = fract((ang + 3.14159265) / 6.28318531 + 0.63);
-    float head = uProgress * 1.12;
-    /* A wide gate. A tight one cuts the halo along a radial line, and that
-       straight edge sweeping through the field is the one thing here that
-       reads as a computer drawing rather than as light. */
-    float drawn = smoothstep(head, head - 0.22, arc);
-    float tip = exp(-pow((arc - head) / 0.035, 2.0));
+       The technique is React Bits' MagicRings — ring distance, an angular
+       cutaway raised to a power, and an exponential glow falloff — folded into
+       this shader rather than mounted as a second WebGL context. It needed
+       three.js and its own canvas; this needed twenty lines and no new bytes.
 
-    /* The line keeps more of itself on the held-down side than the field does;
-       otherwise the half of the loop that matters most simply is not there. */
-    float lineHold = mix(0.55, 1.0, smoothstep(0.02, 0.90, vUv.x)) * mix(1.0, 0.5, uHold);
-    col += light * (core + halo) * drawn * 0.55 * lineHold;
-    col += vec3(0.90, 0.95, 1.0) * core * tip * 0.5 * lineHold;
+       Distances are normalised by the block's own half-extent, so the rings
+       take the paragraph's proportions instead of being circles laid over it. */
+    vec2 sB = max(bh + 0.16, vec2(0.10));
+    float rot = -0.13;
+    vec2 apr = mat2(cos(rot), -sin(rot), sin(rot), cos(rot)) * ap;
+    /* Warped by the same field, so the arcs bend with the silk. */
+    vec2 ep = apr / sB + 0.05 * vec2(r.x - 0.5, r.y - 0.5);
+    float er = length(ep);
+
+    /* The angle and the line width are the same for every ring, so they are
+       computed once here rather than five times inside the loop. */
+    float aa = atan(abs(ep.y), abs(ep.x)) * 0.63661977;   /* / (pi / 2) */
+    float pxE = 1.0 / (max(1.0, uRes.y) * (sB.x + sB.y) * 0.5);
+    float th = max(1.0 - aa, 0.42) * pxE * 2.6;
+
+    vec3 rings = vec3(0.0);
+    float cut = 1.0;
+    float clock = uProgress * 2.4 + uTime * 0.045;
+    for (int i = 0; i < 5; i++) {
+      float fi = float(i);
+      float tr = fract(clock + fi * 0.2);
+      float rr = 0.94 + fi * 0.17 + tr * 0.36;
+      float dd = abs(er - rr);
+      /* A hard core for the line, then the cutaway, then the glow. */
+      float core = (1.0 - smoothstep(th, th * 1.7, dd)) + 1.0;
+      float ca = cut * aa;
+      dd += ca * ca * ca * rr;
+      float life = smoothstep(0.0, 0.22, tr) * (1.0 - smoothstep(0.5, 1.0, tr));
+      /* Additive over an already-blue field, so the amplitude has to stay low:
+         push it and green and blue saturate together while red does not, and
+         the arcs turn mint. */
+      rings += mix(light, truec, fi * 0.25) * core * exp(-15.0 * dd) * life;
+      cut *= 1.3;
+    }
+
+    /* The rings keep more of themselves on the held-down side than the field
+       does; otherwise the half of them that brackets the text is not there. */
+    float lineHold = mix(0.72, 1.0, smoothstep(0.02, 0.90, vUv.x)) * mix(1.0, 0.5, uHold);
+    col += rings * 0.32 * lineHold;
 
     /* Settle both edges onto the sections above and below, so the band has no
        seam at either end. */

@@ -378,10 +378,11 @@ context first and render nothing at all if there isn't one:
 - **`src/components/ParticleField.tsx`** — the drift behind the hero, using the
   React Bits `Particles` component vendored into `src/components/reactbits/`.
 - **`src/components/AuroraField.tsx`** — the field behind the mission
-  statement, and the line of light that draws itself around the paragraph as
-  you scroll. The paragraph carries `data-aurora-focus`; the shader measures
-  that element's box and both quietens the field inside it and traces a contour
-  around its edge, so moving the text moves the effect with no code change. One fragment shader, one covering triangle, no geometry and no
+  statement, and the concentric arcs that expand around the paragraph as you
+  scroll. The paragraph carries `data-aurora-focus`; the shader measures that
+  element's box, quietens the field inside it, and sizes the rings to its
+  proportions — so moving or rewriting the text moves the effect with it and
+  needs no code change. One fragment shader, one covering triangle, no geometry and no
   per-object work, so it is by far the cheapest animation on the site. It caps
   itself at device pixel ratio 1.25, stops when it is off screen or the tab is
   hidden, and draws a single frame and stops under reduced motion. The CSS

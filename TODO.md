@@ -198,8 +198,9 @@ atmosphere only — no meaning is carried by it — but two things follow:
   and 3.5:1 at 390px. **The bar is 3:1, not 4.5:1**, because the paragraph is
   set at 27px and up and therefore counts as large text. If the copy is ever
   set smaller, that floor has to be raised or the effect dropped.
-- Below 760px the field dims itself, because the type spans the whole width and
-  there is no quiet side of the frame to put it on.
+- Below 760px the field dims itself and the rings around the paragraph pull
+  back, because the type spans the whole width and there is no quiet side of
+  the frame to put it on.
 
 ### 4.1 `/join` — nothing for prospective students
 The old site's positions page advertised **only** a postdoctoral position. There
