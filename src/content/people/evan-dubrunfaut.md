@@ -1,8 +1,7 @@
 ---
 name: Evan Dubrunfaut
 role: PhD Student
-group: PhD Students
-groupOrder: 4
-order: 3
+order: 4
+photo: evan_dubrunfaut.png
 photoNote: Portrait of Evan Dubrunfaut — 4:5 portrait
 ---

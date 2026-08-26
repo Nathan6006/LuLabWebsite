@@ -1,21 +1,21 @@
 {
-  "pipetting-tube": {
-    "file": "pipetting-tube.png",
+  "form_nanoparticle": {
+    "file": "form_nanoparticle.png",
     "alt": "A gloved hand steadying a microcentrifuge tube while a pipette dispenses into it",
     "caption": "Formulating nanoparticles at the bench"
   },
-  "petri-dish-hood": {
-    "file": "petri-dish-hood.png",
+  "cell_culture": {
+    "file": "cell_culture.png",
     "alt": "A gloved hand drawing from a culture dish with a serological pipette inside a biosafety cabinet",
     "caption": "Cell culture in the biosafety cabinet"
   },
-  "tube-rack": {
-    "file": "tube-rack.png",
+  "sample_prep": {
+    "file": "sample_prep.png",
     "alt": "A pipette dispensing into a dense rack of blue-capped conical tubes",
     "caption": "Sample preparation"
   },
-  "researcher-bench": {
-    "file": "researcher-bench.png",
+  "lab_work": {
+    "file": "lab_work.png",
     "alt": "A researcher in a lab coat and safety goggles working with racks of blue-capped tubes",
     "caption": "In the laboratory, Wickenden Building"
   }

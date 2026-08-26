@@ -2,8 +2,6 @@
 name: Zheng-Rong Lu
 credentials: Ph.D.
 role: Director, Center for Biomolecular Engineering
-group: Director
-groupOrder: 1
 order: 1
 featured: true
 email: zxl125@case.edu
@@ -33,6 +31,7 @@ links:
     href: https://scholar.google.com/citations?hl=en&user=hO6xhakAAAAJ&view_op=list_works&sortby=pubdate
   - label: CWRU Center for Imaging Research profile
     href: https://case.edu/medicine/ccir/faculty/zheng-rong-lu
+photo: zheng_rong_lu.png
 photoNote: Portrait of Dr. Zheng-Rong Lu — 4:5 portrait
 ---
 

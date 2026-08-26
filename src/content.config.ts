@@ -14,10 +14,8 @@ const people = defineCollection({
     name: z.string(),
     credentials: z.string().optional(),
     role: z.string(),
-    // Controls which heading the person appears under, and the order of those
-    // headings on /people. Lower numbers come first.
-    group: z.string(),
-    groupOrder: z.number(),
+    // Position in the grid on /people. Lower numbers come first; the role
+    // itself is printed under the name rather than used to group anybody.
     order: z.number().default(100),
     featured: z.boolean().default(false),
     email: z.string().optional(),

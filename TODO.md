@@ -9,6 +9,76 @@ Everything below needs a decision from Dr. Lu or someone in the lab.
 
 ---
 
+## 0. Newest — the roster and the lab photographs
+
+### 0.1 Seven former members were removed from /people
+
+The lab supplied a current roster of seven, and `/people` now lists exactly
+that, in the order given:
+
+| # | Name | Title as given |
+|---|---|---|
+| 1 | Ryan Hall | postdoc |
+| 2 | Songqi Gao | research assistant |
+| 3 | Yue Jiang | PhD |
+| 4 | Evan Dubrunfaut | PhD |
+| 5 | Victory Stewart | masters |
+| 6 | Abdullah Khan | research assistant |
+| 7 | Nathan Liu | high school |
+
+Removed from the site: **Da Sun, Hong Wang, Jamal Kelani, Mark Choi, Nikila
+Swaminathan, Rachel Boyette, Yanqing Wang**. They were deleted, not moved —
+whether any of them belong on `/people/alumni` is not something the roster
+said, and adding them there would be inventing a fact. Da Sun already has an
+alumni entry (`grad-da-sun.md`) from the old site; the other six do not.
+
+**Needed:** confirm which of the six should appear as alumni, with degree and
+year.
+
+### 0.2 The four new members have nothing but a name and a title
+
+Songqi Gao, Victory Stewart, Abdullah Khan and Nathan Liu have no credentials,
+no email, and no portrait — their cards show a placeholder block rather than a
+substituted face. The shorthand titles were expanded to the wording
+the site already used ("postdoc" → Postdoctoral Scholar, "research assistance"
+→ Research Assistant, "masters" → Master's Student), which is a guess at
+house style, not at fact — correct any that are wrong.
+
+- `src/content/people/*.md`
+
+### 0.3 /people is one grid now, not a section per position
+
+Each person's title prints under their name instead of being a heading above
+them. Seven people split across six position headings read as a much emptier
+lab than it is. `group` and `groupOrder` are gone from the schema.
+
+### 0.3a Portraits, and the group photograph's date
+
+Portraits supplied for **Dr. Lu, Ryan Hall, Yue Jiang and Evan Dubrunfaut**;
+the other four members show a placeholder. Alt text is `Portrait of {name}` —
+plain and true, rather than describing a person's appearance.
+
+The group photograph is the one the old site used, **taken 22 September 2023**,
+and the caption prints that date. It does not name anyone: nine people are in
+the picture and nobody has confirmed who they are, so the caption says the
+photograph predates the current roster and stops there.
+
+**Needed:** a current group photograph, and portraits for the remaining four.
+
+### 0.4 The lab photographs were renamed and de-duplicated
+
+They existed twice: once in `public/`, shipped verbatim and referenced by
+nothing, and once in `src/assets/lab/`, which is what the pages actually use.
+Only the second set is kept, under the names the lab gave them
+(`form_nanoparticle`, `cell_culture`, `sample_prep`, `lab_work`). That also
+takes ~12MB of unreferenced originals out of the deploy.
+
+The alt text and captions were written from what is visible in each photograph
+and still need checking against what is actually going on in them —
+`src/data/lab-photos.json`.
+
+---
+
 ## 1. Blocking — conflicting facts in the sources
 
 These four items had **different values on different official CWRU pages**. A
