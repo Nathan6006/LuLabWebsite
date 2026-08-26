@@ -87,7 +87,7 @@ Scholar lists **334** records. They account for as follows:
 
 | | Count |
 |---|---|
-| Imported | 213 |
+| Imported | 213, of which 6 correction and retraction notices were later removed |
 | Already on the site | 58 |
 | Duplicate rows within Scholar itself | 18 |
 | No year given by Scholar — see below | 36 |
@@ -105,13 +105,23 @@ full names. Every imported citation ends in `…` where Scholar truncated it. Th
 full author lists exist only on each work's own Scholar page or at the
 publisher, and pulling 213 of those is a separate job — say the word.
 
-**(b) Patents, abstracts, corrections and a retraction are in there.** Scholar
-does not separate them and neither does the page. Among the 213 are US patents
-and patent applications, conference abstracts and posters, four correction
-notices, and one retraction notice. If `/publications` should be peer-reviewed
-papers only, they can be filtered out — they are identifiable by their venue
-text (`US Patent …`, `Cancer Research 77 (2_Supplement)`) and by titles starting
-`Correction:` or `[Retraction]`.
+**(b) Corrections and retraction notices are out; patents and abstracts stay.**
+The lab asked for papers and patents only, so six records were deleted: four
+correction notices, one retraction notice, and one duplicate of a paper filed
+under the Web-of-Science `(vol 8, 2017)` correction form. The papers each of
+them referred to are all still on the site.
+
+**One retracted paper is still listed** and needs a decision:
+*RETRACTED ARTICLE: Albumin pre-coating enhances intracellular siRNA delivery of
+multifunctional amphiphile/siRNA nanoparticles* (2012). This is the paper
+itself, carrying the publisher's own retracted-article marking, not a retraction
+notice — which is why it was kept when the notices went. Removing it is an
+editorial call about the publication record, not a tidy-up. Say if it should go.
+
+US patents and patent applications remain, as do conference abstracts and
+posters; Scholar does not separate those from papers and neither does the page.
+Abstracts are identifiable by their venue text (`Cancer Research 77
+(2_Supplement)`, `MOLECULAR THERAPY 26 (5)`) if they should come out too.
 
 **(c) No links.** Scholar's list view gives no DOI or PubMed link, so the
 imported entries have no `url:` and render as plain text. The 65 older entries
