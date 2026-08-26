@@ -1,7 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
-import Placeholder from '../components/Placeholder.astro';
 import { CONTACT } from '../lib/site';
 
 const mapQuery = encodeURIComponent('Wickenden Building, Case Western Reserve University, Cleveland, OH 44106');
@@ -51,11 +50,21 @@ const mapQuery = encodeURIComponent('Wickenden Building, Case Western Reserve Un
 
         <div>
           <h2 class="label text-ink-mute">Location</h2>
-          <Placeholder
-            ratio="4 / 3"
-            caption="Static campus map showing the Wickenden Building — image to be added. TODO: content pending."
-            class="mt-3"
-          />
+          <!-- Google's keyless embed. The Maps Embed API proper wants a
+               billed API key, which this site has no reason to carry; the
+               `output=embed` form needs none and renders the same panel.
+               Lazy, so an iframe that is well below the fold on a contact page
+               cannot cost anything at load. -->
+          <div class="mt-3 overflow-hidden rounded-card border border-rule bg-warm-deep/70" style="aspect-ratio: 4 / 3;">
+            <iframe
+              title="Map showing the Wickenden Building, Case Western Reserve University"
+              src={`https://maps.google.com/maps?q=${mapQuery}&z=16&output=embed`}
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class="h-full w-full"
+              style="border:0;"
+            ></iframe>
+          </div>
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
             rel="noopener"
@@ -74,8 +83,8 @@ const mapQuery = encodeURIComponent('Wickenden Building, Case Western Reserve Un
         <div class="prose-lab">
           <p>
             Inquiries about training on, or use of, the Center's shared instruments should be
-            directed to {CONTACT.instrumentsContact} at
-            <a href={`mailto:${CONTACT.instrumentsEmail}`}>{CONTACT.instrumentsEmail}</a>. See the
+            directed to {CONTACT.instrumentsContact} at{' '}
+            <a href={`mailto:${CONTACT.instrumentsEmail}`}>{CONTACT.instrumentsEmail}</a>. See the{' '}
             <a href="/instruments">instruments page</a> for the full list.
           </p>
         </div>
