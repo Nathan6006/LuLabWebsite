@@ -73,12 +73,16 @@ const CARD_RENDER = '01-nucleic-acid-therapies';
        two stacked full-height sections before, which left the animation
        sitting on its own with nothing to be about.
 
-       The section pins and the animation is scrubbed. Below 1024px and under
-       reduced motion it does neither: the two simply stack. -->
+       The stage holds itself with `position: sticky` and the animation is
+       scrubbed against how far through the section you are. Sticky rather than
+       a scripted pin because sticky is the compositor's job: it cannot lag the
+       scroll and it cannot book a layout shift. Below 1024px and under reduced
+       motion neither happens — the two simply stack. -->
   <section
     id="approach"
-    class="journey relative isolate scroll-mt-24 overflow-hidden bg-cwru-dark"
+    class="journey relative isolate scroll-mt-24 bg-cwru-dark"
     data-journey
+    style={`--journey-pin:${JOURNEY.pinVh};`}
     aria-labelledby="journey-heading"
   >
     <h2 id="journey-heading" class="sr-only">Nanoparticle delivery animation</h2>
@@ -151,6 +155,12 @@ const CARD_RENDER = '01-nucleic-acid-therapies';
         !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
         window.matchMedia('(min-width: ' + gate + 'px)').matches;
       if (!ok) return;
+      // `is-pinned` gives the section its scroll track and makes the stage
+      // sticky. It is set here, before first paint, and never taken off: the
+      // failsafe below only puts the drawn composition back, because pulling
+      // the track out from under a section the reader may be looking at is a
+      // layout shift the size of the viewport.
+      el.classList.add('is-pinned');
       el.classList.add('is-animated');
       setTimeout(function () {
         if (!el.classList.contains('is-live')) el.classList.remove('is-animated');

@@ -65,10 +65,12 @@ export const JOURNEY = {
     arrival: [0.64, 0.70],
     /** A second beat of resistance, before the release. */
     settle: [0.64, 0.72],
-    /** The bloom: a calm glow spreading out over the figure. It reaches full
-        spread at 88% and then holds, so the frame a reader comes to rest on is
-        the finished composition rather than something still moving. */
-    bloom: [0.72, 0.88],
+    /** The bloom: a calm glow spreading out over the figure. It runs almost to
+        the end of the track. There is a short hold after it — enough that the
+        finished composition is a frame and not just an instant — but no more:
+        the tail used to be 12% of the pin with nothing happening in it, which
+        is most of a second of scrolling past a picture that has stopped. */
+    bloom: [0.72, 0.96],
     /** Ground lifts, very slightly. Not an inversion — see the spec. */
     groundLift: [0.26, 0.44],
   },

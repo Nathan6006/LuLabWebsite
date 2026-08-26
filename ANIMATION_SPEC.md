@@ -57,8 +57,12 @@ Pinned distance: **1.8 viewport heights**, `scrub: 0.6`.
 | 24–46% | The curve draws in, the body appears from nothing and draws itself. |
 | 46–64% | The point travels: a short approach, in at the upper arm, through the shoulder into the chest. |
 | 64–72% | Arrival, and a second beat of resistance. |
-| 72–88% | The bloom spreads over the figure, which brightens under it. |
-| 88–100% | Holds. |
+| 72–96% | The bloom spreads over the figure, which brightens under it. |
+| 96–100% | Holds. |
+
+The hold at the end is 4% of the track and no more. It exists so the finished
+composition is a frame rather than an instant; anything longer is scrolling
+past a picture that has already stopped, which is what the tail was before.
 
 The opening is slow and the tail is brisk, deliberately. The cross-section is
 the thing worth looking at and it earns its beat; the journey does not, and
@@ -305,9 +309,20 @@ The module is dynamically imported and never appears in the normal bundle.
 10. **The three research panels that used to occupy this slot moved to
     `/research` verbatim.** Two of them overlap substantially with the thrust
     text already on that page; nothing was merged. See TODO.md §4.0.
-11. **The pin is a transform pin, and `anticipatePin` is gone.** Both for the
-    same reason: a fixed pin on a full-viewport element measured CLS 3.96 per
-    pass through the section. See the controller section above.
+11. **The stage is held by CSS `position: sticky`, not by ScrollTrigger.**
+    `anticipatePin` is gone for the same reason it always was. Both of
+    ScrollTrigger's pin types were tried and measured, and both are worse
+    here: `pinType: 'fixed'` takes a full-viewport element out of flow at the
+    top of the section and the browser books that as a layout shift the size
+    of the element — CLS 1.7 per pass, measured; `pinType: 'transform'` keeps
+    the box in flow (CLS 0.000) but holds it still by writing a translate from
+    a scroll handler, so on any compositor-scrolled surface — a trackpad — the
+    stage lands a frame behind the scroll and visibly shakes. Sticky is the
+    compositor's own job: there is no shift to book and no handler to lag. The
+    section carries the scroll track as its own height
+    (`calc(100svh * (1 + --journey-pin))`) and must not clip its overflow, or
+    sticky stops working. The trigger still owns progress; it just no longer
+    owns position.
 
 ## Acceptance criteria
 

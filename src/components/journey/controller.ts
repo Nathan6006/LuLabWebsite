@@ -98,13 +98,19 @@ export function initJourney(ScrollTrigger: any): JourneyHandles | null {
     trigger: section,
     start: 'top top',
     end: () => '+=' + window.innerHeight * cfg.pinVh,
-    pin: stagePin,
-    // Pin by moving the element, not by taking it out of flow. A `fixed` pin
-    // switches a full-viewport element from static to fixed at the moment it
-    // reaches the top, and the browser books that as a layout shift the size
-    // of the element — measured at CLS ~4 per pass through the section. A
-    // transform pin leaves the box in flow and cannot shift layout at all.
-    pinType: 'transform',
+    // No `pin`. The stage holds itself in place with CSS `position: sticky`
+    // (see `.journey-track` / `.journey-stage` in global.css) and this trigger
+    // only reports progress.
+    //
+    // Both of ScrollTrigger's own pin types were tried and both are worse
+    // here. `pinType: 'fixed'` takes a full-viewport element out of flow the
+    // moment it reaches the top, and the browser books that as a layout shift
+    // the size of the element — measured at CLS 1.7 per pass. `'transform'`
+    // keeps the box in flow (CLS 0.000) but holds it still by writing a
+    // translate from a scroll handler, so on a compositor-scrolled surface —
+    // any trackpad — the whole stage lands a frame behind the scroll and
+    // visibly shakes. Sticky is handled by the compositor: no shift to book,
+    // and nothing for a scroll handler to lag behind.
     scrub: cfg.scrub,
     invalidateOnRefresh: true,
     onRefresh: remeasure,

@@ -216,11 +216,18 @@
    assembles instead of fading. The wrappers are written by GSAP SplitText at
    runtime; the pre-state below only holds the title until that happens, and
    only when script is available to finish the job. */
+/* Each line is revealed out of its own mask. The padding is what the mask
+   gives back to the glyphs: `overflow: hidden` cuts at the bottom of the line
+   box, and at `leading-[1.02]` the line box is shallower than the face, so
+   without it the descenders of the g's in "Engineering" are sliced off. The
+   matching negative margin keeps the reveal from changing the layout, and the
+   travel below has to clear the deepened box or the top of the next line peeks
+   through it before it moves. */
 .hero-line-mask {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.06em;
-  margin-bottom: -0.06em;
+  padding-bottom: 0.24em;
+  margin-bottom: -0.24em;
 }
 .hero-line { display: block; will-change: transform; }
 .js [data-hero-title] { opacity: 0; }
@@ -371,6 +378,23 @@
    fully drawn body on a warm ground and the animated pre-state is an empty
    navy frame — showing one and then cutting to the other is worse than showing
    nothing for the few hundred milliseconds it takes to import ScrollTrigger. */
+/* The section is its own scroll track and the stage sticks to the top of it
+   for the length of that track. `--journey-pin` is `JOURNEY.pinVh`, written on
+   the section so the one number lives in journey.ts and nowhere else.
+
+   Sticky, not a scripted pin: it is the compositor that holds the element, so
+   it cannot fall a frame behind a trackpad scroll the way a JS-written
+   transform does, and it cannot book a layout shift the way `position: fixed`
+   does. The section must not clip its own overflow or sticky stops working. */
+.journey.is-pinned {
+  height: calc(100svh * (1 + var(--journey-pin, 1.8)));
+}
+.journey.is-pinned .journey-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+
 .journey-svg {
   max-width: 100%;
   max-height: 100%;
