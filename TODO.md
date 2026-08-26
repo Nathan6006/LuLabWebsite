@@ -77,6 +77,124 @@ The alt text and captions were written from what is visible in each photograph
 and still need checking against what is actually going on in them —
 `src/data/lab-photos.json`.
 
+### 0.5 The Google Scholar import — what went in, and what did not
+
+`/publications` now carries **278** entries: the 65 from the previous site plus
+**213** pulled from Dr. Lu's Scholar profile
+(`user=hO6xhakAAAAJ`, sorted by date), read in four pages on 26 August 2026.
+
+Scholar lists **334** records. They account for as follows:
+
+| | Count |
+|---|---|
+| Imported | 213 |
+| Already on the site | 58 |
+| Duplicate rows within Scholar itself | 18 |
+| No year given by Scholar — see below | 36 |
+| Not attributable to Dr. Lu — see below | 4 |
+| Broken records — see below | 5 |
+| **Total** | **334** |
+
+**Three things need a decision.**
+
+**(a) Author lists are Scholar's, not the journals'.** Scholar prints initials
+rather than full names (`ZR Lu`, not `Zheng-Rong Lu`) and cuts long lists off
+after six or seven names with an ellipsis. Those entries therefore have shorter,
+less precise citations than the 65 carried over from the old site, which have
+full names. Every imported citation ends in `…` where Scholar truncated it. The
+full author lists exist only on each work's own Scholar page or at the
+publisher, and pulling 213 of those is a separate job — say the word.
+
+**(b) Patents, abstracts, corrections and a retraction are in there.** Scholar
+does not separate them and neither does the page. Among the 213 are US patents
+and patent applications, conference abstracts and posters, four correction
+notices, and one retraction notice. If `/publications` should be peer-reviewed
+papers only, they can be filtered out — they are identifiable by their venue
+text (`US Patent …`, `Cancer Research 77 (2_Supplement)`) and by titles starting
+`Correction:` or `[Retraction]`.
+
+**(c) No links.** Scholar's list view gives no DOI or PubMed link, so the
+imported entries have no `url:` and render as plain text. The 65 older entries
+mostly link to PubMed.
+
+**36 records carry no year on Scholar** and were not imported, because the
+publications page groups by year and a year would have had to be invented.
+They look like conference abstracts and posters:
+
+
+- Molecular MR Imaging for Immunosurveillance and Therapeutic Monitoring of Pancreatic Cancer during Neoantigen Vaccine Therapy
+- Magnetic Resonance Molecular Imaging of Patient-Derived Xenografts with MT218
+- MR Molecular Imaging of Pancreatic Ductal Adenocarcinoma during a Therapeutic Vaccine Regimen
+- Targeting Extradomain-B Fibronectin to Monitor Immune Checkpoint Therapy with MRI in Head and Neck Squamous Cell Carcinoma
+- Monitoring triple negative breast cancer therapy against lncRNA MANCR with MT218, a targeted MRMI contrast agent
+- Materials for biology and medicine
+- MR Molecular Imaging of EDB-Fibronectin for Non-Invasive Monitoring of miR-200c Therapy in Pancreatic Cancer
+- MR Molecular Imaging of Extradomain-B Fibronectin for Non-invasive Active Surveillance of Prostate Cancer
+- Synthesis and Evaluation of CREKA-Tris (Gd-DOTA) 3 for MR Molecular Imaging of Breast Cancer
+- Rapid Multislice T1 Mapping of Contrast-Enhanced Mouse Tumor Using Saturation Recovery Look-Locker Method with Spiral Readout
+- Detection and Risk-stratification of Prostate Cancer with MR Molecular Imaging using Extradomain-B Fibronectin as a Biomarker
+- Effective MR Molecular Imaging of Prostate Cancer with an EDB-Fibronectin-Specific Contrast Agent at Reduced Doses
+- Non-invasive assessment of hyperthermic ultrasound enhanced tumor drug delivery with CE-MRI
+- MRMI of Extradomain-B Fibronectin for Assessing Drug Resistance in Colon Cancer
+- Magnetic resonance molecular imaging of EDB fibronectin with a ZD2 peptide Gd (HP-DO3A) conjugate for detecting pancreatic cancer
+- MR Molecular Imaging of Breast Cancer Metastases with Peptide Targeted Tripod Macrocyclic Gd (III) Chelates
+- Manganese-Enhanced MRI for Preclinical Evaluation of Therapeutic Efficacy of Retinal Degeneration Treatment
+- Assessment of anti-angiogenic efficacy of targeted ECO/siHIF-1α nanoparticles with DCE-MRI and a biodegradable macromolecular contrast agent
+- Detection of Aggressive Prostate Cancer Using Extradomain-B Fibronectin Targeted MRI Contrast Agent
+- A CLT1 Peptide Targeted Nanoglobular Contrast Agent for Cancer Molecular Imaging with MRI
+- MR Molecular Imaging of EDB-Fibronectin for Precision Imaging of Oral Squamous Cell Carcinoma
+- MR molecular imaging of extradomain-B fibronectin for characterizing prostate cancer aggressiveness
+- Molecular MR imaging of micrometastasis of breast cancer
+- Clinical Translation of MR Molecular Imaging
+- THERANOSTIC NANOAGENTS
+- A Targeted Host-Guest MRI Contrast Agent for Breast Cancer Molecular Imaging
+- Multifunctional ECO nanoparticles delivering β3 integrin siRNA for the treatment of metastatic breast cancer
+- Application of a biodegradable, macrocyclic, polydisulfide-based contrast agent for monitoring tumor angiogenesis using dynamic contrast enhanced MRI
+- Multifunctional ECO-mediated delivery of miR-200b for metastatic breast cancer therapy
+- Development of a novel multifunctional pH-sensitive carrier for effective siRNA delivery
+- Retinylamine Modified Multifunctional Lipid DNA Delivery System for the Treatment of LCA2
+- Synthesis and characterization of a nanoglobular dendrimer 5-aminosalicylic acid conjugate with a Schiff base spacer for treating retinal diseases
+- A Targeted Nanoglobular Manganese (II) Chelate Conjugate for Magnetic Resonance Cancer Molecular Imaging
+- Assessment of the antiangiogenic therapy of avastin in an animal colon cancer model with DCE-MRI and a biodegradable macromolecular contrast agent
+- β3 Integrin siRNA-Loaded Multifunctional Nanoparticle Therapy for Metastatic Breast Cancer
+- NANOGLOBULAR MACROCYCLIC Gd (III) CHELATE CONJUGATES AS MAGNETIC RESONANCE IMAGING CONTRAST AGENTS
+
+**4 records list no author named Lu** and appear to be mis-attributions on the
+profile rather than the lab's work. Adding them would have claimed authorship
+of somebody else's paper:
+
+
+- Solid lipid nanoparticles for anti-tumor drug delivery — *HL Wong, Y Li, R Bendayan, MA Rauth, XY Wu*, Nanotechnology for cancer therapy, 741-776, 2006
+- Specific heat of single-crystal NdMnO3 — *JG Cheng, Y Sui, ZN Qian, ZG Liu, XQ Huang, JP Miao, Z Lu, XJ Wang, ...*, Wuli Xuebao/Acta Physica Sinica 54 (9), 4359-4364, 2005
+- Materials for biology and medicine — *X Huang, X Sun, W Wang, Q Shen, Q Shen, X Tang, J Shao, J Moreira, ...*, (no venue), 2003
+- Performance of tolerance to photooxidation and kernel quality of rice and their correlation — *C Dongmei, L Kangjing, L Wenxiong, C Zhixiong, G Yuchun, L Yiyuan*, Fujian Journal of Agricultural Sciences 17 (1), 1-5, 2002
+
+**5 records are broken** — a year of 1910, a year of 0, a title that is a
+fragment of an article's body, a title that is a stray author name, and one with
+markup mangled into the title:
+
+
+- Noninvasive Visualization of Pharmacokinetics, Biodistribution and Tumor Targeting of Poly (Emphasis Type=" Bo — mangled markup in title; duplicate of the same paper listed cleanly
+- An EDB fibronectin specific contrast agent for molecular imaging of cancer metastasis — year recorded as 1910
+- Organometallics1996, 15, 1651 — not a publication record; year 0
+- Results and Discussion: The fibronectin immunostain of tumor slice was shown in Fig. 1. Fluorescence from intr — title is a fragment of an article body, not a title
+- and David H. Thompson — title is a parsing artifact
+
+**Two duplicate pairs already in the old data were removed**, found while
+de-duplicating against Scholar. Both were the same record entered twice:
+
+- *Molecular imaging of the tumor microenviornment* — filed under both 2016 and
+  2017 with the same PubMed ID. The 2016 copy was deleted: the paper is
+  Advanced Drug Delivery Reviews **113**, 24–48, which is 2017, and that is what
+  Scholar gives.
+- *Preclinical Assessment of the Effectiveness of Magnetic Resonance Molecular
+  Imaging of Extradomain-B Fibronectin for Detection and Characterization of
+  Oral Cancer* — two identical 2020 files. One was deleted.
+
+Both pairs also carry the misspelling `microenviornment` in their titles, which
+is still there and still needs correcting, and which is why an exact-title match
+did not catch them.
+
 ---
 
 ## 1. Blocking — conflicting facts in the sources

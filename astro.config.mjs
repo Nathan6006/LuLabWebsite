@@ -2,6 +2,7 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
+import externalLinks from './integrations/external-links.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,7 +18,7 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
 
-  integrations: [react()],
+  integrations: [react(), externalLinks()],
 
   // Fonts are downloaded at build time and self-hosted. Astro generates
   // metric-matched fallback @font-face rules (size-adjust, ascent-override) so
