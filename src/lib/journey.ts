@@ -50,17 +50,21 @@ export const JOURNEY = {
     /** Camera pulls back; the particle shrinks toward a point of light. */
     shrink: [0.28, 0.44],
     /** The curve draws itself in ahead of the particle. */
-    curveDraw: [0.24, 0.44],
+    curveDraw: [0.24, 0.42],
     /** The body appears from nothing. */
     bodyFade: [0.28, 0.42],
     /** The silhouette draws itself once it is there. */
-    bodyDraw: [0.30, 0.44],
+    bodyDraw: [0.30, 0.43],
     /** Limbs follow. */
-    limbDraw: [0.34, 0.46],
+    limbDraw: [0.34, 0.45],
     /** The point travels: a short approach, then in at the upper arm. Brisk —
         the opening earns its time by being something to look at; the journey
-        does not, and dwelling on it just makes the section feel long. */
-    travel: [0.46, 0.64],
+        does not, and dwelling on it just makes the section feel long.
+        It starts before the pull-back has finished, on purpose: with the two
+        beats butted end to end the dot slid across the frame as the camera
+        widened, stopped dead for 2% of the track, and then launched again.
+        Overlapping them hands one move to the other while it still has speed. */
+    travel: [0.43, 0.64],
     /** Arrival. It settles rather than stopping dead. */
     arrival: [0.64, 0.70],
     /** A second beat of resistance, before the release. */
@@ -124,12 +128,17 @@ export const JOURNEY = {
   },
 
   travel: {
-    /** Fraction of the curve covered by the fast section. */
-    trunkEnd: 0.55,
-    /** Progress spent on it. */
-    trunkTime: 0.42,
-    /** How hard the approach decelerates. 1 is linear. */
-    approachPower: 2.4,
+    /** Fraction of the travel spent getting up to speed. */
+    rise: 0.16,
+    /** Fraction spent slowing down into the target. Long: the approach is
+        where the deceleration has to be legible. */
+    fall: 0.62,
+    /** Speed left at the moment of arrival, as a fraction of cruising speed.
+        Zero: anything else is a speed the travel window then cuts to nothing
+        at its edge, which is a hard stop dressed up as a soft one. The fall is
+        a smoothstep, so it lands rather than decaying — the stuck-looking
+        arrival this was guarding against comes from an exponential tail. */
+    arriveSpeed: 0,
   },
 
   trail: {
@@ -206,8 +215,25 @@ export const smoothstep = (t: number) => {
   const k = clamp01(t);
   return k * k * (3 - 2 * k);
 };
-/** Rises and falls once over 0..1. Used for the pulse. */
-export const bell = (t: number) => Math.sin(clamp01(t) * Math.PI);
+/**
+ * Front-loaded, but starting and ending at rest.
+ *
+ * `easeOutQuart` alone goes from stationary to its maximum speed in a single
+ * frame, which is a visible snap at the start of every beat that uses it — and
+ * that was most of them. Composing it with `smoothstep` keeps the weight at
+ * the front while giving both ends zero velocity, so a beat arrives and leaves
+ * instead of switching on.
+ */
+export const softOut = (t: number, power = 4) =>
+  1 - Math.pow(1 - smoothstep(t), power);
+
+/** Rises and falls once over 0..1, at rest at both ends. `sin(t·π)` was the
+    obvious choice and is wrong for the same reason as above: its slope at 0
+    is π, so the pulse snapped on. */
+export const bell = (t: number) => {
+  const k = smoothstep(t);
+  return 4 * k * (1 - k);
+};
 export const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /**
@@ -215,18 +241,57 @@ export const mix = (a: number, b: number, t: number) => a + (b - a) * t;
  *
  * Fast through the middle, decelerating hard on the approach — constant
  * velocity is the single thing that makes this kind of animation read as
- * cheap. The first leg accelerates away rather than easing out: an ease-out
- * here puts half the curve behind the particle in the first few percent.
+ * cheap.
+ *
+ * This is written as a *speed* profile and integrated, rather than as two
+ * eased distance curves glued together. The glued version was continuous in
+ * position but not in speed: the first piece ended with an ease-out, so its
+ * velocity reached zero exactly where the second piece started at 1.9 units,
+ * and the dot stopped dead in mid-flight and re-launched. Measured, that seam
+ * was the largest acceleration step anywhere in the section — 74% of peak
+ * speed in a single frame. A speed profile cannot have that fault: whatever
+ * shape it takes, the position is its integral and is smooth by construction.
  */
-export function travelCurve(t: number, cfg: Tuning = TUNING): number {
-  const { trunkEnd, trunkTime, approachPower } = cfg.travel;
-  const tt = clamp01(t);
-  if (tt <= trunkTime) {
-    const k = tt / Math.max(1e-6, trunkTime);
-    return smoothstep(k) * trunkEnd;
+function travelSpeed(t: number, cfg: Tuning): number {
+  const { rise, fall, arriveSpeed } = cfg.travel;
+  const up = smoothstep(t / Math.max(1e-6, rise));
+  const down = smoothstep((t - (1 - fall)) / Math.max(1e-6, fall));
+  return up * mix(1, arriveSpeed, down);
+}
+
+/** Samples of the integral, normalised to 1. Built once; the shape only
+    changes when the debug panel edits the profile, which `retimeTravel`
+    below rebuilds for. */
+const TRAVEL_STEPS = 512;
+let travelTable: number[] = [];
+
+export function retimeTravel(cfg: Tuning = TUNING): void {
+  const table = new Array(TRAVEL_STEPS + 1);
+  table[0] = 0;
+  let acc = 0;
+  for (let i = 1; i <= TRAVEL_STEPS; i++) {
+    // Trapezoid, so the table matches the profile rather than lagging it.
+    const a = travelSpeed((i - 1) / TRAVEL_STEPS, cfg);
+    const b = travelSpeed(i / TRAVEL_STEPS, cfg);
+    acc += (a + b) / 2;
+    table[i] = acc;
   }
-  const k = (tt - trunkTime) / Math.max(1e-6, 1 - trunkTime);
-  return trunkEnd + (1 - Math.pow(1 - k, approachPower)) * (1 - trunkEnd);
+  const total = Math.max(1e-6, acc);
+  for (let i = 0; i <= TRAVEL_STEPS; i++) table[i] /= total;
+  travelTable = table;
+}
+retimeTravel(JOURNEY);
+
+/** The profile the current table was built from, so a debug-panel edit to any
+    of the three numbers rebuilds it and nothing else has to remember to. */
+let travelKey = '';
+
+export function travelCurve(t: number, cfg: Tuning = TUNING): number {
+  const key = `${cfg.travel.rise}|${cfg.travel.fall}|${cfg.travel.arriveSpeed}`;
+  if (key !== travelKey) { retimeTravel(cfg); travelKey = key; }
+  const k = clamp01(t) * TRAVEL_STEPS;
+  const i = Math.min(TRAVEL_STEPS - 1, Math.floor(k));
+  return mix(travelTable[i], travelTable[i + 1], k - i);
 }
 
 /* ---- The camera ----------------------------------------------------------
@@ -258,15 +323,30 @@ export function cameraAt(
   // the closing beat is a bloom across the whole figure, which it has to be
   // able to see.
   const out = easeInOut(span(q, s.shrink));
-  let x = mix(sx, cx, out);
-  let y = mix(sy, cy, out);
   const zoom = mix(c.zoomIn, c.zoomWide, out);
 
+  // The camera centre is derived from where the dot should be ON SCREEN, not
+  // interpolated in scene space. Moving the centre and the zoom on the same
+  // eased parameter looks like it should be equivalent and is not: screen
+  // position is (scene - centre) * zoom, so with both terms moving, the
+  // product `out * mix(4.6, 1, out)` peaks at out = 0.64 and falls back. The
+  // dot swung about 60px past its resting place as the shot opened and then
+  // drifted back into it, and its speed across the frame varied four-fold on
+  // the way. Fixing the screen offset to a single eased ramp and solving for
+  // the centre gives the same start and end framing with a monotone move.
+  const glide = out / Math.max(1e-6, zoom);
+  let x = sx + (cx - sx) * glide;
+  let y = sy + (cy - sy) * glide;
+
   // A little drift toward the point while it travels, so the frame is not
-  // dead still through the middle. Ramped by `out`: gated at out >= 1 it
-  // appeared in a single frame and jolted the camera ~130 scene units.
+  // dead still through the middle. Ramped over the travel window, which is
+  // when it has a job: ramped by the pull-back instead it was fully on before
+  // the dot had moved, and it pulled against the widening shot — the dot's
+  // speed across the frame wobbled 40% either side while the camera opened
+  // out. Ramping, not gating: switched on at a threshold it appeared in a
+  // single frame and jolted the camera ~130 scene units.
   if (onCurve) {
-    const k = c.follow * out;
+    const k = c.follow * smoothstep(span(q, s.travel));
     x = mix(x, onCurve.x, k);
     y = mix(y, onCurve.y, k);
   }
@@ -332,8 +412,16 @@ export function computeFrame(
   // Two resistance beats: before the cut closes, and before the bloom. Each
   // builds as its window fills and releases the moment the thing it was
   // holding back begins.
-  const strainA = easeInQuad(span(q, s.strain)) * (1 - span(q, s.close));
-  const strainB = easeInQuad(span(q, s.settle)) * (1 - span(q, s.bloom));
+  // Released with a smoothstep rather than linearly: a straight `1 - span`
+  // puts a corner in the scale exactly where the thing it was holding back
+  // starts, which is the worst possible moment for one.
+  // Built with a squared smoothstep rather than `easeInQuad`: both accelerate
+  // through the middle, which is what makes a resistance beat feel like one,
+  // but the smoothstep also arrives at the top of its window at rest, so the
+  // scene stops compressing gradually instead of in one frame.
+  const build = (r: number[]) => Math.pow(smoothstep(span(q, r)), 2);
+  const strainA = build(s.strain) * (1 - smoothstep(span(q, s.close)));
+  const strainB = build(s.settle) * (1 - smoothstep(span(q, s.bloom)));
 
   return {
     p: q,
@@ -346,16 +434,16 @@ export function computeFrame(
     lnpScale: mix(1, cfg.particle.shrink, out),
     // Gone early: the bloom is the subject of the closing beat, and a bright
     // dot still sitting at its centre reads as two things happening.
-    lnpOpacity: 1 - easeOutQuart(span(q, [s.bloom[0], s.bloom[0] + 0.06])),
-    lnpClose: easeOutQuart(span(q, s.close)),
-    lnpSpin: cfg.particle.spin * easeOutQuart(q),
-    curveDraw: easeOutQuart(span(q, s.curveDraw)),
-    bodyOpacity: easeOutQuart(span(q, s.bodyFade)),
-    bodyDraw: easeOutQuart(span(q, s.bodyDraw)),
-    limbDraw: easeOutQuart(span(q, s.limbDraw)),
+    lnpOpacity: 1 - softOut(span(q, [s.bloom[0], s.bloom[0] + 0.06])),
+    lnpClose: softOut(span(q, s.close)),
+    lnpSpin: cfg.particle.spin * softOut(q),
+    curveDraw: softOut(span(q, s.curveDraw)),
+    bodyOpacity: softOut(span(q, s.bodyFade)),
+    bodyDraw: softOut(span(q, s.bodyDraw)),
+    limbDraw: softOut(span(q, s.limbDraw)),
     sceneOpacity: 1,
     strain: Math.max(strainA, strainB) * cfg.particle.strain,
-    bloom: easeOutQuart(span(q, s.bloom)),
+    bloom: softOut(span(q, s.bloom)),
     pulse: bell(span(q, s.arrival)),
   };
 }

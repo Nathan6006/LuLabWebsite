@@ -72,6 +72,12 @@ dwelling on it only makes the section feel long.
 they are spread across the more frames land per pixel — so a fast close reads
 *smoother*, not rougher. Stretched over a longer window it stepped visibly.
 
+**And the 22 frames are cross-dissolved, not snapped to.** Picking the nearest
+frame meant the close played back as 22 discrete states however smoothly it was
+scrubbed. The canvas draws the frame below and then the frame above it at the
+fraction between them, which costs one extra `drawImage` and no bytes — and
+there is no budget for more renders, since the sequence is 1.7MB as it is.
+
 **The route is physiologically right**, which is a happy accident rather than a
 compromise for the composition: an injection into an arm vein travels the
 subclavian to the superior vena cava, through the right heart, and the lungs
@@ -173,13 +179,38 @@ pictogram, and a front view gives the vessel path somewhere to travel.
 
 ## Motion detail
 
-**Easing.** Nothing linear. The camera pull-back eases out sharply. The travel
-is piecewise — `smoothstep` accelerating away from the injection site through
-the trunk, then a power curve decelerating on approach. Measured ratio between
-the fastest and slowest step of the travel: **77.5×**.
+**Easing.** Nothing linear, and nothing that starts or stops at speed. Every
+beat runs on `softOut` — `easeOutQuart` composed with a `smoothstep` — which
+keeps the weight at the front of the beat while giving both ends zero velocity.
+Plain `easeOutQuart`, which this used before, goes from stationary to maximum
+speed in a single frame; six channels used it and all six measured a
+100%-of-peak acceleration step at their start.
 
-**Trail.** The path ahead of the point sits at 0.10 opacity. Behind it a
-segment lights to full and settles back to 0.26 over ~14% of path length.
+**The travel is a speed profile, integrated** — not two eased distance curves
+glued together. The glued version was continuous in position and not in speed:
+the first piece ended with an ease-out, so its velocity reached zero exactly
+where the second started at 1.9 units, and the point stopped dead in mid-flight
+and re-launched. That seam measured **74% of peak speed in a single frame**,
+the largest acceleration step anywhere in the section. A speed profile cannot
+have that fault: position is its integral, so it is smooth by construction. It
+rises over the first 16%, cruises, and falls over the last 62% to a standstill.
+
+**The camera centre is solved from the screen offset**, not interpolated in
+scene space. Screen position is `(scene − centre) × zoom`; with both terms on
+the same eased parameter the product peaks two-thirds of the way through the
+pull-back, so the point swung about 60px past its resting place and drifted
+back into it, its speed across the frame varying four-fold on the way.
+
+Measured after all of the above, no channel's worst single-frame acceleration
+step exceeds **8.4%** of its own peak speed.
+
+**Trail.** The path ahead of the point sits at 0.13 opacity. Behind it a
+segment lights to full and settles back to 0.34 over ~16% of path length. Both
+boundaries — the head of the comet and the end of the drawn-in curve — are
+crossfaded over a segment and a half rather than switched at: with a hard
+`centre > head` test the brightest thing on screen advanced one whole segment
+at a time while everything around it moved continuously. Colour crossfades with
+it, out of a 17-step ramp resolved once rather than built 56 times a frame.
 
 **Draw-in.** The body draws over 8% of progress, limbs over the next 8%,
 overlapping by half. Not a fade.

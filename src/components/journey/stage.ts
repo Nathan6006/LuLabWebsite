@@ -79,6 +79,9 @@ export function createStage(root: HTMLElement, cfg: Tuning = TUNING): Stage | nu
      work for something that never changes. The viewBox is fixed, so the table
      is built once and the hot path only interpolates it. */
   const segCount = Math.max(8, Math.round(cfg.trail.segments));
+  /** Cool-to-warm ramp for the trail, resolved once. */
+  const warmth = Array.from({ length: 17 }, (_, i) =>
+    mixHex(cfg.colors.line, cfg.colors.amber, i / 16));
   const perSeg = 4;
   const sampleCount = segCount * perSeg;
   const table: Point[] = [];
@@ -195,23 +198,29 @@ export function createStage(root: HTMLElement, cfg: Tuning = TUNING): Stage | nu
     // particle rather than being there from the first frame.
     const head = frame.lnpDistance;
     const drawn = frame.curveDraw;
+    // Both boundaries — the head of the comet and the end of the drawn-in
+    // curve — are crossfaded over rather than switched at. Tested against a
+    // hard `centre > head` test, which is what this was: the head then
+    // advanced one whole segment at a time, so the brightest thing on screen
+    // moved in 56 discrete steps while everything around it moved smoothly.
+    // A window a segment and a half wide is enough to hide the quantisation
+    // and short enough that the head still reads as a head.
+    const soft = 1.5 / segCount;
     for (let s = 0; s < segCount; s++) {
       const centre = (s + 0.5) / segCount;
-      let op: number;
-      if (centre > drawn) {
-        op = 0;
-      } else if (centre > head) {
-        op = T.ahead;
-      } else {
-        const k = easeOutQuart(clamp01((head - centre) / Math.max(1e-4, T.length)));
-        op = T.lit + (T.settled - T.lit) * k;
-      }
+      const litMix = smoothstep(clamp01(0.5 + (head - centre) / soft));
+      const drawMix = smoothstep(clamp01(0.5 + (drawn - centre) / soft));
+      const decay = easeOutQuart(clamp01((head - centre) / Math.max(1e-4, T.length)));
+      const behind = T.lit + (T.settled - T.lit) * decay;
+      const op = (T.ahead + (behind - T.ahead) * litMix) * drawMix;
       const el = segments[s];
       el.setAttribute('opacity', (op * frame.sceneOpacity).toFixed(3));
       // Lit sections take the warm colour; the unfilled bar stays cool, so the
       // two halves of the progress bar are told apart by hue as well as value.
-      el.setAttribute('stroke', centre > head ? C.line : C.amber);
-      el.setAttribute('stroke-width', centre > head ? '2.4' : '3.4');
+      // Quantised to 17 steps so the colour string comes out of a cache
+      // instead of being built 56 times a frame.
+      el.setAttribute('stroke', warmth[Math.round(litMix * 16)]);
+      el.setAttribute('stroke-width', (2.4 + litMix).toFixed(2));
     }
 
     // The target should not be glowing before anything is on its way to it.

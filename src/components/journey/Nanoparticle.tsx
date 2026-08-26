@@ -143,11 +143,22 @@ export default function Nanoparticle() {
 
     let raf = 0;
     let running = true;
+    let last = 0;
 
-    const draw = () => {
+    const draw = (now: number) => {
       raf = requestAnimationFrame(draw);
       const f = want;
-      const k = TUNING.particle.lag;
+      // Frame-rate independent. `lag` is a per-frame fraction, so taken
+      // literally the dot converges twice as fast on a 120Hz display as on a
+      // 60Hz one — the same scroll produces a different amount of trailing
+      // weight depending on the monitor. Converting it to a time constant at
+      // 60Hz and re-deriving the fraction from the real delta keeps the feel
+      // fixed. The delta is clamped so a backgrounded tab does not come back
+      // and snap the dot across the frame in one step.
+      const dt = last ? Math.min(0.05, Math.max(0.001, (now - last) / 1000)) : 1 / 60;
+      last = now;
+      const tau = -(1 / 60) / Math.log(1 - TUNING.particle.lag);
+      const k = 1 - Math.exp(-dt / tau);
       have.x += (place.x - have.x) * k;
       have.y += (place.y - have.y) * k;
       have.r += (place.r - have.r) * k;
@@ -161,8 +172,21 @@ export default function Nanoparticle() {
 
       // The whole sequence maps onto one number: how far the cut has closed.
       // It holds on the last frame for the rest of the journey.
-      const bmp = pick(section, Math.round(f.lnpClose * (MANIFEST.section.count - 1)));
+      //
+      // Two frames, cross-dissolved by the fraction between them, rather than
+      // the nearest one. There are 22 renders of the closing shell and no
+      // budget for more — they are 1.7MB as it is — so snapping to the nearest
+      // meant the close played back as 22 discrete states no matter how
+      // smoothly it was scrubbed. Blending costs one extra drawImage and turns
+      // the same 22 frames into a continuous move.
+      const at = f.lnpClose * (MANIFEST.section.count - 1);
+      const i = Math.floor(at);
+      const frac = at - i;
+      const bmp = pick(section, i);
       if (!bmp) return;
+      // The exact next frame, not `pick`'s nearest-loaded fallback: blending
+      // toward a frame two or three along would be worse than not blending.
+      const next = frac > 0.001 ? section[i + 1] ?? null : null;
 
       // A glow behind the particle, weighted toward small sizes. Through the
       // journey the particle is only about 30px across, and an 800px render of
@@ -199,13 +223,20 @@ export default function Nanoparticle() {
       // The rendered sphere occupies a known fraction of its frame, so the
       // page's radius maps onto the image rather than onto its padding.
       const box = have.r * 2 * (1 / 0.78);
-      ctx.drawImage(
-        bmp,
+      const put = (img: ImageBitmap) => ctx.drawImage(
+        img,
         (have.x - box / 2) * dpr,
         (have.y - box / 2) * dpr,
         box * dpr,
         box * dpr,
       );
+      put(bmp);
+      // Source-over at `frac` on top of the frame below is a cross-dissolve:
+      // the pair reads as the state between them.
+      if (next && next !== bmp) {
+        ctx.globalAlpha = f.lnpOpacity * frac;
+        put(next);
+      }
       ctx.globalAlpha = 1;
     };
 
