@@ -36,36 +36,41 @@ export const JOURNEY = {
   shots: {
     /**
      * Resistance. Nothing advances; the scene only tightens, so there is a
-     * beat to take in the cross-section before it closes. The strain is the
-     * cue that scrolling is registering.
+     * real beat to take in the cross-section before it closes. The strain is
+     * the cue that scrolling is registering. It runs until after the mission
+     * statement has finished coming up to white, so the two do not compete.
      */
-    strain: [0.0, 0.11],
+    strain: [0.0, 0.20],
     /**
      * The cut closes. Deliberately short: with a fixed 22 frames, the fewer
      * pixels of scroll they are spread over the more frames land per pixel,
      * and the smoother the close reads. Stretched out it stepped visibly.
      */
-    close: [0.11, 0.21],
+    close: [0.20, 0.30],
     /** Camera pulls back; the particle shrinks toward a point of light. */
-    shrink: [0.19, 0.40],
+    shrink: [0.28, 0.44],
     /** The curve draws itself in ahead of the particle. */
-    curveDraw: [0.16, 0.42],
+    curveDraw: [0.24, 0.44],
     /** The body appears from nothing. */
-    bodyFade: [0.24, 0.40],
+    bodyFade: [0.28, 0.42],
     /** The silhouette draws itself once it is there. */
-    bodyDraw: [0.26, 0.42],
+    bodyDraw: [0.30, 0.44],
     /** Limbs follow. */
-    limbDraw: [0.30, 0.46],
-    /** The point travels: a short approach, then in at the upper arm. */
-    travel: [0.42, 0.74],
+    limbDraw: [0.34, 0.46],
+    /** The point travels: a short approach, then in at the upper arm. Brisk —
+        the opening earns its time by being something to look at; the journey
+        does not, and dwelling on it just makes the section feel long. */
+    travel: [0.46, 0.64],
     /** Arrival. It settles rather than stopping dead. */
-    arrival: [0.74, 0.80],
+    arrival: [0.64, 0.70],
     /** A second beat of resistance, before the release. */
-    settle: [0.74, 0.84],
-    /** The bloom: a calm glow spreading out over the figure. */
-    bloom: [0.84, 1.0],
+    settle: [0.64, 0.72],
+    /** The bloom: a calm glow spreading out over the figure. It reaches full
+        spread at 88% and then holds, so the frame a reader comes to rest on is
+        the finished composition rather than something still moving. */
+    bloom: [0.72, 0.88],
     /** Ground lifts, very slightly. Not an inversion — see the spec. */
-    groundLift: [0.20, 0.40],
+    groundLift: [0.26, 0.44],
   },
 
   camera: {

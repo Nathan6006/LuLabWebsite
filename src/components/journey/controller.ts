@@ -47,7 +47,10 @@ export function initJourney(ScrollTrigger: any): JourneyHandles | null {
   // the moment the pin engaged. It runs off the pinned progress instead, over
   // the opening beats, so it is read before the journey gets going.
   const words = Array.from(section.querySelectorAll<HTMLElement>('.hl-word'));
-  const readWindow = [0.02, 0.34];
+  // Fast: the statement comes up to white well inside the opening resistance
+  // beat, so it is done and read before the cross-section starts to close and
+  // the two never pull at each other.
+  const readWindow = [0.01, 0.13];
 
   // Flips the SVG out of its shipped final-frame state and into the animated
   // one. Only ever set once everything above has been confirmed.

@@ -153,6 +153,8 @@ export default function Nanoparticle() {
       have.r += (place.r - have.r) * k;
 
       if (!ctx) return;
+      const W = canvas.width / dpr;
+      const H = canvas.height / dpr;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!f || have.r <= 0.5 || f.lnpOpacity <= 0.002) return;
       ctx.globalAlpha = f.lnpOpacity;
@@ -167,9 +169,17 @@ export default function Nanoparticle() {
       // several thousand lipids downsampled that far is unreadable noise — at
       // that size what should read is a warm bead moving through the body, so
       // the glow carries it and the detail carries the two ends.
-      const small = 1 - Math.min(1, (have.r - 22) / 150);
+      // Out entirely by the time the particle is ~100px across. The detailed
+      // render does not need a halo, and at the opening size the glow was
+      // still at 23% — a 460px radius inside a 652px canvas, which the canvas
+      // edge then cut off as a straight vertical line down the left.
+      const small = 1 - Math.min(1, Math.max(0, (have.r - 18) / 70));
       if (small > 0.01) {
-        const gr = have.r * (2.6 + small * 3.2);
+        // Never wider than the room it has. The gradient reaches zero at `gr`,
+        // so keeping gr inside the nearest edge means there is nothing left to
+        // clip; letting it overhang is what produces a boxed-off glow.
+        const fit = Math.min(have.x, have.y, W - have.x, H - have.y);
+        const gr = Math.min(have.r * (2.6 + small * 3.2), Math.max(1, fit));
         const g = ctx.createRadialGradient(
           have.x * dpr, have.y * dpr, 0,
           have.x * dpr, have.y * dpr, gr * dpr,

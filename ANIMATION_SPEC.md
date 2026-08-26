@@ -51,14 +51,18 @@ Pinned distance: **1.8 viewport heights**, `scrub: 0.6`.
 
 | Range | What happens |
 |---|---|
-| 0–11% | Resistance. Nothing advances; the scene tightens. A beat to take in the cross-section, and a cue that scrolling is registering. |
-| 11–21% | The cut closes. Deliberately short — see below. |
-| 19–40% | Camera pulls back; the particle shrinks to 2% of its opening size. |
-| 16–42% | The curve draws in ahead of it. |
-| 24–46% | The body appears from nothing and draws itself. |
-| 42–74% | The point travels: a short approach, in at the upper arm, through the shoulder into the chest. |
-| 74–84% | Arrival, and a second beat of resistance. |
-| 84–100% | The bloom: a calm glow spreading over the figure, which brightens under it. Holds. |
+| 0–20% | Resistance. Nothing advances; the scene tightens. The mission statement comes up to white inside this beat and is finished by 13%, so it is read before anything moves. |
+| 20–30% | The cut closes. |
+| 28–44% | Camera pulls back; the particle shrinks to 2% of its opening size. |
+| 24–46% | The curve draws in, the body appears from nothing and draws itself. |
+| 46–64% | The point travels: a short approach, in at the upper arm, through the shoulder into the chest. |
+| 64–72% | Arrival, and a second beat of resistance. |
+| 72–88% | The bloom spreads over the figure, which brightens under it. |
+| 88–100% | Holds. |
+
+The opening is slow and the tail is brisk, deliberately. The cross-section is
+the thing worth looking at and it earns its beat; the journey does not, and
+dwelling on it only makes the section feel long.
 
 **Why the close is short.** With a fixed 22 frames, the fewer pixels of scroll
 they are spread across the more frames land per pixel — so a fast close reads
