@@ -87,7 +87,7 @@ Scholar lists **334** records. They account for as follows:
 
 | | Count |
 |---|---|
-| Imported | 213, of which 6 correction and retraction notices were later removed |
+| Imported | 213, of which 7 were later removed — 6 correction and retraction notices, and 1 retracted paper |
 | Already on the site | 58 |
 | Duplicate rows within Scholar itself | 18 |
 | No year given by Scholar — see below | 36 |
@@ -111,12 +111,12 @@ correction notices, one retraction notice, and one duplicate of a paper filed
 under the Web-of-Science `(vol 8, 2017)` correction form. The papers each of
 them referred to are all still on the site.
 
-**One retracted paper is still listed** and needs a decision:
-*RETRACTED ARTICLE: Albumin pre-coating enhances intracellular siRNA delivery of
-multifunctional amphiphile/siRNA nanoparticles* (2012). This is the paper
-itself, carrying the publisher's own retracted-article marking, not a retraction
-notice — which is why it was kept when the notices went. Removing it is an
-editorial call about the publication record, not a tidy-up. Say if it should go.
+The retracted paper went too, on the lab's instruction: *RETRACTED ARTICLE:
+Albumin pre-coating enhances intracellular siRNA delivery of multifunctional
+amphiphile/siRNA nanoparticles* (2012). That was the paper itself carrying the
+publisher's retracted-article marking, not a notice about it, so it was held
+back for a decision rather than removed with the notices. Nothing on the site
+now refers to a retraction.
 
 US patents and patent applications remain, as do conference abstracts and
 posters; Scholar does not separate those from papers and neither does the page.
