@@ -148,20 +148,34 @@ export default function Nanoparticle() {
     const draw = (now: number) => {
       raf = requestAnimationFrame(draw);
       const f = want;
-      // Frame-rate independent. `lag` is a per-frame fraction, so taken
-      // literally the dot converges twice as fast on a 120Hz display as on a
-      // 60Hz one — the same scroll produces a different amount of trailing
-      // weight depending on the monitor. Converting it to a time constant at
-      // 60Hz and re-deriving the fraction from the real delta keeps the feel
-      // fixed. The delta is clamped so a backgrounded tab does not come back
-      // and snap the dot across the frame in one step.
+      // POSITION IS NOT SMOOTHED HERE, and must not be.
+      //
+      // It was, with the same exponential filter the radius still uses, and
+      // that filter runs in screen space: it walks the dot in a straight line
+      // toward wherever the curve currently says it is. Scrolled slowly the
+      // step is a pixel or two and the straight line is indistinguishable from
+      // the arc. Scrolled fast the target jumps most of the way along a bend
+      // and the dot chords across it — measured at 13px inside the top of the
+      // curve on a single jump through the travel, against 0.5px at rest.
+      //
+      // The inertia the filter was there for belongs to progress, not to
+      // pixels: ScrollTrigger's `scrub` already eases the progress value, and
+      // easing progress moves the dot ALONG the curve rather than across it.
+      // So the position is taken exactly as projected, and the trailing weight
+      // comes from the one smoother that cannot leave the path.
+      have.x = place.x;
+      have.y = place.y;
+
+      // The radius keeps its filter — it is a scalar with no path to leave,
+      // and it is what stops a resize or a camera step popping the dot's size.
+      // Frame-rate independent: `lag` is a per-frame fraction, so taken
+      // literally it converges twice as fast on a 120Hz display as on a 60Hz
+      // one. The delta is clamped so a backgrounded tab does not come back and
+      // snap in one step.
       const dt = last ? Math.min(0.05, Math.max(0.001, (now - last) / 1000)) : 1 / 60;
       last = now;
       const tau = -(1 / 60) / Math.log(1 - TUNING.particle.lag);
-      const k = 1 - Math.exp(-dt / tau);
-      have.x += (place.x - have.x) * k;
-      have.y += (place.y - have.y) * k;
-      have.r += (place.r - have.r) * k;
+      have.r += (place.r - have.r) * (1 - Math.exp(-dt / tau));
 
       if (!ctx) return;
       const W = canvas.width / dpr;

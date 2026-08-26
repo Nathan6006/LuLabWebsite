@@ -44,6 +44,7 @@ export const CONTACT = {
 } as const;
 
 export const NAV = [
+  { href: '/', label: 'Home' },
   { href: '/research', label: 'Research' },
   { href: '/people', label: 'People' },
   { href: '/publications', label: 'Publications' },

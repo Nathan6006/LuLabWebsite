@@ -212,6 +212,17 @@ the target went 42.7, 42.4, then up to 50.4: brighter, dimmer, bright again,
 three events where there should be one. It now climbs 48.9 to 77.1 with no
 reversal anywhere.
 
+**The point's position is never smoothed in screen space.** It was, with the
+same exponential filter the radius still uses, and that filter walks the point
+in a straight line toward wherever the curve currently says it is. Scrolled
+slowly the step is a pixel or two and the chord is indistinguishable from the
+arc; scrolled fast the target jumps most of the way along a bend and the point
+cuts inside it — measured at 13.2px in from the top of the curve on a single
+jump through the travel, against 0.5px at rest. The inertia belongs to
+progress, where `scrub` already provides it, because easing progress moves the
+point along the curve rather than across it. After: 3.2px, which is the canvas
+drawing on its own frame rather than any departure from the path.
+
 **Trail.** The path ahead of the point sits at 0.13 opacity. Behind it a
 segment lights to full and settles back to 0.34 over ~16% of path length. Both
 boundaries — the head of the comet and the end of the drawn-in curve — are

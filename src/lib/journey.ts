@@ -127,7 +127,9 @@ export const JOURNEY = {
         is eased into this as the shell opens, so the release is composed
         rather than landing wherever the scroll happened to leave it. */
     heroAngle: -0.35,
-    /** Easing toward the scrubbed value, per frame. */
+    /** Easing toward the scrubbed value, per frame. Radius only — see the
+        note in Nanoparticle.tsx. Smoothing the position with this ran in
+        screen space and cut the corners of the curve on a fast scroll. */
     lag: 0.12,
   },
 
