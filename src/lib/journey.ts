@@ -65,8 +65,12 @@ export const JOURNEY = {
         widened, stopped dead for 2% of the track, and then launched again.
         Overlapping them hands one move to the other while it still has speed. */
     travel: [0.43, 0.64],
-    /** Arrival. It settles rather than stopping dead. */
-    arrival: [0.64, 0.70],
+    /** Arrival: the point flares as it lands, and the flare runs right up to
+        the bloom rather than rising and falling inside its own window. As a
+        bell it peaked at 0.67, was gone by 0.70, and left two hundredths of
+        dead track before the bloom began — brighter, then dimmer, then bright
+        again, which is three events where there should be one. */
+    arrival: [0.64, 0.72],
     /** A second beat of resistance, before the release. */
     settle: [0.64, 0.72],
     /** The bloom: a calm glow spreading out over the figure. It runs almost to
@@ -229,7 +233,9 @@ export const softOut = (t: number, power = 4) =>
 
 /** Rises and falls once over 0..1, at rest at both ends. `sin(t·π)` was the
     obvious choice and is wrong for the same reason as above: its slope at 0
-    is π, so the pulse snapped on. */
+    is π, so anything driven by it snapped on. Nothing in the shot list uses
+    this any more — the arrival flare that did now only rises — but it is the
+    correct shape for a one-shot bump and is kept for the debug panel. */
 export const bell = (t: number) => {
   const k = smoothstep(t);
   return 4 * k * (1 - k);
@@ -444,7 +450,11 @@ export function computeFrame(
     sceneOpacity: 1,
     strain: Math.max(strainA, strainB) * cfg.particle.strain,
     bloom: softOut(span(q, s.bloom)),
-    pulse: bell(span(q, s.arrival)),
+    // Monotone, and it holds. The flare becomes the hot core the bloom then
+    // spreads out from; nothing here is ever allowed to fall, because the
+    // arrival and the bloom are one brightening and the eye reads any dip
+    // between them as a flicker.
+    pulse: smoothstep(span(q, s.arrival)),
   };
 }
 

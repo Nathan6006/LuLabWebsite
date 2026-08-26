@@ -56,7 +56,7 @@ Pinned distance: **1.8 viewport heights**, `scrub: 0.6`.
 | 28–44% | Camera pulls back; the particle shrinks to 2% of its opening size. |
 | 24–46% | The curve draws in, the body appears from nothing and draws itself. |
 | 46–64% | The point travels: a short approach, in at the upper arm, through the shoulder into the chest. |
-| 64–72% | Arrival, and a second beat of resistance. |
+| 64–72% | Arrival: the point flares as it lands, and keeps rising into the bloom. A second beat of resistance runs under it. |
 | 72–96% | The bloom spreads over the figure, which brightens under it. |
 | 96–100% | Holds. |
 
@@ -203,6 +203,14 @@ back into it, its speed across the frame varying four-fold on the way.
 
 Measured after all of the above, no channel's worst single-frame acceleration
 step exceeds **8.4%** of its own peak speed.
+
+**The arrival and the bloom are one brightening.** The flare on landing only
+ever rises, and holds as the hot core the bloom spreads out from. As a bell it
+peaked at 67%, was gone by 70%, and left two hundredths of dead track before
+the bloom began — measured on the rendered pixels, mean luminance in a box on
+the target went 42.7, 42.4, then up to 50.4: brighter, dimmer, bright again,
+three events where there should be one. It now climbs 48.9 to 77.1 with no
+reversal anywhere.
 
 **Trail.** The path ahead of the point sits at 0.13 opacity. Behind it a
 segment lights to full and settles back to 0.34 over ~16% of path length. Both
