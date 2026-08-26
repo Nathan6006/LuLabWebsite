@@ -360,24 +360,23 @@
 
       /* -- 7c. Reading highlight ------------------------------------------
          One paragraph on the whole site starts dim and takes its colour a
-         word at a time as it crosses the middle of the viewport. Applied to
-         every paragraph this becomes an obstacle; applied once it sets the
-         pace on the sentence that most needs reading. */
+         word at a time. It is split here, but on the home page it is DRIVEN
+         by the journey controller, not by a ScrollTrigger of its own: the
+         paragraph now sits inside the pinned section, and a separate trigger
+         would freeze the moment the pin engaged. */
       const highlight = document.querySelector<HTMLElement>('[data-highlight]');
       if (highlight) {
         const hs = new SplitText(highlight, { type: 'words', wordsClass: 'hl-word' });
-        // 0.5, not the 0.3 this used on a light ground: white dimmed on a dark
-        // field loses contrast far faster than dark ink dimmed on paper. At 0.5
-        // the un-read tail still clears 3:1, which is the bar that applies —
-        // the paragraph is set at 27px and up, so it is large text.
         gsap.set(hs.words, { opacity: 0.5 });
-        gsap.to(hs.words, {
-          opacity: 1, ease: 'none', duration: 1, stagger: 1,
-          scrollTrigger: {
-            trigger: highlight, start: 'top 76%', end: 'bottom 55%',
-            scrub: 0.4, invalidateOnRefresh: true,
-          },
-        });
+        if (!document.querySelector('[data-journey]')) {
+          gsap.to(hs.words, {
+            opacity: 1, ease: 'none', duration: 1, stagger: 1,
+            scrollTrigger: {
+              trigger: highlight, start: 'top 76%', end: 'bottom 55%',
+              scrub: 0.4, invalidateOnRefresh: true,
+            },
+          });
+        }
       }
 
       /* -- 7d. The LNP journey -------------------------------------------

@@ -30,9 +30,9 @@ const C = JOURNEY.colors;
 
 // The figure is authored in its own 400x640 space and placed into the scene,
 // so its proportions are independent of where it sits.
-const BODY_SCALE = 1.24;
-const BODY_X = 930;
-const BODY_Y = 76;
+const BODY_SCALE = 1.30;
+const BODY_X = 400;
+const BODY_Y = 113;
 ---
 
 <svg
@@ -41,12 +41,27 @@ const BODY_Y = 76;
   fill="none"
   aria-hidden="true"
   data-journey-svg
-  preserveAspectRatio="xMidYMid slice"
+  style="overflow: visible;"
+  preserveAspectRatio="xMidYMid meet"
 >
   <defs>
     <radialGradient id="jrn-target-glow">
       <stop offset="0%" stop-color={C.amberBright} stop-opacity="0.5" />
       <stop offset="60%" stop-color={C.amber} stop-opacity="0.12" />
+      <stop offset="100%" stop-color={C.amber} stop-opacity="0" />
+    </radialGradient>
+    <!-- The bloom. A long soft tail: a hard edge would read as a shockwave,
+         and this is meant to read as something settling. -->
+    <!-- A long tail that is fully out by 80%, with nothing left in the last
+         fifth. A glow still carrying visible opacity when it meets the edge of
+         its own element gets cut off square, and a hard rectangle is exactly
+         what a soft glow must never end in. -->
+    <radialGradient id="jrn-bloom">
+      <stop offset="0%" stop-color={C.amberBright} stop-opacity="0.55" />
+      <stop offset="20%" stop-color={C.amber} stop-opacity="0.26" />
+      <stop offset="45%" stop-color={C.amber} stop-opacity="0.09" />
+      <stop offset="68%" stop-color={C.amber} stop-opacity="0.02" />
+      <stop offset="82%" stop-color={C.amber} stop-opacity="0" />
       <stop offset="100%" stop-color={C.amber} stop-opacity="0" />
     </radialGradient>
     <radialGradient id="jrn-pulse-glow">
@@ -91,22 +106,22 @@ const BODY_Y = 76;
       />
       <path
         id="limb-outline"
-        d="M 256 136
-           C 276 146 292 178 300 212
-           C 306 240 314 288 318 322
-           C 320 336 322 348 320 356
-           C 314 360 306 358 303 352
-           C 298 340 294 318 290 296
-           C 284 262 276 222 268 196
-           C 262 176 254 158 248 146 Z
-           M 144 136
-           C 124 146 108 178 100 212
-           C 94 240 86 288 82 322
-           C 80 336 78 348 80 356
-           C 86 360 94 358 97 352
-           C 102 340 106 318 110 296
-           C 116 262 124 222 132 196
-           C 138 176 146 158 152 146 Z
+        d="M 274 152
+           C 290 166 302 194 310 226
+           C 316 252 322 294 325 326
+           C 327 340 328 351 326 358
+           C 320 362 312 360 309 354
+           C 304 342 300 321 296 300
+           C 290 268 284 234 277 208
+           C 272 188 270 168 270 154 Z
+           M 126 152
+           C 110 166 98 194 90 226
+           C 84 252 78 294 75 326
+           C 73 340 72 351 74 358
+           C 80 362 88 360 91 354
+           C 96 342 100 321 104 300
+           C 110 268 116 234 123 208
+           C 128 188 130 168 130 154 Z
            M 252 335
            C 254 385 250 430 247 470
            C 244 512 241 556 240 585
@@ -131,17 +146,25 @@ const BODY_Y = 76;
     <!-- The route, and the progress bar. One path, no subpaths: stage.ts
          samples it into a lookup table at refresh and never touches it again.
          It is never stroked directly — the segments below are what you see. -->
+    <!--
+      A short approach, then in at the upper arm and up through the shoulder
+      into the chest.
+
+      That route is the physiologically right one, which is a happy accident
+      rather than a compromise for the composition: an injection into an arm
+      vein travels the subclavian to the superior vena cava, through the right
+      heart, and the lungs are the FIRST capillary bed it reaches. The earlier
+      version crossed open air from the elbow into the torso, which was simply
+      wrong.
+    -->
     <path
       id="vessel-path"
       data-journey-curve
-      d="M 200 500
-         C 268 452 330 470 392 512
-         C 452 552 508 566 566 534
-         C 624 502 660 428 722 412
-         C 786 396 838 452 890 476
-         C 944 500 992 486 1030 448
-         C 1062 416 1086 372 1104 350
-         C 1118 333 1130 325 1140 320"
+      d="M 350 430
+         C 412 418 462 392 502 352
+         C 520 334 538 314 556 302
+         C 578 286 598 268 618 274
+         C 636 280 646 315 648 348"
       stroke="none"
       fill="none"
     />
@@ -169,8 +192,23 @@ const BODY_Y = 76;
       data-journey-pulse
       cx={tx}
       cy={ty}
-      r="26"
+      r="22"
       fill="url(#jrn-pulse-glow)"
+      opacity="0"
+      style={`transform-origin:${tx}px ${ty}px;transform-box:view-box;`}
+    />
+
+    <!-- The closing beat: a calm glow spreading out from the target across the
+         whole figure. It replaces an earlier ending that pushed the camera
+         back into the particle; this one stays wide, because what it is
+         showing is an effect on the body rather than an event inside a
+         molecule. -->
+    <circle
+      data-journey-bloom
+      cx={tx}
+      cy={ty}
+      r="1"
+      fill="url(#jrn-bloom)"
       opacity="0"
       style={`transform-origin:${tx}px ${ty}px;transform-box:view-box;`}
     />

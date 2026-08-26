@@ -32,14 +32,12 @@ import { registerParticle } from '../../lib/journey-bridge';
 
 interface Manifest {
   section: { count: number };
-  release: { count: number };
   ext: string;
   base: string;
 }
 
 const MANIFEST: Manifest = {
   section: { count: 22 },
-  release: { count: 30 },
   ext: 'webp',
   base: '/journey',
 };
@@ -85,9 +83,8 @@ export default function Nanoparticle() {
     const ctx = canvas.getContext('2d', { alpha: true });
 
     const section: (ImageBitmap | null)[] = new Array(MANIFEST.section.count).fill(null);
-    const release: (ImageBitmap | null)[] = new Array(MANIFEST.release.count).fill(null);
 
-    const load = async (shot: 'section' | 'release', i: number, into: (ImageBitmap | null)[]) => {
+    const load = async (shot: 'section', i: number, into: (ImageBitmap | null)[]) => {
       try {
         const res = await fetch(`${MANIFEST.base}/${shot}_${pad(i)}.${MANIFEST.ext}`);
         if (!res.ok) return;
@@ -106,7 +103,6 @@ export default function Nanoparticle() {
       await load('section', 0, section);
       const rest: Promise<void>[] = [];
       for (let i = 1; i < MANIFEST.section.count; i++) rest.push(load('section', i, section));
-      for (let i = 0; i < MANIFEST.release.count; i++) rest.push(load('release', i, release));
       await Promise.all(rest);
     })();
 
@@ -158,21 +154,12 @@ export default function Nanoparticle() {
 
       if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (!f || have.r <= 0.5) return;
+      if (!f || have.r <= 0.5 || f.lnpOpacity <= 0.002) return;
+      ctx.globalAlpha = f.lnpOpacity;
 
-      // The release takes over exactly where the shell starts to part. Before
-      // that, the section sequence closes across the pull-back and then holds
-      // on its last frame — the closed particle — for the whole journey. Both
-      // sequences are the same object at the same framing, so the swap is
-      // invisible.
-      const open = f.lnpOpen;
-      let bmp: ImageBitmap | null;
-      if (open > 0.001) {
-        bmp = pick(release, Math.round(open * (MANIFEST.release.count - 1)));
-      } else {
-        const close = Math.min(1, f.p / Math.max(1e-6, TUNING.shots.pullBack[1]));
-        bmp = pick(section, Math.round(close * (MANIFEST.section.count - 1)));
-      }
+      // The whole sequence maps onto one number: how far the cut has closed.
+      // It holds on the last frame for the rest of the journey.
+      const bmp = pick(section, Math.round(f.lnpClose * (MANIFEST.section.count - 1)));
       if (!bmp) return;
 
       // A glow behind the particle, weighted toward small sizes. Through the
@@ -188,7 +175,10 @@ export default function Nanoparticle() {
           have.x * dpr, have.y * dpr, gr * dpr,
         );
         g.addColorStop(0, `rgba(255,205,140,${(0.34 * small).toFixed(3)})`);
-        g.addColorStop(0.45, `rgba(242,160,61,${(0.16 * small).toFixed(3)})`);
+        g.addColorStop(0.4, `rgba(242,160,61,${(0.14 * small).toFixed(3)})`);
+        // Out well before the edge of the gradient, so if the glow ever does
+        // reach the edge of the canvas there is nothing left to clip.
+        g.addColorStop(0.78, 'rgba(242,160,61,0.01)');
         g.addColorStop(1, 'rgba(242,160,61,0)');
         ctx.fillStyle = g;
         ctx.fillRect(
@@ -206,6 +196,7 @@ export default function Nanoparticle() {
         box * dpr,
         box * dpr,
       );
+      ctx.globalAlpha = 1;
     };
 
     const start = () => { if (!running) { running = true; raf = requestAnimationFrame(draw); } };
@@ -228,7 +219,6 @@ export default function Nanoparticle() {
       ro.disconnect();
       unregister();
       for (const b of section) b?.close();
-      for (const b of release) b?.close();
       canvas.remove();
     };
   }, [ok, near]);

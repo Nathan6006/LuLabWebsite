@@ -174,7 +174,27 @@ used "with both MRI and PET" and do not name a chelate.
 the Center's own Molecular Imaging page. Confirm that is still the right word
 for the current work.
 
-### 4.0a The home page animation below the mission statement
+### 4.0a-0 The mission statement lost a sentence
+Dr. Lu's paragraph on the home page now reads:
+
+> Our goal is to design and develop simple and smart biomolecules to target
+> specific biological signatures for accurate detection and effective treatment
+> of diseases.
+
+The original was:
+
+> To accomplish this, we aim to mine signatures that are reflections of the
+> tumor microenvironment, cellular or subcellular processes in the diseases.
+> Further, our goal is to design and develop simple and smart biomolecules to
+> target specific biological signatures for accurate detection and effective
+> treatment of diseases.
+
+The first sentence was cut so the statement sits alongside the animation.
+"Further," was left dangling by that cut and was dropped with it. **Both are
+edits to Dr. Lu's own words** — restoring either is a one-line change to
+`SITE.missionExtended`.
+
+### 4.0a The home page animation beside the mission statement
 A scroll-driven, pinned sequence: a lipid nanoparticle fills the frame, the
 camera pulls back until it is a point of light inside a human figure, the point
 travels to a target site, and the camera pushes back in as the cargo is
@@ -194,6 +214,14 @@ that you may still want to change:
   torso with no organ under it and no caption. Nothing identifies it, so
   nothing is claimed. If you would rather it were specifically the liver, or a
   tumour site, that becomes a factual statement and needs your say-so.
+- **The animation no longer shows the cargo.** It used to end by zooming back
+  into the particle so the shell could part and an mRNA strand emerge. It now
+  ends on a glow spreading over the figure, which reads as an effect on the
+  patient rather than an event inside a molecule. The consequence: on a page
+  about nucleic acid delivery, the animation never depicts nucleic acid. That
+  was a deliberate call, and it is reversible — the Blender scene still builds
+  the strand, it is simply not rendered into a sequence any more.
+
 - **The particle is schematic.** It is now rendered in Blender rather than
   drawn in the browser, which makes it look considerably more like a real
   electron-microscope-style depiction — and that raises the stakes. It shows a

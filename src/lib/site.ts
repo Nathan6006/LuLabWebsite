@@ -12,8 +12,12 @@ export const SITE = {
     'Nanoplatforms for nucleic acid therapeutics and novel imaging agents for cancer and cardiovascular disease.',
   mission:
     'Case Center for Biomolecular Engineering seeks to develop cutting edge nanoplatforms for delivering nucleic acid therapeutics, and novel imaging agents to enable clinicians to better detect and alleviate the mortality and morbidity of life impairing or threatening diseases, including cancer.',
+  // The opening sentence of Dr. Lu's original paragraph was cut so the
+  // statement sits alongside the animation. "Further," was left dangling by
+  // that cut and has been dropped — a grammatical consequence of the edit, not
+  // a change of meaning. The full original is in TODO.md.
   missionExtended:
-    'To accomplish this, we aim to mine signatures that are reflections of the tumor microenvironment, cellular or subcellular processes in the diseases. Further, our goal is to design and develop simple and smart biomolecules to target specific biological signatures for accurate detection and effective treatment of diseases.',
+    'Our goal is to design and develop simple and smart biomolecules to target specific biological signatures for accurate detection and effective treatment of diseases.',
   videoId: 'ZuBWCxyAuM0',
   scholar:
     'https://scholar.google.com/citations?hl=en&user=hO6xhakAAAAJ&view_op=list_works&sortby=pubdate',

@@ -3,7 +3,10 @@ import { getCollection } from 'astro:content';
 import { ArrowRight } from 'lucide-react';
 import Base from '../layouts/Base.astro';
 import HeroScene from '../components/HeroScene.astro';
-import JourneySection from '../components/journey/JourneySection.astro';
+// Aliased: `Nanoparticle` is already the static render on the research card.
+import JourneyParticle from '../components/journey/Nanoparticle.tsx';
+import BodyScaffold from '../components/journey/BodyScaffold.astro';
+import { JOURNEY } from '../lib/journey';
 import RevealImage from '../components/RevealImage.astro';
 import Nanoparticle from '../components/Nanoparticle.astro';
 import AuroraField from '../components/AuroraField.tsx';
@@ -63,57 +66,97 @@ const CARD_RENDER = '01-nucleic-acid-therapies';
     </div>
   </section>
 
-  <!-- Approach. The mission statement sits ON the shader rather than above it:
-       a full-width field of CWRU blue with light moving slowly through it.
-       Atmosphere only, one fragment shader, and the cheapest thing on the page.
+  <!-- Approach, and the journey.
+       The mission statement and the nanoparticle animation share one section
+       and one ground: the shader field is behind both, the statement reads
+       down the left, and the animation runs in the column beside it. They were
+       two stacked full-height sections before, which left the animation
+       sitting on its own with nothing to be about.
 
-       The CSS gradient below is not a placeholder — it is what ships without
-       WebGL, and it is what the canvas fades up over. The section is legible
-       with the canvas removed entirely.
-
-       This is also the one paragraph on the site that is read a word at a time:
-       it starts dim and each word takes its full colour as the paragraph
-       crosses the middle of the viewport. Used once, deliberately. -->
+       The section pins and the animation is scrubbed. Below 1024px and under
+       reduced motion it does neither: the two simply stack. -->
   <section
     id="approach"
-    class="relative isolate scroll-mt-24 overflow-hidden bg-cwru-dark"
+    class="journey relative isolate scroll-mt-24 overflow-hidden bg-cwru-dark"
+    data-journey
+    aria-labelledby="journey-heading"
   >
+    <h2 id="journey-heading" class="sr-only">Nanoparticle delivery animation</h2>
+
     <div
-      class="absolute inset-0"
-      aria-hidden="true"
-      style="background:radial-gradient(120% 90% at 78% 30%, #0d4a86 0%, #072a5c 38%, #09143a 72%, #060f2c 100%);"
+      class="journey-stage relative isolate flex min-h-[100svh] items-center overflow-hidden"
+      data-journey-stage
     >
-    </div>
-    <AuroraField client:idle />
+      <!-- The ground the shader fades up over, and what the animation reads
+           against. It barely moves: a full inversion mid-animation is exactly
+           the kind of hard cut this section exists without. -->
+      <div
+        class="absolute inset-0"
+        aria-hidden="true"
+        data-journey-ground
+        style={`background-color:${JOURNEY.colors.navy};`}
+      >
+      </div>
+      <div
+        class="absolute inset-0"
+        aria-hidden="true"
+        style="background:radial-gradient(120% 90% at 78% 30%, #0d4a86 0%, #072a5c 38%, #09143a 72%, #060f2c 100%); opacity:0.85;"
+      >
+      </div>
+      <AuroraField client:idle />
 
-    <!-- The type reads across the left of the field. The shader already holds
-         that side down; this is the belt to its braces, and it is what keeps
-         the contrast steady while the field moves underneath. -->
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-      <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark/80 via-cwru-dark/45 to-transparent"></div>
-    </div>
+      <!-- The type reads across the left of the field. The shader already
+           holds that side down; this keeps contrast steady while it moves. -->
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute inset-0 bg-gradient-to-r from-cwru-dark/80 via-cwru-dark/40 to-transparent"></div>
+      </div>
 
-    <div class="relative mx-auto max-w-[78rem] px-5 py-28 sm:px-8 sm:py-40">
-      <div class="grid gap-x-12 gap-y-8 lg:grid-cols-[11rem_minmax(0,1fr)]">
-        <SectionHead label="Approach" index="01" tone="light" />
-        <div>
+      <div class="relative mx-auto grid w-full max-w-[78rem] items-center gap-x-10 px-5 py-20 sm:px-8 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)]">
+        <div class="grid gap-x-12 gap-y-8 sm:grid-cols-[7rem_minmax(0,1fr)] lg:grid-cols-1">
+          <SectionHead label="Approach" index="01" tone="light" class="lg:!flex-row lg:!items-baseline lg:!gap-3" />
           <p
-            class="max-w-[30ch] font-serif text-[1.72rem] font-[420] leading-[1.3] tracking-[-0.018em] text-white sm:text-[2.25rem]"
+            class="max-w-[32ch] font-serif text-[1.6rem] font-[420] leading-[1.3] tracking-[-0.018em] text-white sm:text-[2rem]"
             data-highlight
             data-aurora-focus
           >
             {SITE.missionExtended}
           </p>
         </div>
+
+        <!-- The scene: curve, body and trail, with the rendered particle
+             composited over it. Both share one box, because the controller
+             projects the particle's place on the curve through this element's
+             rect — if the boxes differed the particle would sit off the line
+             it is travelling. -->
+        <div class="relative mt-14 aspect-square w-full lg:mt-0" aria-hidden="true">
+          <div class="absolute inset-0" data-journey-canvas>
+            <JourneyParticle client:idle={{ timeout: 800 }} />
+          </div>
+          <div class="absolute inset-0">
+            <BodyScaffold />
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- The signature moment: pinned, scrubbed. A particle fills the frame, the
-       camera pulls back until it is a point of light inside a body, the point
-       travels to a target site, and the camera pushes back in as the cargo is
-       released. Decorative — it carries no labels and makes no claims. -->
-  <JourneySection />
+  <script is:inline define:vars={{ gate: JOURNEY.gatePx }}>
+    /* Synchronous, so the shipped static composition is swapped for the
+       animated pre-state before this section is painted rather than after. If
+       the controller never reports in, this puts the static frame back. */
+    (function () {
+      var el = document.querySelector('[data-journey]');
+      if (!el) return;
+      var ok =
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        window.matchMedia('(min-width: ' + gate + 'px)').matches;
+      if (!ok) return;
+      el.classList.add('is-animated');
+      setTimeout(function () {
+        if (!el.classList.contains('is-live')) el.classList.remove('is-animated');
+      }, 3000);
+    })();
+  </script>
 
   <!-- Research areas -->
   <section class="border-y border-rule bg-warm">

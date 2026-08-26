@@ -34,41 +34,47 @@ export const JOURNEY = {
   gatePx: 1024,
 
   shots: {
-    /** Camera holds tight on the particle while it turns. */
-    hold: [0.0, 0.2],
-    /** Camera pulls back and pans right. */
-    pullBack: [0.2, 0.44],
+    /**
+     * Resistance. Nothing advances; the scene only tightens, so there is a
+     * beat to take in the cross-section before it closes. The strain is the
+     * cue that scrolling is registering.
+     */
+    strain: [0.0, 0.11],
+    /**
+     * The cut closes. Deliberately short: with a fixed 22 frames, the fewer
+     * pixels of scroll they are spread over the more frames land per pixel,
+     * and the smoother the close reads. Stretched out it stepped visibly.
+     */
+    close: [0.11, 0.21],
+    /** Camera pulls back; the particle shrinks toward a point of light. */
+    shrink: [0.19, 0.40],
     /** The curve draws itself in ahead of the particle. */
-    curveDraw: [0.0, 0.38],
+    curveDraw: [0.16, 0.42],
     /** The body appears from nothing. */
-    bodyFade: [0.3, 0.44],
+    bodyFade: [0.24, 0.40],
     /** The silhouette draws itself once it is there. */
-    bodyDraw: [0.33, 0.47],
+    bodyDraw: [0.26, 0.42],
     /** Limbs follow. */
-    limbDraw: [0.37, 0.51],
-    /** The particle travels the curve. */
-    travel: [0.46, 0.76],
-    /** Arrival: it settles rather than stopping dead. */
-    arrival: [0.76, 0.84],
-    /** One pulse at the target. Never repeated. */
-    pulse: [0.78, 0.88],
-    /** Camera pushes all the way back in. */
-    pushIn: [0.84, 1.0],
-    /** The shell opens. */
-    open: [0.88, 1.0],
-    /** The strand unspools. */
-    unspool: [0.9, 1.0],
-    /** Body and curve recede as the camera comes in. */
-    sceneOut: [0.86, 0.98],
+    limbDraw: [0.30, 0.46],
+    /** The point travels: a short approach, then in at the upper arm. */
+    travel: [0.42, 0.74],
+    /** Arrival. It settles rather than stopping dead. */
+    arrival: [0.74, 0.80],
+    /** A second beat of resistance, before the release. */
+    settle: [0.74, 0.84],
+    /** The bloom: a calm glow spreading out over the figure. */
+    bloom: [0.84, 1.0],
     /** Ground lifts, very slightly. Not an inversion — see the spec. */
-    groundLift: [0.24, 0.44],
+    groundLift: [0.20, 0.40],
   },
 
   camera: {
     /** Zoom on the opening frame. 1 is the whole scene in view. */
-    zoomIn: 5.8,
-    /** Zoom on the closing frame. The two are deliberately close. */
-    zoomOut: 5.8,
+    zoomIn: 4.6,
+    /** Zoom held from the travel onward. The camera no longer pushes back in
+        at the end: the closing beat is a bloom over the whole figure, and it
+        has to be able to see the whole figure. */
+    zoomOut: 1.0,
     /** Zoom while the particle is travelling. */
     zoomWide: 1.0,
     /**
@@ -91,8 +97,13 @@ export const JOURNEY = {
   particle: {
     /** Radius in scene units at zoom 1. */
     radius: 46,
-    /** Extra shrink applied across the pull-back, on top of the camera. */
-    shrink: 0.62,
+    /** How small the particle gets by the time it reaches the body, on top of
+        what the camera pull-back already does. It arrives as a point of
+        light, not a small sphere. */
+    shrink: 0.09,
+    /** How far the scene compresses during a resistance beat. Small on
+        purpose — it should register as tension, not as movement. */
+    strain: 0.022,
     /** Idle turn, radians per second. The only time term in the system. */
     idleSpin: 0.06,
     /** Turn driven by scroll, radians across the whole section. */
@@ -145,12 +156,25 @@ export const JOURNEY = {
     amberBright: '#ffd9a0',
   },
 
-  /** The scene, in viewBox units. Everything is authored in this space. */
+  /** The scene, in viewBox units. Roughly square now: the section shares a
+      row with the mission statement rather than running full-bleed. */
   geometry: {
-    viewBox: [1600, 900],
+    viewBox: [1000, 1000],
     /** Where the particle starts, and where it ends up. */
-    start: [200, 500],
-    target: [1140, 320],
+    start: [350, 430],
+    target: [648, 348],
+  },
+
+  bloom: {
+    /** Radius the glow reaches, in scene units — comfortably more than the
+        height of the figure, so it washes over all of it rather than sitting
+        on the chest as a patch. */
+    radius: 560,
+    opacity: 0.95,
+    /** How much the silhouette itself brightens as the bloom passes. The
+        point of the beat is an effect on the body, so the body has to be
+        visibly affected. */
+    bodyLift: 1.3,
   },
 };
 
@@ -217,37 +241,27 @@ export function cameraAt(
   const c = cfg.camera;
   const [vw, vh] = cfg.geometry.viewBox;
   const [sx, sy] = cfg.geometry.start;
-  const [tx, ty] = cfg.geometry.target;
   const q = clamp01(p);
 
   const cx = vw / 2;
   const cy = vh / 2;
 
-  // Leg 1 — tight on the particle, pulling back to the whole scene.
-  const out = easeInOut(span(q, s.pullBack));
+  // One move: tight on the particle, pulling back to the whole scene, and
+  // staying there. The camera does not push back in at the end any more —
+  // the closing beat is a bloom across the whole figure, which it has to be
+  // able to see.
+  const out = easeInOut(span(q, s.shrink));
   let x = mix(sx, cx, out);
   let y = mix(sy, cy, out);
-  let zoom = mix(c.zoomIn, c.zoomWide, out);
+  const zoom = mix(c.zoomIn, c.zoomWide, out);
 
-  // Leg 2 — a little drift toward the particle while it travels, so the frame
-  // is not dead still through the middle.
-  //
-  // Ramped by `out` rather than switched on at out >= 1. Gating it meant the
-  // follow appeared in a single frame, moving the camera ~130 scene units
-  // between two adjacent progress values — a visible jolt exactly where the
-  // pull-back was supposed to be settling.
+  // A little drift toward the point while it travels, so the frame is not
+  // dead still through the middle. Ramped by `out`: gated at out >= 1 it
+  // appeared in a single frame and jolted the camera ~130 scene units.
   if (onCurve) {
     const k = c.follow * out;
     x = mix(x, onCurve.x, k);
     y = mix(y, onCurve.y, k);
-  }
-
-  // Leg 3 — push back in, onto the target.
-  const back = easeInOut(span(q, s.pushIn));
-  if (back > 0) {
-    x = mix(x, tx, back);
-    y = mix(y, ty, back);
-    zoom = mix(zoom, c.zoomOut, back);
   }
 
   return { x, y, zoom };
@@ -267,8 +281,8 @@ export interface JourneyFrame {
   /** Multiplier on the particle's scene radius. */
   lnpScale: number;
   lnpOpacity: number;
-  lnpOpen: number;
-  lnpStrand: number;
+  /** How far the cross-section has closed. Drives the frame sequence. */
+  lnpClose: number;
   /** Turn from scroll alone, radians. */
   lnpSpin: number;
   /** How much of the curve exists yet. */
@@ -277,6 +291,10 @@ export interface JourneyFrame {
   bodyDraw: number;
   limbDraw: number;
   sceneOpacity: number;
+  /** Resistance: the scene tightens without advancing. */
+  strain: number;
+  /** The closing glow, spreading over the figure. */
+  bloom: number;
   pulse: number;
 }
 
@@ -301,48 +319,53 @@ export function computeFrame(
   const q = clamp01(p);
 
   const travel = travelCurve(span(q, s.travel), cfg);
-  const push = easeInOut(span(q, s.pushIn));
-  const out = easeInOut(span(q, s.pullBack));
-
+  const out = easeInOut(span(q, s.shrink));
   const camera = cameraAt(q, cfg, curvePoint?.(travel));
 
-  // The particle shrinks a little further than the camera alone would take it,
-  // and comes back exactly as far on the way in, so both bookends land on the
-  // same apparent size.
-  const shrink = Math.max(0.01, cfg.particle.shrink);
+  // Two resistance beats: before the cut closes, and before the bloom. Each
+  // builds as its window fills and releases the moment the thing it was
+  // holding back begins.
+  const strainA = easeInQuad(span(q, s.strain)) * (1 - span(q, s.close));
+  const strainB = easeInQuad(span(q, s.settle)) * (1 - span(q, s.bloom));
 
   return {
     p: q,
     camera,
     svgCamera: damp(camera, cfg),
-    groundMix: easeInOut(span(q, s.groundLift)) * (1 - easeInOut(span(q, s.sceneOut))),
+    groundMix: easeInOut(span(q, s.groundLift)),
     lnpDistance: travel,
-    lnpScale: mix(1, shrink, out) * mix(1, 1 / shrink, push),
-    lnpOpacity: 1,
-    lnpOpen: easeOutQuart(span(q, s.open)),
-    lnpStrand: easeOutQuart(span(q, s.unspool)),
+    // Shrinks to a point of light by the time it reaches the body, and stays
+    // one. There is no push back in.
+    lnpScale: mix(1, cfg.particle.shrink, out),
+    // Gone early: the bloom is the subject of the closing beat, and a bright
+    // dot still sitting at its centre reads as two things happening.
+    lnpOpacity: 1 - easeOutQuart(span(q, [s.bloom[0], s.bloom[0] + 0.06])),
+    lnpClose: easeOutQuart(span(q, s.close)),
     lnpSpin: cfg.particle.spin * easeOutQuart(q),
     curveDraw: easeOutQuart(span(q, s.curveDraw)),
-    bodyOpacity: easeOutQuart(span(q, s.bodyFade)) * (1 - easeInOut(span(q, s.sceneOut))),
+    bodyOpacity: easeOutQuart(span(q, s.bodyFade)),
     bodyDraw: easeOutQuart(span(q, s.bodyDraw)),
     limbDraw: easeOutQuart(span(q, s.limbDraw)),
-    sceneOpacity: 1 - easeInOut(span(q, s.sceneOut)),
-    pulse: bell(span(q, s.pulse)),
+    sceneOpacity: 1,
+    strain: Math.max(strainA, strainB) * cfg.particle.strain,
+    bloom: easeOutQuart(span(q, s.bloom)),
+    pulse: bell(span(q, s.arrival)),
   };
 }
 
 /** The composition shown with no script, under reduced motion, and below the
     gate: the whole scene at rest, curve filled, particle at the target. */
 export const STATIC_FRAME: JourneyFrame = {
-  ...computeFrame(0.8),
-  camera: { x: 800, y: 450, zoom: 1 },
-  svgCamera: { x: 800, y: 450, zoom: 1 },
+  ...computeFrame(0.78),
+  camera: { x: 500, y: 500, zoom: 1 },
+  svgCamera: { x: 500, y: 500, zoom: 1 },
   groundMix: 1,
   lnpDistance: 1,
-  lnpScale: 1,
   bodyOpacity: 1,
   bodyDraw: 1,
   limbDraw: 1,
   sceneOpacity: 1,
+  strain: 0,
+  bloom: 0,
   pulse: 0,
 };

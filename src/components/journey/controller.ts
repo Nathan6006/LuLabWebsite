@@ -42,6 +42,13 @@ export function initJourney(ScrollTrigger: any): JourneyHandles | null {
   const stage = createStage(section, cfg);
   if (!stage) return null;
 
+  // The mission statement shares this section, so the word-by-word highlight
+  // is inside the pinned element: its own ScrollTrigger would stop advancing
+  // the moment the pin engaged. It runs off the pinned progress instead, over
+  // the opening beats, so it is read before the journey gets going.
+  const words = Array.from(section.querySelectorAll<HTMLElement>('.hl-word'));
+  const readWindow = [0.02, 0.34];
+
   // Flips the SVG out of its shipped final-frame state and into the animated
   // one. Only ever set once everything above has been confirmed.
   section.classList.add('is-animated');
@@ -54,6 +61,16 @@ export function initJourney(ScrollTrigger: any): JourneyHandles | null {
     lastP = p;
     const frame: JourneyFrame = computeFrame(p, cfg, (t) => stage.pointAt(t));
     stage.apply(frame);
+
+    if (words.length) {
+      const t = Math.min(1, Math.max(0, (p - readWindow[0]) / (readWindow[1] - readWindow[0])));
+      const head = t * words.length;
+      for (let i = 0; i < words.length; i++) {
+        // 0.5, not lower: white dimmed on a dark field loses contrast far
+        // faster than dark ink on paper, and the tail still has to clear 3:1.
+        words[i].style.opacity = String(0.5 + 0.5 * Math.min(1, Math.max(0, head - i)));
+      }
+    }
 
     const particle = getParticle();
     if (particle) {

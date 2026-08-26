@@ -16,8 +16,10 @@
  */
 import {
   TUNING,
+  bell,
   clamp01,
   easeOutQuart,
+  smoothstep,
   type Camera,
   type JourneyFrame,
   type Tuning,
@@ -64,8 +66,9 @@ export function createStage(root: HTMLElement, cfg: Tuning = TUNING): Stage | nu
   const curve = svg.querySelector<SVGPathElement>('[data-journey-curve]');
   const trailGroup = svg.querySelector<SVGGElement>('[data-journey-trail]');
   const pulse = svg.querySelector<SVGCircleElement>('[data-journey-pulse]');
+  const bloom = svg.querySelector<SVGCircleElement>('[data-journey-bloom]');
   const target = svg.querySelector<SVGGElement>('[data-journey-target]');
-  if (!cameraGroup || !bodyGroup || !body || !limbs || !curve || !trailGroup || !pulse || !target) {
+  if (!cameraGroup || !bodyGroup || !body || !limbs || !curve || !trailGroup || !pulse || !bloom || !target) {
     return null;
   }
 
@@ -165,12 +168,25 @@ export function createStage(root: HTMLElement, cfg: Tuning = TUNING): Stage | nu
     const T = cfg.trail;
 
     ground.style.backgroundColor = mixHex(C.navy, C.navyLift, frame.groundMix);
-    cameraGroup.setAttribute('transform', transformFor(frame.svgCamera));
+
+    // Resistance: the whole scene tightens a little without advancing, so a
+    // held beat still registers as scrolling rather than as a stall.
+    const squeeze = 1 - frame.strain;
+    cameraGroup.setAttribute(
+      'transform',
+      `${transformFor(frame.svgCamera)} translate(${(vw / 2).toFixed(1)} ${(vh / 2).toFixed(1)}) scale(${squeeze.toFixed(4)}) translate(${(-vw / 2).toFixed(1)} ${(-vh / 2).toFixed(1)})`,
+    );
 
     // Draw-in. One dash the length of the whole stroke, pulled back into view.
     body.style.strokeDashoffset = String(bodyLen * (1 - frame.bodyDraw));
     limbs.style.strokeDashoffset = String(limbLen * (1 - frame.limbDraw));
     bodyGroup.style.opacity = String(frame.bodyOpacity);
+    // The figure lifts as the bloom washes over it — the point of the beat is
+    // an effect on the body, so the body has to respond to it.
+    bodyGroup.setAttribute(
+      'stroke-opacity',
+      String(Number(C.lineOpacity) * (1 + cfg.bloom.bodyLift * smoothstep(clamp01(frame.bloom / 0.22)) * (1 - 0.3 * frame.bloom))),
+    );
 
     // The curve is the progress bar. Ahead of the particle it sits dim; behind
     // it, it lights and settles back — by distance behind, not elapsed time,
@@ -206,6 +222,17 @@ export function createStage(root: HTMLElement, cfg: Tuning = TUNING): Stage | nu
     const grow = 1 + (cfg.pulse.scale - 1) * (1 - Math.pow(1 - frame.pulse, 2));
     pulse.style.transform = `scale(${grow.toFixed(3)})`;
     pulse.style.opacity = (frame.pulse * cfg.pulse.opacity * frame.sceneOpacity).toFixed(3);
+
+    // The bloom. Radius and opacity are on SEPARATE curves on purpose: tying
+    // opacity to a bell meant it peaked a third of the way in and was gone by
+    // the time the animation came to rest, so the closing frame — the one a
+    // reader actually stops on — was empty. It rises quickly, then holds with
+    // only a gentle taper as it spreads.
+    const r = cfg.bloom.radius * frame.bloom;
+    const rise = smoothstep(clamp01(frame.bloom / 0.22));
+    const hold = rise * (1 - 0.3 * frame.bloom);
+    bloom.style.transform = `scale(${Math.max(0.001, r).toFixed(2)})`;
+    bloom.style.opacity = (hold * cfg.bloom.opacity).toFixed(3);
   };
 
   measure();

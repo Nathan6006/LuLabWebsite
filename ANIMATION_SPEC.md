@@ -34,30 +34,48 @@ Scrolling backward reverses the animation exactly. There is no autoplay
 anywhere, and nothing structural is on a timer: every visual property is a pure
 function of a single `progress` value from 0 to 1.
 
-## Shot list
+## Placement
 
-Percentages are `progress` through the pinned section. Ranges are allowed to
-overlap and each is normalised independently; all of them live in
-`JOURNEY.shots` in `src/lib/journey.ts`.
+The section shares a row with the mission statement: the statement reads down
+the left, the animation runs in the column beside it, and one shader field sits
+behind both. They were two stacked full-height sections before, which left the
+animation on its own with nothing to be about.
+
+Dr. Lu's paragraph lost its opening sentence so it fits the column. "Further,"
+was left dangling by that cut and went with it — a grammatical consequence, not
+a change of meaning. The original is recorded in TODO.md.
+
+Pinned distance: **1.8 viewport heights**, `scrub: 0.6`.
+
+## Shot list
 
 | Range | What happens |
 |---|---|
-| 0–20% | Particle fills ~72% of frame height against dark navy, turning. |
-| 20–35% | Camera pulls back. The particle shrinks toward the injection site and becomes a point of light. |
-| 22–32% | The particle fades out — finishing **before** the ground has lifted. |
-| 25–40% | Ground inverts, dark navy through a blue waypoint to warm off-white. |
-| 35–43% | The silhouette draws itself: head and torso, one continuous stroke. |
-| 39–47% | Limbs follow. |
-| 45–75% | The point travels the vessel path. Fast through the trunk, decelerating hard on approach. |
-| 75–85% | Arrival. The point settles rather than stopping dead. |
-| 78–88% | One pulse at the target. Once. |
-| 85–100% | Camera pushes back in. The point resolves into the particle. |
-| 90–100% | The particle opens and the strand unspools. Holds on this frame. |
-| 86–95% | Ground returns to dark navy. |
-| 85–95% | The silhouette recedes. |
+| 0–11% | Resistance. Nothing advances; the scene tightens. A beat to take in the cross-section, and a cue that scrolling is registering. |
+| 11–21% | The cut closes. Deliberately short — see below. |
+| 19–40% | Camera pulls back; the particle shrinks to 2% of its opening size. |
+| 16–42% | The curve draws in ahead of it. |
+| 24–46% | The body appears from nothing and draws itself. |
+| 42–74% | The point travels: a short approach, in at the upper arm, through the shoulder into the chest. |
+| 74–84% | Arrival, and a second beat of resistance. |
+| 84–100% | The bloom: a calm glow spreading over the figure, which brightens under it. Holds. |
 
-The opening and closing camera scales are the **same constant**, reached from
-opposite directions. Measured drift: 0.00%.
+**Why the close is short.** With a fixed 22 frames, the fewer pixels of scroll
+they are spread across the more frames land per pixel — so a fast close reads
+*smoother*, not rougher. Stretched over a longer window it stepped visibly.
+
+**The route is physiologically right**, which is a happy accident rather than a
+compromise for the composition: an injection into an arm vein travels the
+subclavian to the superior vena cava, through the right heart, and the lungs
+are the first capillary bed it reaches. The previous version crossed open air
+from the elbow into the torso, which was simply wrong.
+
+**There is no mRNA reveal.** The animation used to end by pushing the camera
+back into the particle so the shell could part and a strand emerge. It now ends
+on the bloom, which is a wider shot and needs no particle detail — so the
+release sequence was deleted, taking the payload from 3.75MB to 1.7MB. The
+consequence worth knowing: the animation no longer depicts nucleic acid cargo
+at all, on a page about nucleic acid delivery.
 
 ## Architecture
 
@@ -298,13 +316,33 @@ Measured on the production build (`astro preview`), real GPU.
 | 3 | No timers, nothing independent of scroll | **PASS** — parked 4s unchanged |
 | 4 | Unpins cleanly, no jump at either boundary | **PASS** — CLS 0.000 over four passes |
 | 5 | Reduced-motion path has no pin and no WebGL | **PASS** |
-| 6 | Lighthouse above 90 | **PASS** — 99 / 97 / 99, TBT 0–40ms, LCP 0.7–0.9s |
+| 6 | Lighthouse above 90 | **PASS** — 99 / 100 / 100 / 99 / 100, TBT 0ms, LCP 0.7–0.9s |
 | 7 | All tunable values in one constants object | **PASS** — `JOURNEY`, 125 live controls under `?debug` |
 
-Also verified: the particle sits **2px** off its own curve across the travel;
+Also verified: the particle sits **1px** off its own curve across the travel;
 the camera is continuous (largest change-in-step 2.1% of the largest step);
-frames total **3.75MB**, fetched only on approach, with no JS heap growth
-(3.0MB → 4.2MB); the page renders and scrolls with JavaScript disabled.
+frames total **1.7MB**, fetched only on approach; the page renders and scrolls
+with JavaScript disabled.
+
+### Five ways to measure the particle's position wrongly
+
+The check that the particle sits on its own curve failed five times before it
+passed, and every failure was the harness, not the animation. Recorded because
+each one looked exactly like a real 100–400px positioning bug:
+
+1. The **fixed page header** sits over the pinned stage and is the brightest
+   thing in frame.
+2. Puppeteer's screenshot `clip` is in PAGE coordinates, so a viewport-relative
+   rect thousands of pixels down the document captures the hero instead.
+3. The **aurora shader** shares this section and is far brighter than a dot.
+4. The **CSS radial gradient** behind the section has its hot spot at 78%/30%,
+   which produced a convincingly constant "position".
+5. A **difference image fixes all of the above — but only if everything else is
+   static**, and the shader animates continuously. It has to be hidden in both
+   captures, not just one.
+
+The measurement that works: hide the shader, capture with the particle canvas
+hidden and then shown, and take the centroid of what changed.
 
 **Not asserted:** that `ogl` is absent below the gate. It is not this section's
 to gate — the hero particle field and the mission shader both import it
